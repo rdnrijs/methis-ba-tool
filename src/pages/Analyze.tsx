@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import APIKeyForm from '@/components/APIKeyForm';
 import RequestInput from '@/components/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
+import PromptConfig from '@/components/PromptConfig';
 import { analyzeRequirements, RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
 import { getApiKey } from '@/utils/storageUtils';
 import { toast } from "sonner";
@@ -61,7 +62,10 @@ const Analyze = () => {
         
         {isConfigured && !analysisResult && (
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-3xl font-medium text-center mb-8">Analyze Client Requirements</h1>
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-medium">Analyze Client Requirements</h1>
+              <PromptConfig />
+            </div>
             <p className="text-center text-muted-foreground mb-8">
               Enter a client request to automatically decompose it into structured requirements
             </p>
@@ -76,12 +80,15 @@ const Analyze = () => {
           <div>
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-3xl font-medium">Requirements Analysis</h1>
-              <button 
-                onClick={resetAnalysis}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Analyze another request
-              </button>
+              <div className="flex gap-4">
+                <PromptConfig />
+                <button 
+                  onClick={resetAnalysis}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Analyze another request
+                </button>
+              </div>
             </div>
             <RequirementResults 
               result={analysisResult}

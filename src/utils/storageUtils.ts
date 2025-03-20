@@ -1,4 +1,3 @@
-
 // Basic secure storage utils (client-side only)
 // For a production app, consider more secure options
 
@@ -84,4 +83,13 @@ export const storeSelectedModel = (model: string): void => {
 // Get the selected OpenAI model
 export const getSelectedModel = (): string => {
   return localStorage.getItem('openai_model') || 'gpt-4o';
+};
+
+// Custom prompt storage
+export const getCustomPrompt = () => {
+  return localStorage.getItem('openai-custom-prompt');
+};
+
+export const saveCustomPrompt = (prompt: string) => {
+  localStorage.setItem('openai-custom-prompt', prompt);
 };

@@ -1,5 +1,5 @@
 
-import { getApiKey, getSelectedModel } from './storageUtils';
+import { getApiKey, getSelectedModel, getCustomPrompt } from './storageUtils';
 
 export interface RequirementAnalysisResult {
   functionalRequirements: string[];
@@ -45,7 +45,8 @@ export const estimateCost = (inputTokens: number, outputTokens: number, model = 
   return inputCost + outputCost;
 };
 
-const systemPrompt = `You are an expert business analyst specializing in requirements analysis. 
+// Default system prompt
+export const DEFAULT_SYSTEM_PROMPT = `You are an expert business analyst specializing in requirements analysis. 
 Your task is to analyze client requests and break them down into structured requirements.
 Analyze the client request provided and return a JSON response with the following structure:
 
@@ -70,6 +71,7 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
   }
   
   const model = getSelectedModel();
+  const customPrompt = getCustomPrompt() || DEFAULT_SYSTEM_PROMPT;
   
   let fullPrompt = clientRequest;
   if (additionalContext && additionalContext.trim() !== '') {
@@ -86,7 +88,7 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
       body: JSON.stringify({
         model,
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: customPrompt },
           { role: 'user', content: fullPrompt }
         ],
         temperature: 0.7,
