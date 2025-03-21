@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -12,7 +11,7 @@ import {
   AlertCircle,
   Download,
   Copy,
-  ExternalLink
+  FileSpreadsheet
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -94,6 +93,35 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
     URL.revokeObjectURL(url);
     
     toast.success("Requirements exported successfully");
+  };
+  
+  const handleExportCSV = () => {
+    const headers = ["Type", "Requirement"];
+    const rows = [
+      ...result.functionalRequirements.map(req => ["Functional Requirement", req]),
+      ...result.nonFunctionalRequirements.map(req => ["Non-Functional Requirement", req]),
+      ...result.userStories.map(story => ["User Story", story]),
+      ...result.acceptanceCriteria.map(criteria => ["Acceptance Criteria", criteria]),
+      ...result.assumptions.map(assumption => ["Assumption", assumption]),
+      ...result.followUpQuestions.map(question => ["Follow-up Question", question])
+    ];
+    
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `requirements-analysis-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success("Requirements exported as CSV");
   };
   
   return (
@@ -179,11 +207,20 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
         <Button 
           variant="outline" 
           size="sm"
+          onClick={handleExportCSV}
+          className="flex items-center"
+        >
+          <FileSpreadsheet className="mr-1 h-4 w-4" />
+          Export CSV
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
           onClick={handleExport}
           className="flex items-center"
         >
           <Download className="mr-1 h-4 w-4" />
-          Export
+          Export JSON
         </Button>
       </div>
       
