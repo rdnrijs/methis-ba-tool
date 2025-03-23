@@ -9,7 +9,10 @@ import {
   FileText, 
   ClipboardList, 
   Send, 
-  RefreshCw 
+  RefreshCw,
+  Users,
+  Database,
+  Building
 } from 'lucide-react';
 import { 
   Select, 
@@ -50,21 +53,23 @@ const TEMPLATE_CONTENT = {
 };
 
 const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
-  const [request, setRequest] = useState('');
-  const [context, setContext] = useState('');
-  const [showContext, setShowContext] = useState(false);
+  const [clientRequest, setClientRequest] = useState('');
+  const [stakeholders, setStakeholders] = useState('');
+  const [systems, setSystems] = useState('');
+  const [companyContext, setCompanyContext] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
   const [template, setTemplate] = useState('blank');
   const { toast } = useToast();
   
   useEffect(() => {
-    // Estimate token count whenever request or context changes
-    const total = estimateTokenCount(request + context);
+    // Estimate token count for all fields combined
+    const allText = clientRequest + stakeholders + systems + companyContext;
+    const total = estimateTokenCount(allText);
     setTokenCount(total);
-  }, [request, context]);
+  }, [clientRequest, stakeholders, systems, companyContext]);
   
   const handleSubmit = () => {
-    if (!request.trim()) {
+    if (!clientRequest.trim()) {
       toast({
         variant: "destructive",
         title: "Request required",
@@ -73,28 +78,31 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       return;
     }
     
-    onSubmit(request, context);
+    // Combine all context fields into a structured format
+    const contextData = [
+      stakeholders && `Stakeholders: ${stakeholders}`,
+      systems && `Systems & Applications: ${systems}`,
+      companyContext && `Company Context: ${companyContext}`
+    ].filter(Boolean).join('\n\n');
+    
+    onSubmit(clientRequest, contextData);
   };
   
   const handleTemplateChange = (value: string) => {
     setTemplate(value);
     
     if (value === 'blank') {
-      setRequest('');
+      setClientRequest('');
+      setStakeholders('');
+      setSystems('');
+      setCompanyContext('');
       return;
     }
     
     if (value in TEMPLATE_CONTENT) {
-      setRequest(TEMPLATE_CONTENT[value as keyof typeof TEMPLATE_CONTENT]);
+      setClientRequest(TEMPLATE_CONTENT[value as keyof typeof TEMPLATE_CONTENT]);
     } else if (value in EXAMPLE_REQUESTS) {
-      setRequest(EXAMPLE_REQUESTS[value as keyof typeof EXAMPLE_REQUESTS]);
-    }
-  };
-  
-  const handleLoadExample = (exampleId: string) => {
-    if (exampleId in EXAMPLE_REQUESTS) {
-      setRequest(EXAMPLE_REQUESTS[exampleId as keyof typeof EXAMPLE_REQUESTS]);
-      setTemplate(exampleId);
+      setClientRequest(EXAMPLE_REQUESTS[value as keyof typeof EXAMPLE_REQUESTS]);
     }
   };
   
@@ -122,73 +130,75 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <MessageSquare className="h-5 w-5 mr-2 text-primary" />
-                  <Label htmlFor="request" className="text-sm font-medium">Client Request</Label>
-                </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-7 text-xs"
-                        onClick={() => handleLoadExample('e-commerce')}
-                      >
-                        <HelpCircle className="h-3.5 w-3.5 mr-1" />
-                        Example
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="w-80">
-                      <p className="text-xs">
-                        Click to load an example request to see how the analyzer works.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+            <div className="space-y-1">
+              <div className="flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-primary" />
+                <Label htmlFor="clientRequest" className="text-sm font-medium">Detailed Description of Client Request</Label>
               </div>
               <Textarea
-                id="request"
-                placeholder="Enter the client's request or requirements here..."
-                value={request}
-                onChange={(e) => setRequest(e.target.value)}
-                className="min-h-[200px] resize-y"
+                id="clientRequest"
+                placeholder="Enter a detailed description of what the client is requesting..."
+                value={clientRequest}
+                onChange={(e) => setClientRequest(e.target.value)}
+                className="min-h-[120px] resize-y"
               />
-              <div className="flex justify-between items-center text-xs text-muted-foreground">
-                <span>
-                  {request.length} characters / ~{estimateTokenCount(request)} tokens
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-7 text-xs"
-                  onClick={() => setShowContext(!showContext)}
-                >
-                  {showContext ? 'Hide Context' : 'Add Context'}
-                </Button>
+              <div className="text-xs text-muted-foreground text-right">
+                {clientRequest.length} characters / ~{estimateTokenCount(clientRequest)} tokens
               </div>
             </div>
             
-            {showContext && (
-              <div className="space-y-2 animate-fade-in animate-once pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
                 <div className="flex items-center">
-                  <ClipboardList className="h-5 w-5 mr-2 text-primary" />
-                  <Label htmlFor="context" className="text-sm font-medium">Additional Context (Optional)</Label>
+                  <Users className="h-5 w-5 mr-2 text-primary" />
+                  <Label htmlFor="stakeholders" className="text-sm font-medium">Stakeholders</Label>
                 </div>
                 <Textarea
-                  id="context"
-                  placeholder="Add any additional context, documentation links, or background information..."
-                  value={context}
-                  onChange={(e) => setContext(e.target.value)}
+                  id="stakeholders"
+                  placeholder="Who are the stakeholders involved?"
+                  value={stakeholders}
+                  onChange={(e) => setStakeholders(e.target.value)}
                   className="min-h-[100px] resize-y"
                 />
-                <div className="text-xs text-muted-foreground">
-                  {context.length} characters / ~{estimateTokenCount(context)} tokens
+                <div className="text-xs text-muted-foreground text-right">
+                  {stakeholders.length} characters / ~{estimateTokenCount(stakeholders)} tokens
                 </div>
               </div>
-            )}
+              
+              <div className="space-y-1">
+                <div className="flex items-center">
+                  <Database className="h-5 w-5 mr-2 text-primary" />
+                  <Label htmlFor="systems" className="text-sm font-medium">Systems & Applications</Label>
+                </div>
+                <Textarea
+                  id="systems"
+                  placeholder="What systems or applications are involved?"
+                  value={systems}
+                  onChange={(e) => setSystems(e.target.value)}
+                  className="min-h-[100px] resize-y"
+                />
+                <div className="text-xs text-muted-foreground text-right">
+                  {systems.length} characters / ~{estimateTokenCount(systems)} tokens
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center">
+                <Building className="h-5 w-5 mr-2 text-primary" />
+                <Label htmlFor="companyContext" className="text-sm font-medium">Company Context</Label>
+              </div>
+              <Textarea
+                id="companyContext"
+                placeholder="Provide context about the company and relevant processes..."
+                value={companyContext}
+                onChange={(e) => setCompanyContext(e.target.value)}
+                className="min-h-[100px] resize-y"
+              />
+              <div className="text-xs text-muted-foreground text-right">
+                {companyContext.length} characters / ~{estimateTokenCount(companyContext)} tokens
+              </div>
+            </div>
             
             <div className="flex items-center justify-between pt-2">
               <div className="text-sm text-muted-foreground">
@@ -196,7 +206,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
               </div>
               <Button 
                 onClick={handleSubmit}
-                disabled={isLoading || !request.trim()}
+                disabled={isLoading || !clientRequest.trim()}
                 className={cn(
                   "transition-all duration-300",
                   isLoading ? "w-[120px]" : "w-[100px]"

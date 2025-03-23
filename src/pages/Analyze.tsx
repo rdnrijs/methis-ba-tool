@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -62,11 +63,11 @@ const Analyze = () => {
         {isConfigured && !analysisResult && (
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-medium">Analyze Client Requirements</h1>
+              <h1 className="text-3xl font-medium">Request Details</h1>
               <PromptConfig />
             </div>
             <p className="text-center text-muted-foreground mb-8">
-              Enter a client request to automatically decompose it into structured requirements
+              Enter the client request information to generate structured requirements
             </p>
             <RequestInput 
               onSubmit={handleAnalyzeRequest}
