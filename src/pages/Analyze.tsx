@@ -1,9 +1,8 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import APIKeyForm from '@/components/APIKeyForm';
-import RequestInput from '@/components/RequestInput';
+import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
 import PromptConfig from '@/components/PromptConfig';
 import { analyzeRequirements, RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
@@ -16,7 +15,6 @@ const Analyze = () => {
   const [analysisResult, setAnalysisResult] = useState<RequirementAnalysisResult | null>(null);
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
   const [currentRequest, setCurrentRequest] = useState('');
-  const navigate = useNavigate();
   
   const handleConfigure = () => {
     setIsConfigured(true);
