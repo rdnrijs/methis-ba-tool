@@ -6,7 +6,7 @@ import { Send, RefreshCw } from 'lucide-react';
 import { toast } from "sonner";
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
-import { EXAMPLE_REQUESTS, TEMPLATE_CONTENT, UTILITY_SAMPLE_DATA } from './templates';
+import { TEMPLATE_CONTENT, UTILITY_SAMPLE_DATA } from './templates';
 import TemplateSelector from './TemplateSelector';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
@@ -34,7 +34,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const handleSubmit = () => {
     if (!clientRequest.trim()) {
       toast({
-        title: "Request required",
         description: "Please enter a client request to analyze"
       });
       return;
@@ -63,8 +62,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     
     if (value in TEMPLATE_CONTENT) {
       setClientRequest(TEMPLATE_CONTENT[value as keyof typeof TEMPLATE_CONTENT]);
-    } else if (value in EXAMPLE_REQUESTS) {
-      setClientRequest(EXAMPLE_REQUESTS[value as keyof typeof EXAMPLE_REQUESTS]);
     }
   };
   
@@ -74,7 +71,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     setSystems(UTILITY_SAMPLE_DATA.systems);
     setCompanyContext(UTILITY_SAMPLE_DATA.companyContext);
     toast({
-      title: "Sample data loaded",
       description: "Utility sector sample data has been loaded"
     });
   };
