@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Send, RefreshCw } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
-import { EXAMPLE_REQUESTS, TEMPLATE_CONTENT } from './templates';
+import { EXAMPLE_REQUESTS, TEMPLATE_CONTENT, UTILITY_SAMPLE_DATA } from './templates';
 import TemplateSelector from './TemplateSelector';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
@@ -23,7 +23,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const [companyContext, setCompanyContext] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
   const [template, setTemplate] = useState('blank');
-  const { toast } = useToast();
   
   useEffect(() => {
     // Estimate token count for all fields combined
@@ -35,7 +34,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const handleSubmit = () => {
     if (!clientRequest.trim()) {
       toast({
-        variant: "destructive",
         title: "Request required",
         description: "Please enter a client request to analyze"
       });
@@ -70,6 +68,17 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     }
   };
   
+  const loadSampleData = () => {
+    setClientRequest(UTILITY_SAMPLE_DATA.clientRequest);
+    setStakeholders(UTILITY_SAMPLE_DATA.stakeholders);
+    setSystems(UTILITY_SAMPLE_DATA.systems);
+    setCompanyContext(UTILITY_SAMPLE_DATA.companyContext);
+    toast({
+      title: "Sample data loaded",
+      description: "Utility sector sample data has been loaded"
+    });
+  };
+  
   return (
     <div className="space-y-4 w-full max-w-3xl mx-auto">
       <Card className="w-full glass-card animate-scale-in animate-once">
@@ -82,7 +91,8 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
             
             <ClientRequestField 
               clientRequest={clientRequest} 
-              onChange={setClientRequest} 
+              onChange={setClientRequest}
+              onLoadSample={loadSampleData}
             />
             
             <ContextFields 
