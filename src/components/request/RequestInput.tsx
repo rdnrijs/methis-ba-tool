@@ -33,9 +33,8 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   
   const handleSubmit = () => {
     if (!clientRequest.trim()) {
-      toast({
-        description: "Please enter a client request to analyze"
-      });
+      // Fix: Changed the toast call to use the correct format for sonner
+      toast("Please enter a client request to analyze");
       return;
     }
     
@@ -70,9 +69,8 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     setStakeholders(UTILITY_SAMPLE_DATA.stakeholders);
     setSystems(UTILITY_SAMPLE_DATA.systems);
     setCompanyContext(UTILITY_SAMPLE_DATA.companyContext);
-    toast({
-      description: "Utility sector sample data has been loaded"
-    });
+    // Fix: Changed the toast call to use the correct format for sonner
+    toast("Utility sector sample data has been loaded");
   };
   
   return (
