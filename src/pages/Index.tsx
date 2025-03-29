@@ -1,49 +1,29 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/Layout';
 import InfoCard from '@/components/ui/InfoCard';
-import { 
-  Key, 
-  MessageSquare, 
-  Brain, 
-  ArrowRight, 
-  Lightbulb, 
-  Clock, 
-  LineChart, 
-  CheckCircle, 
-  ChevronRight 
-} from 'lucide-react';
+import { Key, MessageSquare, Brain, ArrowRight, Lightbulb, Clock, LineChart, CheckCircle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const FeatureCard = ({ 
-  icon, 
-  title, 
-  description, 
-  className 
-}: { 
-  icon: React.ReactNode, 
-  title: string, 
-  description: string,
-  className?: string
-}) => (
-  <div className={cn(
-    "bg-white dark:bg-black/20 p-6 rounded-xl border border-border/50 shadow-subtle hover-lift", 
-    className
-  )}>
+const FeatureCard = ({
+  icon,
+  title,
+  description,
+  className
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  className?: string;
+}) => <div className={cn("bg-white dark:bg-black/20 p-6 rounded-xl border border-border/50 shadow-subtle hover-lift", className)}>
     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-4">
       {icon}
     </div>
     <h3 className="text-lg font-medium mb-2">{title}</h3>
     <p className="text-muted-foreground">{description}</p>
-  </div>
-);
-
+  </div>;
 const Index = () => {
   const navigate = useNavigate();
-  
-  return (
-    <Layout>
+  return <Layout>
       {/* Hero Section */}
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
@@ -53,16 +33,10 @@ const Index = () => {
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none animate-slide-down animate-once">
                   Transform Client Requests into Structured Requirements
                 </h1>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl animate-slide-down animate-once animate-delay-100">
-                  Streamline your business analysis process with AI-powered requirements decomposition.
-                </p>
+                <p className="max-w-[600px] text-muted-foreground animate-slide-down animate-once animate-delay-100 text-left font-normal md:text-xl">Accelerate business analysis with Methis's AI-powered requirements tool—built by consultants, for consultants. At Methis, we understand the unique challenges and language of your industry. This BA tool rapidly transforms complex client requests into clear, structured requirements, significantly shortening analysis cycles and enabling faster, more accurate project execution.</p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row pt-4 animate-slide-down animate-once animate-delay-200">
-                <Button 
-                  size="lg" 
-                  className="group"
-                  onClick={() => navigate('/analyze')}
-                >
+                <Button size="lg" className="group" onClick={() => navigate('/analyze')}>
                   Start Analyzing
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -111,15 +85,7 @@ const Index = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <InfoCard 
-              title="1. Enter API Key" 
-              description="Securely configure your OpenAI API key to power the analysis"
-              icon={<Key className="h-6 w-6 text-primary" />}
-              glassmorphism 
-              animateIn
-              delay="none"
-              hoverEffect
-            >
+            <InfoCard title="1. Enter API Key" description="Securely configure your OpenAI API key to power the analysis" icon={<Key className="h-6 w-6 text-primary" />} glassmorphism animateIn delay="none" hoverEffect>
               <ul className="space-y-2 mt-2 text-sm text-muted-foreground">
                 <li className="flex items-start">
                   <CheckCircle className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
@@ -136,15 +102,7 @@ const Index = () => {
               </ul>
             </InfoCard>
             
-            <InfoCard 
-              title="2. Input Client Request" 
-              description="Enter the client's requirements in natural language"
-              icon={<MessageSquare className="h-6 w-6 text-primary" />}
-              glassmorphism 
-              animateIn
-              delay="medium"
-              hoverEffect
-            >
+            <InfoCard title="2. Input Client Request" description="Enter the client's requirements in natural language" icon={<MessageSquare className="h-6 w-6 text-primary" />} glassmorphism animateIn delay="medium" hoverEffect>
               <ul className="space-y-2 mt-2 text-sm text-muted-foreground">
                 <li className="flex items-start">
                   <CheckCircle className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
@@ -161,15 +119,7 @@ const Index = () => {
               </ul>
             </InfoCard>
             
-            <InfoCard 
-              title="3. Review Analysis" 
-              description="Get a structured breakdown of all requirements"
-              icon={<Brain className="h-6 w-6 text-primary" />}
-              glassmorphism 
-              animateIn
-              delay="long"
-              hoverEffect
-            >
+            <InfoCard title="3. Review Analysis" description="Get a structured breakdown of all requirements" icon={<Brain className="h-6 w-6 text-primary" />} glassmorphism animateIn delay="long" hoverEffect>
               <ul className="space-y-2 mt-2 text-sm text-muted-foreground">
                 <li className="flex items-start">
                   <CheckCircle className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
@@ -201,24 +151,9 @@ const Index = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<Clock className="h-5 w-5 text-primary" />}
-              title="Save Time"
-              description="Reduce the time spent on requirements documentation by up to 70%"
-              className="animate-fade-in animate-once"
-            />
-            <FeatureCard
-              icon={<Lightbulb className="h-5 w-5 text-primary" />}
-              title="Improve Clarity"
-              description="Get structured, well-organized requirements that reduce ambiguity"
-              className="animate-fade-in animate-once animate-delay-100"
-            />
-            <FeatureCard
-              icon={<LineChart className="h-5 w-5 text-primary" />}
-              title="Increase Efficiency"
-              description="Streamline your workflow from client request to development"
-              className="animate-fade-in animate-once animate-delay-200"
-            />
+            <FeatureCard icon={<Clock className="h-5 w-5 text-primary" />} title="Save Time" description="Reduce the time spent on requirements documentation by up to 70%" className="animate-fade-in animate-once" />
+            <FeatureCard icon={<Lightbulb className="h-5 w-5 text-primary" />} title="Improve Clarity" description="Get structured, well-organized requirements that reduce ambiguity" className="animate-fade-in animate-once animate-delay-100" />
+            <FeatureCard icon={<LineChart className="h-5 w-5 text-primary" />} title="Increase Efficiency" description="Streamline your workflow from client request to development" className="animate-fade-in animate-once animate-delay-200" />
           </div>
         </div>
       </section>
@@ -234,11 +169,7 @@ const Index = () => {
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row pt-4">
-              <Button 
-                size="lg" 
-                className="group"
-                onClick={() => navigate('/analyze')}
-              >
+              <Button size="lg" className="group" onClick={() => navigate('/analyze')}>
                 Get Started
                 <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -246,8 +177,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-    </Layout>
-  );
+    </Layout>;
 };
-
 export default Index;
