@@ -14,7 +14,7 @@ const Layout = ({
   return <div className="min-h-screen flex flex-col">
       <header className="py-4 px-6 border-b border-border/50 backdrop-blur-sm sticky top-0 z-10 bg-background/80">
         <div className={cn("mx-auto flex items-center justify-between", fullWidth ? "w-full" : "max-w-6xl")}>
-          <Link to="/" className="font-medium text-xl transition-opacity hover:opacity-80 mx-0">Methis BA tool
+          <Link to="/" className="font-medium text-2xl transition-opacity hover:opacity-80 mx-0">Methis BA tool
         </Link>
           <nav className="flex items-center space-x-6">
             <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
