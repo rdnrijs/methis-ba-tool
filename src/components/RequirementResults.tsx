@@ -11,7 +11,9 @@ import {
   AlertCircle,
   Download,
   Copy,
-  FileSpreadsheet
+  FileSpreadsheet,
+  FileText,
+  ArrowRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -73,7 +75,7 @@ const ConfidenceIndicator = ({ score }: { score: number }) => {
 };
 
 const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementResultsProps) => {
-  const [activeTab, setActiveTab] = useState('functional');
+  const [activeTab, setActiveTab] = useState('briefing');
   
   const handleExport = () => {
     const exportData = {
@@ -225,7 +227,15 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 mb-6">
+        <TabsList className="w-full grid grid-cols-2 md:grid-cols-6 mb-6">
+          <TabsTrigger value="briefing" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <FileText className="h-4 w-4 mr-2" />
+            Briefing
+          </TabsTrigger>
+          <TabsTrigger value="next-steps" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Next Steps
+          </TabsTrigger>
           <TabsTrigger value="functional" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <GitBranch className="h-4 w-4 mr-2" />
             Functional
@@ -243,6 +253,185 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
             Acceptance
           </TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="briefing" className="mt-0">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-primary" />
+                Management Briefing
+              </CardTitle>
+              <CardDescription>
+                Concise summary of the client request and analysis
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <h3 className="text-lg font-medium mb-2">Client Request</h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{clientRequest}</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Key Requirements Summary</h3>
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center">
+                        <GitBranch className="h-4 w-4 mr-2 text-primary" />
+                        Functional Requirements
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {result.functionalRequirements.length} functional requirements identified
+                      </p>
+                      {result.functionalRequirements.length > 0 && (
+                        <ul className="mt-2 text-sm list-disc list-inside">
+                          {result.functionalRequirements.slice(0, 3).map((req, index) => (
+                            <li key={index} className="text-sm mb-1 truncate">{req}</li>
+                          ))}
+                          {result.functionalRequirements.length > 3 && (
+                            <li className="text-sm italic">And {result.functionalRequirements.length - 3} more...</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                    
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center">
+                        <GitCommitHorizontal className="h-4 w-4 mr-2 text-primary" />
+                        Non-functional Requirements
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {result.nonFunctionalRequirements.length} non-functional requirements identified
+                      </p>
+                      {result.nonFunctionalRequirements.length > 0 && (
+                        <ul className="mt-2 text-sm list-disc list-inside">
+                          {result.nonFunctionalRequirements.slice(0, 3).map((req, index) => (
+                            <li key={index} className="text-sm mb-1 truncate">{req}</li>
+                          ))}
+                          {result.nonFunctionalRequirements.length > 3 && (
+                            <li className="text-sm italic">And {result.nonFunctionalRequirements.length - 3} more...</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2 flex items-center">
+                    <User className="h-4 w-4 mr-2 text-primary" />
+                    User Perspective
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    {result.userStories.length} user stories identified
+                  </p>
+                  {result.userStories.length > 0 && (
+                    <ul className="mt-2 text-sm list-disc list-inside">
+                      {result.userStories.slice(0, 2).map((story, index) => (
+                        <li key={index} className="text-sm mb-1 truncate">{story}</li>
+                      ))}
+                      {result.userStories.length > 2 && (
+                        <li className="text-sm italic">And {result.userStories.length - 2} more...</li>
+                      )}
+                    </ul>
+                  )}
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Analysis Confidence</span>
+                  </div>
+                  <div className="w-1/3">
+                    <ConfidenceIndicator score={result.confidenceScore} />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="next-steps" className="mt-0">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ArrowRight className="h-5 w-5 mr-2 text-primary" />
+                Next Steps
+              </CardTitle>
+              <CardDescription>
+                Follow-up questions and assumptions to address
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {result.followUpQuestions.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-4 flex items-center">
+                      <Lightbulb className="h-5 w-5 mr-2 text-yellow-500" />
+                      Follow-up Questions
+                    </h3>
+                    <div className="space-y-1 divide-y">
+                      {result.followUpQuestions.map((question, index) => (
+                        <div key={index} className="flex items-start py-2 group">
+                          <AlertCircle className="h-5 w-5 mr-2 text-yellow-500 flex-shrink-0 mt-0.5" />
+                          <div className="text-sm">{question}</div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0"
+                            onClick={() => {
+                              navigator.clipboard.writeText(question);
+                              toast.success("Copied to clipboard");
+                            }}
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-4 flex items-center">
+                    <Brain className="h-5 w-5 mr-2 text-primary" />
+                    Assumptions
+                  </h3>
+                  <div className="space-y-1 divide-y">
+                    {result.assumptions.map((assumption, index) => (
+                      <RequirementItem key={index} text={assumption} />
+                    ))}
+                    {result.assumptions.length === 0 && (
+                      <p className="text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg">
+                        No assumptions were made during the analysis.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="p-4 border rounded-lg bg-primary/5">
+                  <h4 className="font-medium mb-2">Recommended Actions</h4>
+                  <ul className="space-y-2 text-sm">
+                    {result.followUpQuestions.length > 0 && (
+                      <li className="flex items-start">
+                        <CheckCheck className="h-4 w-4 mr-2 text-primary flex-shrink-0 mt-0.5" />
+                        <span>Address the {result.followUpQuestions.length} follow-up questions to clarify requirements</span>
+                      </li>
+                    )}
+                    <li className="flex items-start">
+                      <CheckCheck className="h-4 w-4 mr-2 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Review acceptance criteria to ensure all stakeholder needs are met</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCheck className="h-4 w-4 mr-2 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Validate functional and non-functional requirements with technical teams</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
         
         <TabsContent value="functional" className="mt-0">
           <Card>
@@ -328,60 +517,6 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
           </Card>
         </TabsContent>
       </Tabs>
-      
-      {result.followUpQuestions.length > 0 && (
-        <Card className="border-yellow-500/50 bg-yellow-50/50 dark:bg-yellow-950/10">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Lightbulb className="h-5 w-5 mr-2 text-yellow-500" />
-              Follow-up Questions
-            </CardTitle>
-            <CardDescription>
-              These questions will help clarify requirements further
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1">
-              {result.followUpQuestions.map((question, index) => (
-                <div key={index} className="flex items-start py-2 group">
-                  <AlertCircle className="h-5 w-5 mr-2 text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm">{question}</div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0"
-                    onClick={() => {
-                      navigator.clipboard.writeText(question);
-                      toast.success("Copied to clipboard");
-                    }}
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      <Card className="border-muted/50">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Brain className="h-5 w-5 mr-2 text-primary" />
-            Assumptions
-          </CardTitle>
-          <CardDescription>
-            Implicit requirements or constraints identified during analysis
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-1 divide-y">
-            {result.assumptions.map((assumption, index) => (
-              <RequirementItem key={index} text={assumption} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
