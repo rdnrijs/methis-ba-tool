@@ -1,10 +1,13 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { analyzeRequirements, RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
 import { toast } from "sonner";
 import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
+import APIKeyForm from '@/components/APIKeyForm';
+import { Button } from '@/components/ui/button';
+import { Key } from 'lucide-react';
 
 const Analyze = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,6 +17,7 @@ const Analyze = () => {
   const [stakeholders, setStakeholders] = useState('');
   const [systems, setSystems] = useState('');
   const [companyContext, setCompanyContext] = useState('');
+  const [showApiConfig, setShowApiConfig] = useState(false);
   
   const handleSubmit = async (
     request: string, 
@@ -39,12 +43,29 @@ const Analyze = () => {
       setIsLoading(false);
     }
   };
+
+  const handleApiConfigured = () => {
+    setShowApiConfig(false);
+  };
   
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6 text-center">Requirements Analyzer</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-center">Requirements Analyzer</h1>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setShowApiConfig(true)}
+          className="flex items-center gap-2"
+        >
+          <Key size={16} />
+          Configure API Key
+        </Button>
+      </div>
       
-      {!result ? (
+      {showApiConfig ? (
+        <APIKeyForm onConfigured={handleApiConfigured} />
+      ) : !result ? (
         <RequestInput onSubmit={handleSubmit} isLoading={isLoading} />
       ) : (
         <>
