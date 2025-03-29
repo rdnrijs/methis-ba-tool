@@ -13,9 +13,11 @@ import {
   Copy,
   FileSpreadsheet,
   FileText,
-  ArrowRight
+  ArrowRight,
+  Users,
+  Building,
+  Database
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +30,9 @@ interface RequirementResultsProps {
   result: RequirementAnalysisResult;
   tokenUsage: TokenUsage;
   clientRequest: string;
+  stakeholders?: string;
+  systems?: string;
+  companyContext?: string;
 }
 
 const RequirementItem = ({ text }: { text: string }) => {
@@ -74,7 +79,14 @@ const ConfidenceIndicator = ({ score }: { score: number }) => {
   );
 };
 
-const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementResultsProps) => {
+const RequirementResults = ({ 
+  result, 
+  tokenUsage, 
+  clientRequest,
+  stakeholders,
+  systems,
+  companyContext
+}: RequirementResultsProps) => {
   const [activeTab, setActiveTab] = useState('briefing');
   
   const handleExport = () => {
@@ -269,17 +281,57 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
               <div className="space-y-6">
                 <div className="p-4 bg-muted/30 rounded-lg">
                   <h3 className="text-lg font-medium mb-2">Client Request</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{clientRequest}</p>
+                  <p className="text-sm whitespace-pre-wrap">{clientRequest}</p>
                 </div>
+                
+                {(stakeholders || systems) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {stakeholders && (
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <h3 className="text-lg font-medium mb-2 flex items-center">
+                          <Users className="h-5 w-5 mr-2 text-primary" />
+                          Stakeholders
+                        </h3>
+                        <div className="text-sm whitespace-pre-wrap">
+                          {stakeholders}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {systems && (
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <h3 className="text-lg font-medium mb-2 flex items-center">
+                          <Database className="h-5 w-5 mr-2 text-primary" />
+                          Systems & Applications
+                        </h3>
+                        <div className="text-sm whitespace-pre-wrap">
+                          {systems}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {companyContext && (
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <h3 className="text-lg font-medium mb-2 flex items-center">
+                      <Building className="h-5 w-5 mr-2 text-primary" />
+                      Company Context
+                    </h3>
+                    <div className="text-sm whitespace-pre-wrap">
+                      {companyContext}
+                    </div>
+                  </div>
+                )}
                 
                 <div className="p-4 bg-muted/30 rounded-lg">
                   <h3 className="text-lg font-medium mb-2">Assumptions Made</h3>
                   {result.assumptions.length > 0 ? (
-                    <div className="space-y-1 divide-y divide-muted-foreground/10">
+                    <div className="space-y-0">
                       {result.assumptions.map((assumption, index) => (
                         <div key={index} className="py-2 flex items-start group">
-                          <Check className="h-4 w-4 mr-2 text-primary flex-shrink-0 mt-0.5" />
-                          <p className="text-sm">{assumption}</p>
+                          <Check className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-0.5" />
+                          <div className="text-sm">{assumption}</div>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -295,27 +347,7 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No assumptions were made during the analysis.</p>
-                  )}
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-medium mb-2 flex items-center">
-                    <User className="h-4 w-4 mr-2 text-primary" />
-                    User Perspective
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    {result.userStories.length} user stories identified
-                  </p>
-                  {result.userStories.length > 0 && (
-                    <ul className="mt-2 text-sm list-disc list-inside">
-                      {result.userStories.slice(0, 2).map((story, index) => (
-                        <li key={index} className="text-sm mb-1 truncate">{story}</li>
-                      ))}
-                      {result.userStories.length > 2 && (
-                        <li className="text-sm italic">And {result.userStories.length - 2} more...</li>
-                      )}
-                    </ul>
+                    <p className="text-sm">No assumptions were made during the analysis.</p>
                   )}
                 </div>
                 
@@ -374,7 +406,7 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
                   </div>
                 ) : (
                   <div className="p-4 bg-muted/30 rounded-lg">
-                    <p className="text-sm text-muted-foreground flex items-center">
+                    <p className="text-sm flex items-center">
                       <Check className="h-4 w-4 mr-2 text-green-500" />
                       No follow-up questions needed. The requirements are clear.
                     </p>

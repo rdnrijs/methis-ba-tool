@@ -12,7 +12,7 @@ import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
 
 interface RequestInputProps {
-  onSubmit: (request: string, context: string) => void;
+  onSubmit: (request: string, context: string, stakeholders: string, systems: string, companyContext: string) => void;
   isLoading: boolean;
 }
 
@@ -33,7 +33,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   
   const handleSubmit = () => {
     if (!clientRequest.trim()) {
-      // Fix: Use the string directly with toast
+      // Use the string directly with toast
       toast("Please enter a client request to analyze");
       return;
     }
@@ -45,7 +45,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       companyContext && `Company Context: ${companyContext}`
     ].filter(Boolean).join('\n\n');
     
-    onSubmit(clientRequest, contextData);
+    onSubmit(clientRequest, contextData, stakeholders, systems, companyContext);
   };
   
   const handleTemplateChange = (value: string) => {
@@ -69,7 +69,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     setStakeholders(UTILITY_SAMPLE_DATA.stakeholders);
     setSystems(UTILITY_SAMPLE_DATA.systems);
     setCompanyContext(UTILITY_SAMPLE_DATA.companyContext);
-    // Fix: Use the string directly with toast
+    // Use the string directly with toast
     toast("Utility sector sample data has been loaded");
   };
   

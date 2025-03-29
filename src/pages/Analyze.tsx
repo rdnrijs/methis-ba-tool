@@ -1,102 +1,73 @@
 
 import { useState } from 'react';
-import Layout from '@/components/Layout';
-import APIKeyForm from '@/components/APIKeyForm';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { analyzeRequirements, RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
+import { toast } from "sonner";
 import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
-import PromptConfig from '@/components/PromptConfig';
-import { analyzeRequirements, RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
-import { getApiKey } from '@/utils/storageUtils';
-import { toast } from "sonner";
 
 const Analyze = () => {
-  const [isConfigured, setIsConfigured] = useState(!!getApiKey());
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<RequirementAnalysisResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<RequirementAnalysisResult | null>(null);
   const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
-  const [currentRequest, setCurrentRequest] = useState('');
+  const [clientRequest, setClientRequest] = useState('');
+  const [stakeholders, setStakeholders] = useState('');
+  const [systems, setSystems] = useState('');
+  const [companyContext, setCompanyContext] = useState('');
   
-  const handleConfigure = () => {
-    setIsConfigured(true);
-  };
-  
-  const handleAnalyzeRequest = async (clientRequest: string, context: string) => {
-    setIsAnalyzing(true);
-    setCurrentRequest(clientRequest);
-    
+  const handleSubmit = async (
+    request: string, 
+    context: string, 
+    stakeholdersData: string, 
+    systemsData: string, 
+    companyContextData: string
+  ) => {
     try {
-      const response = await analyzeRequirements(clientRequest, context);
-      setAnalysisResult(response.result);
+      setIsLoading(true);
+      setClientRequest(request);
+      setStakeholders(stakeholdersData);
+      setSystems(systemsData);
+      setCompanyContext(companyContextData);
+
+      const response = await analyzeRequirements(request, context);
+      setResult(response.result);
       setTokenUsage(response.tokenUsage);
     } catch (error) {
-      console.error('Error analyzing request:', error);
-      
-      if (error instanceof Error && error.message.includes('API key')) {
-        toast.error("API key error. Please reconfigure your API key.");
-        setIsConfigured(false);
-      } else {
-        toast.error("Error analyzing request. Please try again.");
-      }
+      console.error('Error analyzing requirements:', error);
+      toast.error('Failed to analyze requirements. Please check your API key and try again.');
     } finally {
-      setIsAnalyzing(false);
+      setIsLoading(false);
     }
   };
   
-  const resetAnalysis = () => {
-    setAnalysisResult(null);
-    setTokenUsage(null);
-    setCurrentRequest('');
-  };
-  
   return (
-    <Layout>
-      <div className="container py-12 space-y-12">
-        {!isConfigured && (
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-3xl font-medium text-center mb-8">API Configuration</h1>
-            <APIKeyForm onConfigured={handleConfigure} />
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-2xl font-bold mb-6 text-center">Requirements Analyzer</h1>
+      
+      {!result ? (
+        <RequestInput onSubmit={handleSubmit} isLoading={isLoading} />
+      ) : (
+        <>
+          <div className="mb-6 flex justify-center">
+            <button
+              onClick={() => setResult(null)}
+              className="px-4 py-2 text-sm bg-primary/10 text-primary hover:bg-primary/20 rounded-md transition-colors"
+            >
+              ← Back to Input
+            </button>
           </div>
-        )}
-        
-        {isConfigured && !analysisResult && (
-          <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-medium">Request Details</h1>
-              <PromptConfig />
-            </div>
-            <p className="text-center text-muted-foreground mb-8">
-              Enter the client request information to generate structured requirements
-            </p>
-            <RequestInput 
-              onSubmit={handleAnalyzeRequest}
-              isLoading={isAnalyzing}
-            />
-          </div>
-        )}
-        
-        {isConfigured && analysisResult && tokenUsage && (
-          <div>
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-medium">Requirements Analysis</h1>
-              <div className="flex gap-4">
-                <PromptConfig />
-                <button 
-                  onClick={resetAnalysis}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Analyze another request
-                </button>
-              </div>
-            </div>
-            <RequirementResults 
-              result={analysisResult}
-              tokenUsage={tokenUsage}
-              clientRequest={currentRequest}
-            />
-          </div>
-        )}
-      </div>
-    </Layout>
+          
+          <RequirementResults 
+            result={result} 
+            tokenUsage={tokenUsage!} 
+            clientRequest={clientRequest}
+            stakeholders={stakeholders}
+            systems={systems}
+            companyContext={companyContext}
+          />
+        </>
+      )}
+    </div>
   );
 };
 
