@@ -232,10 +232,6 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
             <FileText className="h-4 w-4 mr-2" />
             Briefing
           </TabsTrigger>
-          <TabsTrigger value="next-steps" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <ArrowRight className="h-4 w-4 mr-2" />
-            Next Steps
-          </TabsTrigger>
           <TabsTrigger value="functional" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <GitBranch className="h-4 w-4 mr-2" />
             Functional
@@ -251,6 +247,10 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
           <TabsTrigger value="acceptance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <CheckCheck className="h-4 w-4 mr-2" />
             Acceptance
+          </TabsTrigger>
+          <TabsTrigger value="next-steps" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Next Steps
           </TabsTrigger>
         </TabsList>
         
@@ -272,49 +272,31 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">{clientRequest}</p>
                 </div>
                 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Key Requirements Summary</h3>
-                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-2 flex items-center">
-                        <GitBranch className="h-4 w-4 mr-2 text-primary" />
-                        Functional Requirements
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        {result.functionalRequirements.length} functional requirements identified
-                      </p>
-                      {result.functionalRequirements.length > 0 && (
-                        <ul className="mt-2 text-sm list-disc list-inside">
-                          {result.functionalRequirements.slice(0, 3).map((req, index) => (
-                            <li key={index} className="text-sm mb-1 truncate">{req}</li>
-                          ))}
-                          {result.functionalRequirements.length > 3 && (
-                            <li className="text-sm italic">And {result.functionalRequirements.length - 3} more...</li>
-                          )}
-                        </ul>
-                      )}
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <h3 className="text-lg font-medium mb-2">Assumptions Made</h3>
+                  {result.assumptions.length > 0 ? (
+                    <div className="space-y-1 divide-y divide-muted-foreground/10">
+                      {result.assumptions.map((assumption, index) => (
+                        <div key={index} className="py-2 flex items-start group">
+                          <Check className="h-4 w-4 mr-2 text-primary flex-shrink-0 mt-0.5" />
+                          <p className="text-sm">{assumption}</p>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0"
+                            onClick={() => {
+                              navigator.clipboard.writeText(assumption);
+                              toast.success("Copied to clipboard");
+                            }}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                    
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-2 flex items-center">
-                        <GitCommitHorizontal className="h-4 w-4 mr-2 text-primary" />
-                        Non-functional Requirements
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        {result.nonFunctionalRequirements.length} non-functional requirements identified
-                      </p>
-                      {result.nonFunctionalRequirements.length > 0 && (
-                        <ul className="mt-2 text-sm list-disc list-inside">
-                          {result.nonFunctionalRequirements.slice(0, 3).map((req, index) => (
-                            <li key={index} className="text-sm mb-1 truncate">{req}</li>
-                          ))}
-                          {result.nonFunctionalRequirements.length > 3 && (
-                            <li className="text-sm italic">And {result.nonFunctionalRequirements.length - 3} more...</li>
-                          )}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No assumptions were made during the analysis.</p>
+                  )}
                 </div>
                 
                 <div className="p-4 border rounded-lg">
@@ -359,12 +341,12 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
                 Next Steps
               </CardTitle>
               <CardDescription>
-                Follow-up questions and assumptions to address
+                Follow-up questions to address
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {result.followUpQuestions.length > 0 && (
+                {result.followUpQuestions.length > 0 ? (
                   <div>
                     <h3 className="text-lg font-medium mb-4 flex items-center">
                       <Lightbulb className="h-5 w-5 mr-2 text-yellow-500" />
@@ -390,24 +372,14 @@ const RequirementResults = ({ result, tokenUsage, clientRequest }: RequirementRe
                       ))}
                     </div>
                   </div>
-                )}
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-4 flex items-center">
-                    <Brain className="h-5 w-5 mr-2 text-primary" />
-                    Assumptions
-                  </h3>
-                  <div className="space-y-1 divide-y">
-                    {result.assumptions.map((assumption, index) => (
-                      <RequirementItem key={index} text={assumption} />
-                    ))}
-                    {result.assumptions.length === 0 && (
-                      <p className="text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg">
-                        No assumptions were made during the analysis.
-                      </p>
-                    )}
+                ) : (
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <p className="text-sm text-muted-foreground flex items-center">
+                      <Check className="h-4 w-4 mr-2 text-green-500" />
+                      No follow-up questions needed. The requirements are clear.
+                    </p>
                   </div>
-                </div>
+                )}
                 
                 <div className="p-4 border rounded-lg bg-primary/5">
                   <h4 className="font-medium mb-2">Recommended Actions</h4>
