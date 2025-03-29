@@ -30,10 +30,8 @@ const Index = () => {
           <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none animate-slide-down animate-once">
-                  Transform Client Requests into Structured Requirements
-                </h1>
-                <p className="max-w-[600px] text-muted-foreground animate-slide-down animate-once animate-delay-100 text-left font-normal md:text-xl">Accelerate business analysis with Methis's AI-powered requirements tool—built by consultants, for consultants. At Methis, we understand the unique challenges and language of your industry. This BA tool rapidly transforms complex client requests into clear, structured requirements, significantly shortening analysis cycles and enabling faster, more accurate project execution.</p>
+                <h1 className="text-3xl font-bold tracking-tighter xl:text-6xl/none animate-slide-down animate-once sm:text-4xl">Transform Client Requests into AI-powered Requirements</h1>
+                <p className="max-w-[750px] text-muted-foreground animate-slide-down animate-once animate-delay-100 text-left font-normal md:text-xl px-0">Accelerate business analysis with Methis's AI-powered requirements tool—built by consultants, for consultants. At Methis, we understand the unique challenges and language of your industry. This BA tool rapidly transforms complex client requests into clear, structured requirements, significantly shortening analysis cycles and enabling faster, more accurate project execution.</p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row pt-4 animate-slide-down animate-once animate-delay-200">
                 <Button size="lg" className="group" onClick={() => navigate('/analyze')}>
