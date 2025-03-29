@@ -11,7 +11,7 @@ import {
   CardFooter 
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Settings, RefreshCw, Check } from 'lucide-react';
+import { Settings, RefreshCw, Check, AlertCircle } from 'lucide-react';
 import { 
   Dialog,
   DialogContent,
@@ -21,29 +21,79 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DEFAULT_SYSTEM_PROMPT } from '@/utils/openAIService';
-import { saveCustomPrompt, getCustomPrompt } from '@/utils/storageUtils';
+import { DEFAULT_SYSTEM_PROMPT, validateApiKey } from '@/utils/openAIService';
+import { saveCustomPrompt, getCustomPrompt, getApiKey } from '@/utils/storageUtils';
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const PromptConfig = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     const savedPrompt = getCustomPrompt();
     setSystemPrompt(savedPrompt || DEFAULT_SYSTEM_PROMPT);
+    setValidationError(null);
   }, [isOpen]);
 
-  const handleSave = () => {
+  const validatePrompt = () => {
+    // Validate that the prompt contains required elements
+    if (!systemPrompt.includes('functionalRequirements') || 
+        !systemPrompt.includes('nonFunctionalRequirements') || 
+        !systemPrompt.includes('userStories')) {
+      setValidationError("Prompt must include functionalRequirements, nonFunctionalRequirements, and userStories fields for the analyzer to work properly.");
+      return false;
+    }
+
+    // Make sure it instructs to return JSON
+    if (!systemPrompt.toLowerCase().includes('json')) {
+      setValidationError("Prompt must instruct the model to return a JSON response.");
+      return false;
+    }
+
+    setValidationError(null);
+    return true;
+  };
+
+  const testApiKey = async () => {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      setValidationError("No API key configured. Please set up your API key first.");
+      return false;
+    }
+
+    setIsValidating(true);
+    try {
+      const isValid = await validateApiKey(apiKey);
+      if (!isValid) {
+        setValidationError("Invalid API key. Please check your OpenAI API key configuration.");
+        return false;
+      }
+      return true;
+    } catch (error) {
+      setValidationError("Error validating API key. Please check your network connection and try again.");
+      return false;
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const handleSave = async () => {
     setIsSaving(true);
     
     try {
-      // Validate that the prompt contains required elements
-      if (!systemPrompt.includes('functionalRequirements') || 
-          !systemPrompt.includes('nonFunctionalRequirements') || 
-          !systemPrompt.includes('userStories')) {
-        toast.error("Prompt must include required fields for the analyzer to work properly.");
+      // First validate prompt format
+      if (!validatePrompt()) {
+        setIsSaving(false);
+        return;
+      }
+
+      // Then validate API key
+      const isApiKeyValid = await testApiKey();
+      if (!isApiKeyValid) {
         setIsSaving(false);
         return;
       }
@@ -61,6 +111,7 @@ const PromptConfig = () => {
 
   const handleReset = () => {
     setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+    setValidationError(null);
     toast.info("Prompt reset to default.");
   };
 
@@ -80,6 +131,14 @@ const PromptConfig = () => {
             This determines how requirements are extracted and structured.
           </DialogDescription>
         </DialogHeader>
+        
+        {validationError && (
+          <Alert variant="destructive" className="my-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Validation Error</AlertTitle>
+            <AlertDescription>{validationError}</AlertDescription>
+          </Alert>
+        )}
         
         <div className="space-y-4 my-4">
           <Label htmlFor="systemPrompt">System Prompt Instructions</Label>
@@ -107,13 +166,13 @@ const PromptConfig = () => {
           </Button>
           <Button 
             onClick={handleSave} 
-            disabled={isSaving}
+            disabled={isSaving || isValidating}
             className="gap-2"
           >
-            {isSaving ? (
+            {isSaving || isValidating ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                Saving...
+                {isValidating ? "Validating..." : "Saving..."}
               </>
             ) : (
               <>
