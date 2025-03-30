@@ -85,103 +85,96 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
   };
   
   return (
-    <div className="max-w-md w-full mx-auto">
-      <InfoCard 
-        title="API Configuration" 
-        description="Configure your OpenAI API key to start analyzing requirements"
-        icon={<Key className="h-6 w-6 text-primary" />}
-        glassmorphism 
-        animateIn
-      >
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="apiKey">OpenAI API Key</Label>
-            <div className="relative">
-              <Input
-                id="apiKey"
-                type={showKey ? 'text' : 'password'}
-                value={apiKey}
-                onChange={(e) => {
-                  setApiKey(e.target.value);
-                  setIsValidated(false);
-                }}
-                placeholder="sk-..."
-                className="pr-10"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full"
-                onClick={() => setShowKey(!showKey)}
-              >
-                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Your API key is stored locally and never sent to our servers
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="model">OpenAI Model</Label>
-            <Select value={selectedModel} onValueChange={handleModelChange}>
-              <SelectTrigger id="model">
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gpt-4o">GPT-4o (Most capable)</SelectItem>
-                <SelectItem value="gpt-4o-mini">GPT-4o Mini (Balanced)</SelectItem>
-                <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Economical)</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Estimated cost: ${estimatedCost.toFixed(4)} per analysis
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="remember"
-              checked={rememberKey}
-              onCheckedChange={setRememberKey}
-            />
-            <Label htmlFor="remember" className="cursor-pointer">Remember for 30 days</Label>
-          </div>
-
-          {rememberKey && (
-            <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Storing your API key on this device is convenient but less secure. Only use on trusted devices.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex space-x-2">
-            <Button
-              onClick={handleValidateKey}
-              variant="outline"
-              disabled={isValidating || !apiKey.trim()}
-              className="flex-1"
-            >
-              {isValidating ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : isValidated ? (
-                <Check className="mr-2 h-4 w-4" />
-              ) : null}
-              Validate Key
-            </Button>
-            <Button
-              onClick={handleContinue}
-              disabled={!isValidated}
-              className="flex-1"
-            >
-              Continue
-            </Button>
-          </div>
+    <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-lg">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="bg-red-100 p-2 rounded-full">
+          <Key className="h-5 w-5 text-red-600" />
         </div>
-      </InfoCard>
+        <div>
+          <h2 className="text-xl font-bold">API Configuration</h2>
+          <p className="text-muted-foreground">Configure your OpenAI API key to start analyzing requirements</p>
+        </div>
+      </div>
+      
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="apiKey">OpenAI API Key</Label>
+          <div className="relative">
+            <Input
+              id="apiKey"
+              type={showKey ? 'text' : 'password'}
+              value={apiKey}
+              onChange={(e) => {
+                setApiKey(e.target.value);
+                setIsValidated(false);
+              }}
+              placeholder="sk-..."
+              className="pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-full"
+              onClick={() => setShowKey(!showKey)}
+            >
+              {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Your API key is stored locally and never sent to our servers
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="model">OpenAI Model</Label>
+          <Select value={selectedModel} onValueChange={handleModelChange}>
+            <SelectTrigger id="model">
+              <SelectValue placeholder="Select a model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="gpt-4o">GPT-4o (Most capable)</SelectItem>
+              <SelectItem value="gpt-4o-mini">GPT-4o Mini (Balanced)</SelectItem>
+              <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Economical)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Estimated cost: ${estimatedCost.toFixed(4)} per analysis
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="remember"
+            checked={rememberKey}
+            onCheckedChange={setRememberKey}
+          />
+          <Label htmlFor="remember" className="cursor-pointer">Remember for 30 days</Label>
+        </div>
+
+        <div className="flex space-x-3 pt-2">
+          <Button
+            onClick={handleValidateKey}
+            variant="outline"
+            disabled={isValidating || !apiKey.trim()}
+            className="flex-1"
+          >
+            {isValidating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : isValidated ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : null}
+            Validate Key
+          </Button>
+          <Button
+            onClick={handleContinue}
+            disabled={!isValidated}
+            className="flex-1 bg-red-300 hover:bg-red-400 text-black"
+          >
+            Continue
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
