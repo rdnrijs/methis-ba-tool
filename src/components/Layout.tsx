@@ -1,3 +1,4 @@
+
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -17,9 +18,6 @@ const Layout = ({
           <Link to="/" className="font-medium text-2xl transition-opacity hover:opacity-80 mx-0">Methis BA tool
         </Link>
           <nav className="flex items-center space-x-6">
-            <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Home
-            </Link>
             <Link to="/analyze" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Analyze
             </Link>
