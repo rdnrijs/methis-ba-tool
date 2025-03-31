@@ -1,6 +1,6 @@
 
 import { Home, Key, FileText } from 'lucide-react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { getApiKey } from '@/utils/storageUtils';
@@ -8,10 +8,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 const Ribbon = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const hasApiKey = !!getApiKey();
   
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+  
+  const handleNavigation = (path: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(path);
   };
   
   return (
@@ -22,16 +28,14 @@ const Ribbon = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              asChild 
+              onClick={handleNavigation('/')}
               className={cn(
                 "rounded-full", 
                 isActive('/') && "bg-accent text-accent-foreground"
               )}
             >
-              <Link to="/">
-                <Home className="h-5 w-5" />
-                <span className="sr-only">Home</span>
-              </Link>
+              <Home className="h-5 w-5" />
+              <span className="sr-only">Home</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -44,17 +48,15 @@ const Ribbon = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              asChild
+              onClick={handleNavigation('/api-config')}
               className={cn(
                 "rounded-full",
                 !hasApiKey && "text-yellow-500",
                 isActive('/api-config') && "bg-accent text-accent-foreground"
               )}
             >
-              <Link to="/api-config">
-                <Key className="h-5 w-5" />
-                <span className="sr-only">API Configuration</span>
-              </Link>
+              <Key className="h-5 w-5" />
+              <span className="sr-only">API Configuration</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -67,16 +69,14 @@ const Ribbon = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              asChild 
+              onClick={handleNavigation('/analyze')}
               className={cn(
                 "rounded-full",
                 isActive('/analyze') && "bg-accent text-accent-foreground"
               )}
             >
-              <Link to="/analyze">
-                <FileText className="h-5 w-5" />
-                <span className="sr-only">Analyze</span>
-              </Link>
+              <FileText className="h-5 w-5" />
+              <span className="sr-only">Analyze</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">

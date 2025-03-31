@@ -1,6 +1,6 @@
 
 import { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Ribbon from './navigation/Ribbon';
 
@@ -15,21 +15,33 @@ const Layout = ({
   className,
   fullWidth = false
 }: LayoutProps) => {
+  const navigate = useNavigate();
+  
+  const handleNavigation = (path: string) => () => {
+    navigate(path);
+  };
+  
   return <div className="min-h-screen flex flex-col">
       <header className="py-4 px-6 border-b border-border/50 backdrop-blur-sm sticky top-0 z-10 bg-background/80">
         <div className={cn("mx-auto flex items-center justify-between", fullWidth ? "w-full" : "max-w-6xl")}>
-          <Link to="/" className="font-medium text-2xl transition-opacity hover:opacity-80 mx-0 flex items-center gap-2">
+          <div
+            onClick={handleNavigation('/')} 
+            className="font-medium text-2xl transition-opacity hover:opacity-80 mx-0 flex items-center gap-2 cursor-pointer"
+          >
             <img 
               src="/lovable-uploads/e3f13bd0-379f-4e01-8701-a83d72fc8f9d.png" 
               alt="Methis Logo" 
               className="w-8 h-8" 
             />
             Methis BA tool
-          </Link>
+          </div>
           <nav className="flex items-center space-x-6">
-            <Link to="/analyze" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <div 
+              onClick={handleNavigation('/analyze')}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
               Analyze
-            </Link>
+            </div>
           </nav>
         </div>
       </header>
