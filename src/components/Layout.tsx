@@ -2,6 +2,7 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import Ribbon from './navigation/Ribbon';
 
 interface LayoutProps {
   children: ReactNode;
@@ -47,6 +48,8 @@ const Layout = ({
           </div>
         </div>
       </footer>
+      
+      <Ribbon />
     </div>;
 };
 
