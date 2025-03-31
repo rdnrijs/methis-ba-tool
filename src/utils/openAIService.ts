@@ -1,5 +1,6 @@
 
 import { getApiKey, getSelectedModel, getCustomPrompt } from './storageUtils';
+import { getDefaultSystemPrompt } from './supabaseService';
 
 export interface RequirementAnalysisResult {
   functionalRequirements: string[];
@@ -64,6 +65,28 @@ Keep each requirement clear, concise, and focused on a single capability.
 Include at least 3 follow-up questions if you need more information to improve the analysis.
 Assign a confidence score based on how complete and clear the client request is.`;
 
+// Get system prompt with fallbacks
+export const getSystemPrompt = async (): Promise<string> => {
+  // First check for user-configured prompt in local storage
+  const customPrompt = getCustomPrompt();
+  if (customPrompt) {
+    return customPrompt;
+  }
+  
+  // Then try to get default from Supabase
+  try {
+    const dbPrompt = await getDefaultSystemPrompt();
+    if (dbPrompt) {
+      return dbPrompt;
+    }
+  } catch (error) {
+    console.error('Error loading system prompt from database:', error);
+  }
+  
+  // Fall back to hardcoded default
+  return DEFAULT_SYSTEM_PROMPT;
+};
+
 export const analyzeRequirements = async (clientRequest: string, additionalContext?: string): Promise<OpenAIResponse> => {
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -71,7 +94,7 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
   }
   
   const model = getSelectedModel();
-  const customPrompt = getCustomPrompt() || DEFAULT_SYSTEM_PROMPT;
+  const systemPrompt = await getSystemPrompt();
   
   let fullPrompt = clientRequest;
   if (additionalContext && additionalContext.trim() !== '') {
@@ -88,7 +111,7 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
       body: JSON.stringify({
         model,
         messages: [
-          { role: 'system', content: customPrompt },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: fullPrompt }
         ],
         temperature: 0.7,

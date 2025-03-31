@@ -25,6 +25,7 @@ import { DEFAULT_SYSTEM_PROMPT, validateApiKey } from '@/utils/openAIService';
 import { saveCustomPrompt, getCustomPrompt, getApiKey } from '@/utils/storageUtils';
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getDefaultSystemPrompt } from '@/utils/supabaseService';
 
 const PromptConfig = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,11 +33,43 @@ const PromptConfig = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const savedPrompt = getCustomPrompt();
-    setSystemPrompt(savedPrompt || DEFAULT_SYSTEM_PROMPT);
-    setValidationError(null);
+    const loadPrompt = async () => {
+      setIsLoading(true);
+      
+      // First check if there's a custom prompt in local storage
+      const savedPrompt = getCustomPrompt();
+      
+      if (savedPrompt) {
+        setSystemPrompt(savedPrompt);
+        setIsLoading(false);
+        return;
+      }
+      
+      // If not, try to load the default prompt from Supabase
+      try {
+        const defaultPrompt = await getDefaultSystemPrompt();
+        if (defaultPrompt) {
+          setSystemPrompt(defaultPrompt);
+        } else {
+          // Fall back to the hard-coded default if Supabase fails
+          setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+        }
+      } catch (error) {
+        console.error('Error loading default system prompt:', error);
+        setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+      } finally {
+        setIsLoading(false);
+      }
+      
+      setValidationError(null);
+    };
+    
+    if (isOpen) {
+      loadPrompt();
+    }
   }, [isOpen]);
 
   const validatePrompt = () => {
@@ -109,10 +142,25 @@ const PromptConfig = () => {
     }
   };
 
-  const handleReset = () => {
-    setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
-    setValidationError(null);
-    toast.info("Prompt reset to default.");
+  const handleReset = async () => {
+    setIsLoading(true);
+    try {
+      const defaultPrompt = await getDefaultSystemPrompt();
+      if (defaultPrompt) {
+        setSystemPrompt(defaultPrompt);
+        toast.info("Prompt reset to database default.");
+      } else {
+        setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+        toast.info("Prompt reset to application default.");
+      }
+    } catch (error) {
+      console.error('Error resetting to default prompt:', error);
+      setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+      toast.info("Prompt reset to application default.");
+    } finally {
+      setValidationError(null);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -142,13 +190,19 @@ const PromptConfig = () => {
         
         <div className="space-y-4 my-4">
           <Label htmlFor="systemPrompt">System Prompt Instructions</Label>
-          <Textarea
-            id="systemPrompt"
-            value={systemPrompt}
-            onChange={(e) => setSystemPrompt(e.target.value)}
-            className="min-h-[400px] font-mono text-sm"
-            placeholder="Enter custom prompt instructions..."
-          />
+          {isLoading ? (
+            <div className="h-[400px] flex items-center justify-center bg-muted/20">
+              <RefreshCw className="h-6 w-6 animate-spin opacity-50" />
+            </div>
+          ) : (
+            <Textarea
+              id="systemPrompt"
+              value={systemPrompt}
+              onChange={(e) => setSystemPrompt(e.target.value)}
+              className="min-h-[400px] font-mono text-sm"
+              placeholder="Enter custom prompt instructions..."
+            />
+          )}
           <p className="text-sm text-muted-foreground">
             Ensure the prompt includes instructions to return JSON with the expected fields: 
             functionalRequirements, nonFunctionalRequirements, userStories, etc.
@@ -160,19 +214,20 @@ const PromptConfig = () => {
             variant="outline" 
             onClick={handleReset}
             className="gap-2"
+            disabled={isLoading}
           >
             <RefreshCw size={16} />
             Reset to Default
           </Button>
           <Button 
             onClick={handleSave} 
-            disabled={isSaving || isValidating}
+            disabled={isSaving || isValidating || isLoading}
             className="gap-2"
           >
-            {isSaving || isValidating ? (
+            {isSaving || isValidating || isLoading ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                {isValidating ? "Validating..." : "Saving..."}
+                {isLoading ? "Loading..." : isValidating ? "Validating..." : "Saving..."}
               </>
             ) : (
               <>

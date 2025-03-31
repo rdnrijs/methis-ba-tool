@@ -33,6 +33,99 @@ export type Database = {
         }
         Relationships: []
       }
+      request_templates: {
+        Row: {
+          content: string | null
+          created_at: string
+          display_order: number
+          id: string
+          is_example: boolean
+          label: string
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_example?: boolean
+          label: string
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_example?: boolean
+          label?: string
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sample_data: {
+        Row: {
+          client_request: string
+          company_context: string | null
+          created_at: string
+          id: string
+          name: string
+          stakeholders: string | null
+          systems: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_request: string
+          company_context?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          stakeholders?: string | null
+          systems?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_request?: string
+          company_context?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          stakeholders?: string | null
+          systems?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      system_prompts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

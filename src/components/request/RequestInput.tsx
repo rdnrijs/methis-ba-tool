@@ -6,10 +6,16 @@ import { Send, RefreshCw } from 'lucide-react';
 import { toast } from "sonner";
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
-import { TEMPLATE_CONTENT, UTILITY_SAMPLE_DATA } from './templates';
+import { 
+  TEMPLATE_CONTENT, 
+  UTILITY_SAMPLE_DATA, 
+  createTemplateContentMap,
+  convertSampleDataToAppFormat
+} from './templates';
 import TemplateSelector from './TemplateSelector';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
+import { getRequestTemplates, getSampleData } from '@/utils/supabaseService';
 
 interface RequestInputProps {
   onSubmit: (request: string, context: string, stakeholders: string, systems: string, companyContext: string) => void;
@@ -23,6 +29,38 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const [companyContext, setCompanyContext] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
   const [template, setTemplate] = useState('blank');
+  const [templateContentMap, setTemplateContentMap] = useState<Record<string, string>>(TEMPLATE_CONTENT);
+  const [sampleData, setSampleData] = useState(UTILITY_SAMPLE_DATA);
+  
+  useEffect(() => {
+    // Load templates from Supabase
+    const loadTemplates = async () => {
+      try {
+        const dbTemplates = await getRequestTemplates();
+        if (dbTemplates.length > 0) {
+          // Create content mapping from the database templates
+          setTemplateContentMap(createTemplateContentMap(dbTemplates));
+        }
+      } catch (error) {
+        console.error('Error loading template content:', error);
+      }
+    };
+    
+    // Load sample data from Supabase
+    const loadSampleData = async () => {
+      try {
+        const dbSampleData = await getSampleData('utility_sample');
+        if (dbSampleData) {
+          setSampleData(convertSampleDataToAppFormat(dbSampleData));
+        }
+      } catch (error) {
+        console.error('Error loading sample data:', error);
+      }
+    };
+    
+    loadTemplates();
+    loadSampleData();
+  }, []);
   
   useEffect(() => {
     // Estimate token count for all fields combined
@@ -33,7 +71,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   
   const handleSubmit = () => {
     if (!clientRequest.trim()) {
-      // Use the string directly with toast
       toast("Please enter a client request to analyze");
       return;
     }
@@ -59,17 +96,16 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       return;
     }
     
-    if (value in TEMPLATE_CONTENT) {
-      setClientRequest(TEMPLATE_CONTENT[value as keyof typeof TEMPLATE_CONTENT]);
+    if (value in templateContentMap) {
+      setClientRequest(templateContentMap[value]);
     }
   };
   
   const loadSampleData = () => {
-    setClientRequest(UTILITY_SAMPLE_DATA.clientRequest);
-    setStakeholders(UTILITY_SAMPLE_DATA.stakeholders);
-    setSystems(UTILITY_SAMPLE_DATA.systems);
-    setCompanyContext(UTILITY_SAMPLE_DATA.companyContext);
-    // Use the string directly with toast
+    setClientRequest(sampleData.clientRequest);
+    setStakeholders(sampleData.stakeholders);
+    setSystems(sampleData.systems);
+    setCompanyContext(sampleData.companyContext);
     toast("Utility sector sample data has been loaded");
   };
   
