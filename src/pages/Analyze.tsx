@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
 import APIKeyForm from '@/components/APIKeyForm';
-import { Button } from '@/components/ui/button';
-import { Key } from 'lucide-react';
 import Layout from '@/components/Layout';
 
 const Analyze = () => {
@@ -52,17 +50,8 @@ const Analyze = () => {
   return (
     <Layout fullWidth>
       <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold">Requirements Analyzer</h1>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setShowApiConfig(true)}
-            className="flex items-center gap-2"
-          >
-            <Key size={16} />
-            Configure API Key
-          </Button>
         </div>
         
         {showApiConfig ? (
@@ -71,23 +60,13 @@ const Analyze = () => {
           <RequestInput onSubmit={handleSubmit} isLoading={isLoading} />
         ) : (
           <>
-            <div className="mb-6 flex justify-between">
+            <div className="mb-6">
               <button
                 onClick={() => setResult(null)}
                 className="px-4 py-2 text-sm bg-primary/10 text-primary hover:bg-primary/20 rounded-md transition-colors"
               >
                 ← Back to Input
               </button>
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowApiConfig(true)}
-                className="flex items-center gap-2"
-              >
-                <Key size={16} />
-                Configure API Key
-              </Button>
             </div>
             
             <RequirementResults 
