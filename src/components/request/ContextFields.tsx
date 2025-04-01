@@ -21,6 +21,16 @@ const ContextFields = ({
   onSystemsChange,
   onCompanyContextChange
 }: ContextFieldsProps) => {
+  // Function to format text for display
+  const formatDisplayText = (text: string) => {
+    return text.replace(/\\n/g, '\n');
+  };
+  
+  // Function to handle text input changes
+  const handleTextChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setter(e.target.value);
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -32,8 +42,8 @@ const ContextFields = ({
           <Textarea
             id="stakeholders"
             placeholder="Who are the stakeholders involved?"
-            value={stakeholders}
-            onChange={(e) => onStakeholdersChange(e.target.value)}
+            value={formatDisplayText(stakeholders)}
+            onChange={handleTextChange(onStakeholdersChange)}
             className="min-h-[100px] resize-y"
           />
           <div className="text-xs text-muted-foreground text-right">
@@ -49,8 +59,8 @@ const ContextFields = ({
           <Textarea
             id="systems"
             placeholder="What systems or applications are involved?"
-            value={systems}
-            onChange={(e) => onSystemsChange(e.target.value)}
+            value={formatDisplayText(systems)}
+            onChange={handleTextChange(onSystemsChange)}
             className="min-h-[100px] resize-y"
           />
           <div className="text-xs text-muted-foreground text-right">
@@ -67,8 +77,8 @@ const ContextFields = ({
         <Textarea
           id="companyContext"
           placeholder="Provide context about the company and relevant processes..."
-          value={companyContext}
-          onChange={(e) => onCompanyContextChange(e.target.value)}
+          value={formatDisplayText(companyContext)}
+          onChange={handleTextChange(onCompanyContextChange)}
           className="min-h-[100px] resize-y"
         />
         <div className="text-xs text-muted-foreground text-right">

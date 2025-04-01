@@ -35,6 +35,10 @@ interface RequirementResultsProps {
   companyContext?: string;
 }
 
+const formatDisplayText = (text: string) => {
+  return text?.replace(/\\n/g, '\n') || '';
+};
+
 const RequirementItem = ({ text }: { text: string }) => {
   return (
     <div className="flex items-start py-2 group">
@@ -281,7 +285,7 @@ const RequirementResults = ({
               <div className="space-y-6">
                 <div className="p-4 bg-muted/30 rounded-lg">
                   <h3 className="text-lg font-medium mb-2">Client Request</h3>
-                  <p className="text-sm whitespace-pre-wrap">{clientRequest}</p>
+                  <p className="text-sm whitespace-pre-wrap">{formatDisplayText(clientRequest)}</p>
                 </div>
                 
                 {(stakeholders || systems) && (
@@ -293,7 +297,7 @@ const RequirementResults = ({
                           Stakeholders
                         </h3>
                         <div className="text-sm whitespace-pre-wrap">
-                          {stakeholders}
+                          {formatDisplayText(stakeholders)}
                         </div>
                       </div>
                     )}
@@ -305,7 +309,7 @@ const RequirementResults = ({
                           Systems & Applications
                         </h3>
                         <div className="text-sm whitespace-pre-wrap">
-                          {systems}
+                          {formatDisplayText(systems)}
                         </div>
                       </div>
                     )}
@@ -319,7 +323,7 @@ const RequirementResults = ({
                       Company Context
                     </h3>
                     <div className="text-sm whitespace-pre-wrap">
-                      {companyContext}
+                      {formatDisplayText(companyContext)}
                     </div>
                   </div>
                 )}

@@ -18,6 +18,12 @@ const Analyze = () => {
   const [companyContext, setCompanyContext] = useState('');
   const [showApiConfig, setShowApiConfig] = useState(false);
 
+  // Function to properly format input data
+  const formatInputData = (text: string): string => {
+    // Ensure proper line breaks for API calls
+    return text.replace(/\\n/g, '\n');
+  };
+
   const handleSubmit = async (request: string, context: string, stakeholdersData: string, systemsData: string, companyContextData: string) => {
     try {
       setIsLoading(true);
@@ -25,7 +31,12 @@ const Analyze = () => {
       setStakeholders(stakeholdersData);
       setSystems(systemsData);
       setCompanyContext(companyContextData);
-      const response = await analyzeRequirements(request, context);
+      
+      // Format data before sending to API
+      const formattedRequest = formatInputData(request);
+      const formattedContext = formatInputData(context);
+      
+      const response = await analyzeRequirements(formattedRequest, formattedContext);
       setResult(response.result);
       setTokenUsage(response.tokenUsage);
     } catch (error) {
