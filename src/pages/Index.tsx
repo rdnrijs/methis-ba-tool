@@ -35,7 +35,7 @@ const Index = () => {
     <Layout>
       <div className="flex flex-col min-h-[80vh]">
         {/* Hero Section */}
-        <div className="flex flex-col-reverse lg:flex-row items-center justify-between py-10 px-4 lg:px-10 gap-8">
+        <div className="flex flex-col-reverse lg:flex-row items-center justify-between py-10 gap-8">
           {/* Left column - Hero text */}
           <div className="flex-1 max-w-2xl">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-6">

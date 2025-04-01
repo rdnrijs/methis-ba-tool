@@ -41,7 +41,7 @@ const Analyze = () => {
   };
 
   return <Layout fullWidth>
-      <div className="container mx-auto py-8 px-4">
+      <div className="py-8">
         {showApiConfig ? <APIKeyForm onConfigured={handleApiConfigured} /> : !result ? <RequestInput onSubmit={handleSubmit} isLoading={isLoading} /> : <>
             <div className="mb-6">
               <button onClick={() => setResult(null)} className="px-4 py-2 text-sm bg-primary/10 text-primary hover:bg-primary/20 rounded-md transition-colors">
