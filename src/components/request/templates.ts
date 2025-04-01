@@ -27,7 +27,7 @@ export const TEMPLATE_CONTENT = {
   'mobile-app': EXAMPLE_REQUESTS['mobile-app'],
   'crm': EXAMPLE_REQUESTS['crm'],
   'analytics': EXAMPLE_REQUESTS['analytics'],
-  'utility': EXAMPLE_REQUESTS['utility'],
+  'utility': EXAMPLE_REQUESTS['utility']
 };
 
 // Sample stakeholders for fallback templates
@@ -56,7 +56,7 @@ export const TEMPLATE_COMPANY_CONTEXT = {
   'e-commerce': 'Our retail business has been operating for 10 years with physical stores and now needs to expand online to reach more customers and compete with digital-native retailers.',
   'mobile-app': 'Our organization has 500+ field workers who need better communication tools while on client sites. Current process relies on emails and phone calls which causes delays.',
   'crm': 'Our sales team of 50 people currently uses spreadsheets to track leads and opportunities, leading to data inconsistencies and missed follow-ups.',
-  'analytics': 'Our marketing team needs better insights into website performance to optimize campaigns and content strategy. Current tools are limited and don't provide actionable data.',
+  'analytics': 'Our marketing team needs better insights into website performance to optimize campaigns and content strategy. Current tools are limited and do not provide actionable data.',
   'utility': 'Our utility company serves 500,000 customers across three states and is upgrading to smart grid infrastructure to improve reliability and reduce operational costs.'
 };
 
