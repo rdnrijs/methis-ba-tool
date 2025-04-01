@@ -40,7 +40,8 @@ const Analyze = () => {
     setShowApiConfig(false);
   };
 
-  return <Layout fullWidth>
+  return (
+    <Layout>
       <div className="py-8">
         {showApiConfig ? <APIKeyForm onConfigured={handleApiConfigured} /> : !result ? <RequestInput onSubmit={handleSubmit} isLoading={isLoading} /> : <>
             <div className="mb-6">
@@ -52,7 +53,8 @@ const Analyze = () => {
             <RequirementResults result={result} tokenUsage={tokenUsage!} clientRequest={clientRequest} stakeholders={stakeholders} systems={systems} companyContext={companyContext} />
           </>}
       </div>
-    </Layout>;
+    </Layout>
+  );
 };
 
 export default Analyze;
