@@ -15,6 +15,9 @@ export interface RequestTemplate {
   template_id: string;
   label: string;
   content: string | null;
+  stakeholders: string | null;
+  systems: string | null;
+  company_context: string | null;
   is_example: boolean;
   display_order: number;
   created_at: string;

@@ -30,6 +30,36 @@ export const TEMPLATE_CONTENT = {
   'utility': EXAMPLE_REQUESTS['utility'],
 };
 
+// Sample stakeholders for fallback templates
+export const TEMPLATE_STAKEHOLDERS = {
+  'feature': 'Product Manager\nDevelopment Team\nQA Team\nEnd Users',
+  'e-commerce': 'Online Shoppers\nStore Administrators\nInventory Managers\nCustomer Support Team',
+  'mobile-app': 'Field Workers\nTeam Managers\nHR Department\nIT Support',
+  'crm': 'Sales Representatives\nSales Managers\nMarketing Team\nCustomer Support',
+  'analytics': 'Marketing Analysts\nProduct Managers\nExecutive Team\nContent Creators',
+  'utility': 'Grid Operators\nMaintenance Teams\nCustomer Service Reps\nRegulatory Compliance Officers'
+};
+
+// Sample systems for fallback templates
+export const TEMPLATE_SYSTEMS = {
+  'feature': 'Frontend Application\nBackend API\nDatabase\nIntegration Services',
+  'e-commerce': 'Product Catalog System\nInventory Management\nPayment Processing\nOrder Fulfillment',
+  'mobile-app': 'iOS Application\nAndroid Application\nBackend API\nPush Notification Service',
+  'crm': 'Contact Management\nSales Pipeline\nEmail Marketing\nReporting Dashboard',
+  'analytics': 'Data Collection API\nData Warehouse\nVisualization Engine\nExport Services',
+  'utility': 'Smart Meter Network\nSCADA System\nCustomer Portal\nMaintenance Scheduling'
+};
+
+// Sample company context for fallback templates
+export const TEMPLATE_COMPANY_CONTEXT = {
+  'feature': 'Our company is focused on delivering high-quality software solutions to enterprise clients. This feature is part of our Q3 roadmap to improve user experience.',
+  'e-commerce': 'Our retail business has been operating for 10 years with physical stores and now needs to expand online to reach more customers and compete with digital-native retailers.',
+  'mobile-app': 'Our organization has 500+ field workers who need better communication tools while on client sites. Current process relies on emails and phone calls which causes delays.',
+  'crm': 'Our sales team of 50 people currently uses spreadsheets to track leads and opportunities, leading to data inconsistencies and missed follow-ups.',
+  'analytics': 'Our marketing team needs better insights into website performance to optimize campaigns and content strategy. Current tools are limited and don't provide actionable data.',
+  'utility': 'Our utility company serves 500,000 customers across three states and is upgrading to smart grid infrastructure to improve reliability and reduce operational costs.'
+};
+
 // Fallback sample data
 export const UTILITY_SAMPLE_DATA = {
   clientRequest: "We need a comprehensive dashboard to monitor our smart grid infrastructure. The system should display real-time power usage metrics, integrate with our IoT sensors, and help identify potential maintenance issues before they cause outages.",
@@ -46,7 +76,7 @@ export function convertDbTemplatesToComponentFormat(templates: RequestTemplate[]
   }));
 }
 
-// Create content mapping from templates
+// Create content mapping from templates for all fields
 export function createTemplateContentMap(templates: RequestTemplate[]) {
   const contentMap: Record<string, string> = {};
   
@@ -57,6 +87,42 @@ export function createTemplateContentMap(templates: RequestTemplate[]) {
   });
   
   return contentMap;
+}
+
+export function createTemplateStakeholdersMap(templates: RequestTemplate[]) {
+  const stakeholdersMap: Record<string, string> = {};
+  
+  templates.forEach(template => {
+    if (template.stakeholders) {
+      stakeholdersMap[template.template_id] = template.stakeholders;
+    }
+  });
+  
+  return stakeholdersMap;
+}
+
+export function createTemplateSystemsMap(templates: RequestTemplate[]) {
+  const systemsMap: Record<string, string> = {};
+  
+  templates.forEach(template => {
+    if (template.systems) {
+      systemsMap[template.template_id] = template.systems;
+    }
+  });
+  
+  return systemsMap;
+}
+
+export function createTemplateCompanyContextMap(templates: RequestTemplate[]) {
+  const contextMap: Record<string, string> = {};
+  
+  templates.forEach(template => {
+    if (template.company_context) {
+      contextMap[template.template_id] = template.company_context;
+    }
+  });
+  
+  return contextMap;
 }
 
 // Convert sample data to the format used in the application

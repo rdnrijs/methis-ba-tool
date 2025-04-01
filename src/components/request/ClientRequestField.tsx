@@ -52,7 +52,7 @@ const ClientRequestField = ({
         placeholder="Enter a detailed description of what the client is requesting..."
         value={formatDisplayText(clientRequest)}
         onChange={handleTextChange}
-        className="min-h-[120px] resize-y"
+        className="min-h-[120px] resize-y whitespace-pre-wrap"
       />
       
       <div className="text-xs text-muted-foreground text-right">

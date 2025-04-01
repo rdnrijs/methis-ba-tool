@@ -8,8 +8,14 @@ import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
 import { 
   TEMPLATE_CONTENT, 
+  TEMPLATE_STAKEHOLDERS,
+  TEMPLATE_SYSTEMS,
+  TEMPLATE_COMPANY_CONTEXT,
   UTILITY_SAMPLE_DATA, 
   createTemplateContentMap,
+  createTemplateStakeholdersMap,
+  createTemplateSystemsMap,
+  createTemplateCompanyContextMap,
   convertSampleDataToAppFormat
 } from './templates';
 import TemplateSelector from './TemplateSelector';
@@ -30,6 +36,9 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const [tokenCount, setTokenCount] = useState(0);
   const [template, setTemplate] = useState('blank');
   const [templateContentMap, setTemplateContentMap] = useState<Record<string, string>>(TEMPLATE_CONTENT);
+  const [templateStakeholdersMap, setTemplateStakeholdersMap] = useState<Record<string, string>>(TEMPLATE_STAKEHOLDERS);
+  const [templateSystemsMap, setTemplateSystemsMap] = useState<Record<string, string>>(TEMPLATE_SYSTEMS);
+  const [templateCompanyContextMap, setTemplateCompanyContextMap] = useState<Record<string, string>>(TEMPLATE_COMPANY_CONTEXT);
   const [sampleData, setSampleData] = useState(UTILITY_SAMPLE_DATA);
   
   useEffect(() => {
@@ -38,8 +47,11 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       try {
         const dbTemplates = await getRequestTemplates();
         if (dbTemplates.length > 0) {
-          // Create content mapping from the database templates
+          // Create content mappings from the database templates for all fields
           setTemplateContentMap(createTemplateContentMap(dbTemplates));
+          setTemplateStakeholdersMap(createTemplateStakeholdersMap(dbTemplates));
+          setTemplateSystemsMap(createTemplateSystemsMap(dbTemplates));
+          setTemplateCompanyContextMap(createTemplateCompanyContextMap(dbTemplates));
         }
       } catch (error) {
         console.error('Error loading template content:', error);
@@ -96,8 +108,24 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       return;
     }
     
+    // Set client request content from template
     if (value in templateContentMap) {
       setClientRequest(templateContentMap[value]);
+    }
+    
+    // Set stakeholders content from template
+    if (value in templateStakeholdersMap) {
+      setStakeholders(templateStakeholdersMap[value]);
+    }
+    
+    // Set systems content from template
+    if (value in templateSystemsMap) {
+      setSystems(templateSystemsMap[value]);
+    }
+    
+    // Set company context from template
+    if (value in templateCompanyContextMap) {
+      setCompanyContext(templateCompanyContextMap[value]);
     }
   };
   
