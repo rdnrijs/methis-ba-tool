@@ -1,21 +1,32 @@
+
 import { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Ribbon from './navigation/Ribbon';
+
 interface LayoutProps {
   children: ReactNode;
   className?: string;
   fullWidth?: boolean;
 }
+
 const Layout = ({
   children,
   className,
   fullWidth = false
 }: LayoutProps) => {
   const navigate = useNavigate();
+  
   const handleNavigation = (path: string) => () => {
+    // Force a clean navigation to the homepage
+    if (path === '/') {
+      // Prevent default behavior and use a direct URL change for the homepage
+      window.location.href = '/';
+      return;
+    }
     navigate(path);
   };
+  
   return <div className="min-h-screen flex flex-col">
       <header className="py-4 pl-16 pr-6 md:pl-20 border-b border-border/50 backdrop-blur-sm sticky top-0 z-10 bg-background/80">
         <div className={cn("mx-auto flex items-center justify-between", fullWidth ? "w-full" : "max-w-6xl")}>
@@ -47,4 +58,5 @@ const Layout = ({
       <Ribbon />
     </div>;
 };
+
 export default Layout;

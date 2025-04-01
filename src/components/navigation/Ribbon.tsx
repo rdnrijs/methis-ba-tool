@@ -17,6 +17,14 @@ const Ribbon = () => {
   
   const handleNavigation = (path: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // For the home button, use direct URL change to ensure a clean reload
+    if (path === '/') {
+      window.location.href = '/';
+      return;
+    }
+    
+    // For other paths, use navigate
     navigate(path);
   };
   
