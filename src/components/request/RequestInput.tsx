@@ -6,22 +6,10 @@ import { Send, RefreshCw } from 'lucide-react';
 import { toast } from "sonner";
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
-import { 
-  TEMPLATE_CONTENT, 
-  TEMPLATE_STAKEHOLDERS,
-  TEMPLATE_SYSTEMS,
-  TEMPLATE_COMPANY_CONTEXT,
-  UTILITY_SAMPLE_DATA, 
-  createTemplateContentMap,
-  createTemplateStakeholdersMap,
-  createTemplateSystemsMap,
-  createTemplateCompanyContextMap,
-  convertSampleDataToAppFormat
-} from './templates';
-import TemplateSelector from './TemplateSelector';
+import { UTILITY_SAMPLE_DATA, convertSampleDataToAppFormat } from './templates';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
-import { getRequestTemplates, getSampleData } from '@/utils/supabaseService';
+import { getSampleData } from '@/utils/supabaseService';
 
 interface RequestInputProps {
   onSubmit: (request: string, context: string, stakeholders: string, systems: string, companyContext: string) => void;
@@ -34,30 +22,9 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const [systems, setSystems] = useState('');
   const [companyContext, setCompanyContext] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
-  const [template, setTemplate] = useState('blank');
-  const [templateContentMap, setTemplateContentMap] = useState<Record<string, string>>(TEMPLATE_CONTENT);
-  const [templateStakeholdersMap, setTemplateStakeholdersMap] = useState<Record<string, string>>(TEMPLATE_STAKEHOLDERS);
-  const [templateSystemsMap, setTemplateSystemsMap] = useState<Record<string, string>>(TEMPLATE_SYSTEMS);
-  const [templateCompanyContextMap, setTemplateCompanyContextMap] = useState<Record<string, string>>(TEMPLATE_COMPANY_CONTEXT);
   const [sampleData, setSampleData] = useState(UTILITY_SAMPLE_DATA);
   
   useEffect(() => {
-    // Load templates from Supabase
-    const loadTemplates = async () => {
-      try {
-        const dbTemplates = await getRequestTemplates();
-        if (dbTemplates.length > 0) {
-          // Create content mappings from the database templates for all fields
-          setTemplateContentMap(createTemplateContentMap(dbTemplates));
-          setTemplateStakeholdersMap(createTemplateStakeholdersMap(dbTemplates));
-          setTemplateSystemsMap(createTemplateSystemsMap(dbTemplates));
-          setTemplateCompanyContextMap(createTemplateCompanyContextMap(dbTemplates));
-        }
-      } catch (error) {
-        console.error('Error loading template content:', error);
-      }
-    };
-    
     // Load sample data from Supabase
     const loadSampleData = async () => {
       try {
@@ -70,7 +37,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       }
     };
     
-    loadTemplates();
     loadSampleData();
   }, []);
   
@@ -97,38 +63,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     onSubmit(clientRequest, contextData, stakeholders, systems, companyContext);
   };
   
-  const handleTemplateChange = (value: string) => {
-    setTemplate(value);
-    
-    if (value === 'blank') {
-      setClientRequest('');
-      setStakeholders('');
-      setSystems('');
-      setCompanyContext('');
-      return;
-    }
-    
-    // Set client request content from template
-    if (value in templateContentMap) {
-      setClientRequest(templateContentMap[value]);
-    }
-    
-    // Set stakeholders content from template
-    if (value in templateStakeholdersMap) {
-      setStakeholders(templateStakeholdersMap[value]);
-    }
-    
-    // Set systems content from template
-    if (value in templateSystemsMap) {
-      setSystems(templateSystemsMap[value]);
-    }
-    
-    // Set company context from template
-    if (value in templateCompanyContextMap) {
-      setCompanyContext(templateCompanyContextMap[value]);
-    }
-  };
-  
   const loadSampleData = () => {
     setClientRequest(sampleData.clientRequest);
     setStakeholders(sampleData.stakeholders);
@@ -142,11 +76,6 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
       <Card className="w-full glass-card animate-scale-in animate-once">
         <CardContent className="p-6">
           <div className="space-y-6">
-            <TemplateSelector 
-              template={template} 
-              onTemplateChange={handleTemplateChange} 
-            />
-            
             <ClientRequestField 
               clientRequest={clientRequest} 
               onChange={setClientRequest}
