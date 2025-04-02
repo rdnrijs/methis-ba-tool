@@ -63,7 +63,8 @@ Analyze the client request provided and return a JSON response with the followin
 
 Keep each requirement clear, concise, and focused on a single capability.
 Include at least 3 follow-up questions if you need more information to improve the analysis.
-Assign a confidence score based on how complete and clear the client request is.`;
+Assign a confidence score based on how complete and clear the client request is.
+IMPORTANT: Return ONLY the JSON object, with no additional text, markdown formatting, or code blocks.`;
 
 // Get system prompt with fallbacks
 export const getSystemPrompt = async (): Promise<string> => {
@@ -85,6 +86,40 @@ export const getSystemPrompt = async (): Promise<string> => {
   
   // Fall back to hardcoded default
   return DEFAULT_SYSTEM_PROMPT;
+};
+
+// Helper function to clean the response and extract JSON
+const extractJsonFromResponse = (content: string): any => {
+  // Try to parse directly first
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    // If direct parsing fails, try to extract JSON from markdown code blocks
+    const jsonRegex = /```(?:json)?\s*({[\s\S]*?})\s*```/;
+    const match = content.match(jsonRegex);
+    
+    if (match && match[1]) {
+      try {
+        return JSON.parse(match[1]);
+      } catch (jsonError) {
+        throw new Error(`Failed to parse JSON from response: ${jsonError.message}`);
+      }
+    }
+    
+    // If no code blocks, look for any JSON-like structure
+    const possibleJsonRegex = /{[\s\S]*?}/;
+    const jsonMatch = content.match(possibleJsonRegex);
+    
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[0]);
+      } catch (jsonError) {
+        throw new Error(`Failed to parse JSON structure from response: ${jsonError.message}`);
+      }
+    }
+    
+    throw new Error("No valid JSON found in the response");
+  }
 };
 
 export const analyzeRequirements = async (clientRequest: string, additionalContext?: string): Promise<OpenAIResponse> => {
@@ -125,9 +160,9 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
 
     const data = await response.json();
     
-    // Parse the content string as JSON
+    // Extract and parse the JSON content, handling markdown formatting if present
     const content = data.choices[0].message.content;
-    const result = JSON.parse(content);
+    const result = extractJsonFromResponse(content);
     
     const tokenUsage = {
       promptTokens: data.usage.prompt_tokens,
