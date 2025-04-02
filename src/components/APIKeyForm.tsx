@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +10,12 @@ import { storeApiKey, getApiKey, storeSelectedModel, getSelectedModel } from '@/
 import { validateApiKey, estimateCost } from '@/utils/openAIService';
 import { toast } from "sonner";
 import InfoCard from './ui/InfoCard';
-
 interface APIKeyFormProps {
   onConfigured: () => void;
 }
-
-const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
+const APIKeyForm = ({
+  onConfigured
+}: APIKeyFormProps) => {
   const [apiKey, setApiKey] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
@@ -24,7 +23,7 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
   const [rememberKey, setRememberKey] = useState(false);
   const [selectedModel, setSelectedModel] = useState(getSelectedModel());
   const [estimatedCost, setEstimatedCost] = useState(0);
-  
+
   // Check if an API key is already stored
   useEffect(() => {
     const storedKey = getApiKey();
@@ -32,28 +31,24 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
       setApiKey(storedKey);
       setIsValidated(true);
     }
-    
+
     // Set default model
     setSelectedModel(getSelectedModel());
   }, []);
-  
+
   // Update cost estimation when model changes
   useEffect(() => {
     // Estimate based on average usage (1000 input, 500 output tokens)
     setEstimatedCost(estimateCost(1000, 500, selectedModel));
   }, [selectedModel]);
-  
   const handleValidateKey = async () => {
     if (!apiKey.trim()) {
       toast.error('Please enter an API key');
       return;
     }
-    
     setIsValidating(true);
-    
     try {
       const isValid = await validateApiKey(apiKey);
-      
       if (isValid) {
         setIsValidated(true);
         storeApiKey(apiKey, rememberKey);
@@ -68,7 +63,6 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
       setIsValidating(false);
     }
   };
-  
   const handleContinue = () => {
     if (isValidated) {
       storeApiKey(apiKey, rememberKey);
@@ -78,21 +72,18 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
       toast.error('Please validate your API key first');
     }
   };
-  
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
     storeSelectedModel(value);
   };
-  
-  return (
-    <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-lg">
+  return <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-lg">
       <div className="flex items-center gap-3 mb-4">
-        <div className="bg-red-100 p-2 rounded-full">
-          <Key className="h-5 w-5 text-red-600" />
+        <div className="bg-red-100 p-2 mx-0 rounded-full px-8px my-0 px-[8px] py-0">
+          <Key className="h-5 w-5 text-red-600 my-[20px]" />
         </div>
         <div>
           <h2 className="text-xl font-bold">API Configuration</h2>
-          <p className="text-muted-foreground">Configure your OpenAI API key to start analyzing requirements</p>
+          <p className="text-muted-foreground">Configure your OpenAI API key to start </p>
         </div>
       </div>
       
@@ -100,24 +91,11 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
         <div className="space-y-2">
           <Label htmlFor="apiKey">OpenAI API Key</Label>
           <div className="relative">
-            <Input
-              id="apiKey"
-              type={showKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={(e) => {
-                setApiKey(e.target.value);
-                setIsValidated(false);
-              }}
-              placeholder="sk-..."
-              className="pr-10"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full"
-              onClick={() => setShowKey(!showKey)}
-            >
+            <Input id="apiKey" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => {
+            setApiKey(e.target.value);
+            setIsValidated(false);
+          }} placeholder="sk-..." className="pr-10" />
+            <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full" onClick={() => setShowKey(!showKey)}>
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
@@ -144,39 +122,20 @@ const APIKeyForm = ({ onConfigured }: APIKeyFormProps) => {
         </div>
 
         <div className="flex items-center space-x-2">
-          <Switch
-            id="remember"
-            checked={rememberKey}
-            onCheckedChange={setRememberKey}
-          />
+          <Switch id="remember" checked={rememberKey} onCheckedChange={setRememberKey} />
           <Label htmlFor="remember" className="cursor-pointer">Remember for 30 days</Label>
         </div>
 
         <div className="flex space-x-3 pt-2">
-          <Button
-            onClick={handleValidateKey}
-            variant="outline"
-            disabled={isValidating || !apiKey.trim()}
-            className="flex-1"
-          >
-            {isValidating ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : isValidated ? (
-              <Check className="mr-2 h-4 w-4" />
-            ) : null}
+          <Button onClick={handleValidateKey} variant="outline" disabled={isValidating || !apiKey.trim()} className="flex-1">
+            {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : isValidated ? <Check className="mr-2 h-4 w-4" /> : null}
             Validate Key
           </Button>
-          <Button
-            onClick={handleContinue}
-            disabled={!isValidated}
-            className="flex-1 bg-red-300 hover:bg-red-400 text-black"
-          >
+          <Button onClick={handleContinue} disabled={!isValidated} className="flex-1 bg-red-300 hover:bg-red-400 text-black">
             Continue
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default APIKeyForm;
