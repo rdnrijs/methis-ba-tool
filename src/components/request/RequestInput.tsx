@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Send, RefreshCw } from 'lucide-react';
+import { Send, RefreshCw, Settings } from 'lucide-react';
 import { toast } from "sonner";
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { UTILITY_SAMPLE_DATA, convertSampleDataToAppFormat } from './templates';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
 import { getSampleData } from '@/utils/supabaseService';
+import PromptConfig from '@/components/PromptConfig';
 
 interface RequestInputProps {
   onSubmit: (request: string, context: string, stakeholders: string, systems: string, companyContext: string) => void;
@@ -73,6 +74,10 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   
   return (
     <div className="space-y-4 w-full max-w-3xl mx-auto">
+      <div className="flex justify-end">
+        <PromptConfig />
+      </div>
+      
       <Card className="w-full glass-card animate-scale-in animate-once">
         <CardContent className="p-6">
           <div className="space-y-6">
