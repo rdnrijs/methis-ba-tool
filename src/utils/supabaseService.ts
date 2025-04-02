@@ -10,20 +10,6 @@ export interface SystemPrompt {
   updated_at: string;
 }
 
-export interface RequestTemplate {
-  id: string;
-  template_id: string;
-  label: string;
-  content: string | null;
-  stakeholders: string | null;
-  systems: string | null;
-  company_context: string | null;
-  is_example: boolean;
-  display_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface SampleData {
   id: string;
   name: string;
@@ -58,20 +44,6 @@ export async function getAllSystemPrompts(): Promise<SystemPrompt[]> {
   
   if (error) {
     console.error('Error fetching system prompts:', error);
-    return [];
-  }
-  
-  return data || [];
-}
-
-export async function getRequestTemplates(): Promise<RequestTemplate[]> {
-  const { data, error } = await supabase
-    .from('request_templates')
-    .select('*')
-    .order('display_order');
-  
-  if (error) {
-    console.error('Error fetching request templates:', error);
     return [];
   }
   
