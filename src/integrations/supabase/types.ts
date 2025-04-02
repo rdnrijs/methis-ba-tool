@@ -9,39 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      request_templates: {
-        Row: {
-          content: string | null
-          created_at: string
-          display_order: number
-          id: string
-          is_example: boolean
-          label: string
-          template_id: string
-          updated_at: string
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_example?: boolean
-          label: string
-          template_id: string
-          updated_at?: string
-        }
-        Update: {
-          content?: string | null
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_example?: boolean
-          label?: string
-          template_id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       sample_data: {
         Row: {
           client_request: string
