@@ -31,17 +31,20 @@ const UserStoryToggle: React.FC<UserStoryToggleProps> = ({ story, description })
   const getDescription = () => {
     if (description) return description;
     
+    // Ensure story is a string before using string methods
+    const storyText = String(story);
+    
     // Fall back to matching keywords if no specific description is provided
     for (const [key, desc] of Object.entries(USER_STORY_DESCRIPTIONS)) {
-      if (story.includes(key)) {
+      if (storyText.includes(key)) {
         return desc;
       }
     }
     
     // If no match, extract and expand from the user story itself
-    const roleMatch = story.match(/As a ([^,]+)/i);
-    const actionMatch = story.match(/I want to ([^,]+)/i);
-    const benefitMatch = story.match(/so that ([^\.]+)/i);
+    const roleMatch = storyText.match(/As a ([^,]+)/i);
+    const actionMatch = storyText.match(/I want to ([^,]+)/i);
+    const benefitMatch = storyText.match(/so that ([^\.]+)/i);
     
     const role = roleMatch ? roleMatch[1].trim() : '';
     const action = actionMatch ? actionMatch[1].trim() : '';
