@@ -46,7 +46,7 @@ export const estimateCost = (inputTokens: number, outputTokens: number, model = 
   return inputCost + outputCost;
 };
 
-// Default system prompt
+// Default system prompt - This is now only a fallback if database and custom storage both fail
 export const DEFAULT_SYSTEM_PROMPT = `You are an expert business analyst specializing in requirements analysis. 
 Your task is to analyze client requests and break them down into structured requirements.
 Analyze the client request provided and return a JSON response with the following structure:
@@ -79,6 +79,8 @@ export const getSystemPrompt = async (): Promise<string> => {
     const dbPrompt = await getDefaultSystemPrompt();
     if (dbPrompt) {
       return dbPrompt;
+    } else {
+      console.warn('No default system prompt found in database');
     }
   } catch (error) {
     console.error('Error loading system prompt from database:', error);

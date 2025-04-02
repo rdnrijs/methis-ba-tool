@@ -34,6 +34,7 @@ const PromptConfig = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [originalPrompt, setOriginalPrompt] = useState('');
 
   useEffect(() => {
     const loadPrompt = async () => {
@@ -45,6 +46,20 @@ const PromptConfig = () => {
       if (savedPrompt) {
         setSystemPrompt(savedPrompt);
         setIsLoading(false);
+        
+        // Load the original database prompt in the background
+        try {
+          const defaultPrompt = await getDefaultSystemPrompt();
+          if (defaultPrompt) {
+            setOriginalPrompt(defaultPrompt);
+          } else {
+            setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+          }
+        } catch (error) {
+          console.error('Error loading default system prompt:', error);
+          setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+        }
+        
         return;
       }
       
@@ -53,13 +68,17 @@ const PromptConfig = () => {
         const defaultPrompt = await getDefaultSystemPrompt();
         if (defaultPrompt) {
           setSystemPrompt(defaultPrompt);
+          setOriginalPrompt(defaultPrompt);
         } else {
           // Fall back to the hard-coded default if Supabase fails
           setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+          setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+          console.warn('No default system prompt found in database, using hardcoded default');
         }
       } catch (error) {
         console.error('Error loading default system prompt:', error);
         setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+        setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
       } finally {
         setIsLoading(false);
       }
@@ -145,13 +164,21 @@ const PromptConfig = () => {
   const handleReset = async () => {
     setIsLoading(true);
     try {
-      const defaultPrompt = await getDefaultSystemPrompt();
-      if (defaultPrompt) {
-        setSystemPrompt(defaultPrompt);
-        toast.info("Prompt reset to database default.");
+      if (originalPrompt) {
+        setSystemPrompt(originalPrompt);
+        toast.info("Prompt reset to database original.");
       } else {
-        setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
-        toast.info("Prompt reset to application default.");
+        // Reload the database prompt
+        const defaultPrompt = await getDefaultSystemPrompt();
+        if (defaultPrompt) {
+          setSystemPrompt(defaultPrompt);
+          setOriginalPrompt(defaultPrompt);
+          toast.info("Prompt reset to database default.");
+        } else {
+          setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+          setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+          toast.info("Prompt reset to application default.");
+        }
       }
     } catch (error) {
       console.error('Error resetting to default prompt:', error);
@@ -217,7 +244,7 @@ const PromptConfig = () => {
             disabled={isLoading}
           >
             <RefreshCw size={16} />
-            Reset to Default
+            Reset to Database Default
           </Button>
           <Button 
             onClick={handleSave} 

@@ -22,18 +22,31 @@ export interface SampleData {
 }
 
 export async function getDefaultSystemPrompt(): Promise<string | null> {
-  const { data, error } = await supabase
-    .from('system_prompts')
-    .select('content')
-    .eq('is_default', true)
-    .single();
+  console.log('Fetching default system prompt from database...');
   
-  if (error) {
-    console.error('Error fetching default system prompt:', error);
+  try {
+    const { data, error } = await supabase
+      .from('system_prompts')
+      .select('content')
+      .eq('is_default', true)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching default system prompt:', error);
+      return null;
+    }
+    
+    if (!data) {
+      console.warn('No default system prompt found in database');
+      return null;
+    }
+    
+    console.log('Successfully loaded system prompt from database');
+    return data.content;
+  } catch (error) {
+    console.error('Exception while fetching default system prompt:', error);
     return null;
   }
-  
-  return data?.content || null;
 }
 
 export async function getAllSystemPrompts(): Promise<SystemPrompt[]> {
