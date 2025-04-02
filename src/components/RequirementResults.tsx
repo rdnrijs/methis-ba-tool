@@ -25,6 +25,7 @@ import { RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
 import { toast } from "sonner";
 import InfoCard from './ui/InfoCard';
 import { cn } from '@/lib/utils';
+import UserStoryToggle from './UserStoryToggle';
 
 interface RequirementResultsProps {
   result: RequirementAnalysisResult;
@@ -495,9 +496,9 @@ const RequirementResults = ({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-1 divide-y">
+              <div className="space-y-0 divide-y">
                 {result.userStories.map((story, index) => (
-                  <RequirementItem key={index} text={story} />
+                  <UserStoryToggle key={index} story={story} />
                 ))}
               </div>
             </CardContent>
