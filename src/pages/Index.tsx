@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getApiKey } from '@/utils/storageUtils';
+import { getApiKey, getSelectedProvider } from '@/utils/storageUtils';
 import Layout from '@/components/Layout';
 import APIKeyForm from '@/components/APIKeyForm';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,10 @@ const Index = () => {
 
           {/* Right column - API form */}
           <div id="api-form-section" className="flex-1 w-full max-w-md">
-            <APIKeyForm onConfigured={handleApiConfigured} />
+            <APIKeyForm 
+              onConfigured={handleApiConfigured} 
+              provider={getSelectedProvider() as 'openai' | 'google'}
+            />
           </div>
         </div>
       </div>
