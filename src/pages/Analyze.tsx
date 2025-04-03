@@ -7,6 +7,7 @@ import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
 import APIKeyForm from '@/components/APIKeyForm';
 import Layout from '@/components/Layout';
+import { getSelectedProvider } from '@/utils/storageUtils';
 
 const Analyze = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +58,12 @@ const Analyze = () => {
   return (
     <Layout>
       <div className="py-8">
-        {showApiConfig ? <APIKeyForm onConfigured={handleApiConfigured} /> : !result ? (
+        {showApiConfig ? (
+          <APIKeyForm 
+            onConfigured={handleApiConfigured} 
+            provider={getSelectedProvider() as 'openai' | 'google'}
+          />
+        ) : !result ? (
           <>
             <RequestInput onSubmit={handleSubmit} isLoading={isLoading} />
             {error && (

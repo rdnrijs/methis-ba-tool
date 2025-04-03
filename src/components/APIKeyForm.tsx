@@ -145,6 +145,7 @@ const APIKeyForm = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
+            <SelectItem value="gemini-flash">Gemini 2.0 Flash</SelectItem>
             <SelectItem value="gemini-ultra">Gemini Ultra</SelectItem>
           </SelectContent>
         </Select>

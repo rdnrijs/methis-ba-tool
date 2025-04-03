@@ -1,4 +1,3 @@
-
 import { 
   getApiKey, 
   getSelectedModel, 
@@ -36,6 +35,7 @@ const modelCosts = {
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
   'gemini-pro': { input: 0.0005, output: 0.0005 },
+  'gemini-flash': { input: 0.0003, output: 0.0003 }, // Gemini 2.0 Flash (lower cost)
   'gemini-ultra': { input: 0.0015, output: 0.0015 },
 };
 
@@ -140,8 +140,17 @@ const analyzeWithGemini = async (
   systemPrompt: string,
   model: string = 'gemini-pro'
 ): Promise<OpenAIResponse> => {
-  const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + 
-                 model.replace('gemini-', 'gemini/') + ':generateContent';
+  // Handle the model name for API request
+  let apiModelName = model;
+  if (model === 'gemini-flash') {
+    apiModelName = 'gemini/2.0-flash'; // Use the correct API name for Gemini 2.0 Flash
+  } else if (model === 'gemini-pro') {
+    apiModelName = 'gemini/pro'; // Use the correct API name
+  } else if (model === 'gemini-ultra') {
+    apiModelName = 'gemini/ultra'; // Use the correct API name
+  }
+  
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${apiModelName}:generateContent`;
   
   try {
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
@@ -213,8 +222,9 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
       throw new Error('Google API key not found. Please configure your Google API key first.');
     }
     
+    const model = getSelectedModel();
     // For Google Gemini, we combine system prompt with user message
-    return analyzeWithGemini(fullPrompt, apiKey, systemPrompt);
+    return analyzeWithGemini(fullPrompt, apiKey, systemPrompt, model);
   } else {
     // Default to OpenAI
     const apiKey = getApiKey();
@@ -317,4 +327,3 @@ export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => 
     return false;
   }
 };
-
