@@ -94,6 +94,7 @@ const RequirementResults = ({
             title="Functional Requirements"
             description="Capabilities the system must provide to users"
             icon="functional"
+            acceptanceCriteria={result.acceptanceCriteria}
           />
         </TabsContent>
         
