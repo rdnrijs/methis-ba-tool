@@ -28,14 +28,74 @@ const RequirementRelationshipVisualizer = ({
   const [selectedRequirement, setSelectedRequirement] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   
-  // Simple mapping function to determine relationships
-  // In a real app, you might have more complex relationship logic
+  // Enhanced relationship mapping algorithm
   const getRelatedCriteria = (requirement: string) => {
-    // This is a simplified way to find relationships - in a real app you'd want a more sophisticated algorithm
-    return acceptanceCriteria.filter(criteria => 
-      criteria.toLowerCase().includes(requirement.toLowerCase().split(' ').slice(0, 3).join(' ')) ||
-      requirement.toLowerCase().includes(criteria.toLowerCase().split(' ').slice(0, 3).join(' '))
-    );
+    if (!requirement) return [];
+    
+    // Extract key phrases from the requirement (nouns and verbs)
+    const reqText = requirement.toLowerCase();
+    
+    // Split requirement into words for keyword matching
+    const reqWords = reqText.split(/\s+/)
+      .filter(word => word.length > 3)  // Filter out common short words
+      .map(word => word.replace(/[.,;:!?]/g, '')); // Remove punctuation
+    
+    // Create a scoring system for each acceptance criteria
+    const scoredCriteria = acceptanceCriteria.map(criteria => {
+      const criteriaText = criteria.toLowerCase();
+      
+      // Calculate base score from direct text matching
+      let score = 0;
+      
+      // Check for direct substring matches (weighted heavily)
+      if (criteriaText.includes(reqText.substring(0, Math.min(30, reqText.length))) || 
+          reqText.includes(criteriaText.substring(0, Math.min(30, criteriaText.length)))) {
+        score += 10;
+      }
+      
+      // Check for keyword matches
+      reqWords.forEach(word => {
+        if (criteriaText.includes(word)) {
+          score += 2;
+        }
+      });
+      
+      // Check for semantic similarity through common domain terms
+      const domainTerms = [
+        'display', 'generate', 'allow', 'provide', 'system', 'user', 'data', 
+        'report', 'dashboard', 'interface', 'access', 'manage', 'filter',
+        'create', 'delete', 'update', 'view', 'edit', 'analyze'
+      ];
+      
+      domainTerms.forEach(term => {
+        if (reqText.includes(term) && criteriaText.includes(term)) {
+          score += 1;
+        }
+      });
+      
+      // Check for subject matter alignment
+      // If requirement is about alerts and criteria mentions notifications
+      if ((reqText.includes('alert') || reqText.includes('notif')) && 
+          (criteriaText.includes('alert') || criteriaText.includes('notif'))) {
+        score += 3;
+      }
+      
+      // If requirement mentions data and criteria talks about information display
+      if ((reqText.includes('data') || reqText.includes('information')) && 
+          (criteriaText.includes('display') || criteriaText.includes('show') || criteriaText.includes('present'))) {
+        score += 3;
+      }
+      
+      return { criteria, score };
+    });
+    
+    // Sort by score and filter out low-relevance criteria (score < 2)
+    const sortedCriteria = scoredCriteria
+      .filter(item => item.score > 2)
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.criteria);
+    
+    return sortedCriteria;
   };
 
   return (
