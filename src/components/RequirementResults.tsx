@@ -25,7 +25,8 @@ import { RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
 import { toast } from "sonner";
 import InfoCard from './ui/InfoCard';
 import { cn } from '@/lib/utils';
-import UserStoryToggle, { UserStoryItem } from './UserStoryToggle';
+import UserStoryToggle from './UserStoryToggle';
+import type { UserStoryItem } from './UserStoryToggle';
 
 interface RequirementResultsProps {
   result: RequirementAnalysisResult;
@@ -37,10 +38,10 @@ interface RequirementResultsProps {
 }
 
 const formatDisplayText = (text: string | UserStoryItem): string => {
-  if (typeof text !== 'string') {
+  if (typeof text === 'object' && text !== null && 'story' in text) {
     return text.story.replace(/\\n/g, '\n');
   }
-  return text.replace(/\\n/g, '\n') || '';
+  return String(text).replace(/\\n/g, '\n');
 };
 
 const RequirementItem = ({ text }: { text: string }) => {
