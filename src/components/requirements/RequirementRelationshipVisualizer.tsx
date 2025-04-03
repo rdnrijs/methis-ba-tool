@@ -26,6 +26,7 @@ const RequirementRelationshipVisualizer = ({
   acceptanceCriteria
 }: RequirementRelationshipVisualizerProps) => {
   const [selectedRequirement, setSelectedRequirement] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   // Simple mapping function to determine relationships
   // In a real app, you might have more complex relationship logic
@@ -39,7 +40,7 @@ const RequirementRelationshipVisualizer = ({
 
   return (
     <div className="my-4">
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="outline" className="gap-2">
             <Network className="h-4 w-4" />
@@ -133,20 +134,17 @@ const RequirementRelationshipVisualizer = ({
             <p className="text-xs text-muted-foreground">
               {functionalRequirements.length} functional requirements are mapped to {acceptanceCriteria.length} acceptance criteria.
             </p>
-            {/* FIX: Moved the Dialog and DialogTrigger outside the Popover */}
-            <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => {
-              document.querySelector('.dialog-trigger-main')?.dispatchEvent(
-                new MouseEvent('click', { bubbles: true })
-              );
-            }}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full text-xs" 
+              onClick={() => setDialogOpen(true)}
+            >
               <Network className="h-3.5 w-3.5 mr-1" /> Open Full View
             </Button>
           </div>
         </PopoverContent>
       </Popover>
-      
-      {/* Hidden trigger that can be programmatically clicked */}
-      <DialogTrigger className="hidden dialog-trigger-main" />
     </div>
   );
 };
