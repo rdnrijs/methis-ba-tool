@@ -84,6 +84,10 @@ const ConfidenceIndicator = ({ score }: { score: number }) => {
   );
 };
 
+const UserStoryItem = ({ storyItem }: { storyItem: string | { story: string; description?: string } }) => {
+  return <UserStoryToggle storyItem={storyItem} />;
+};
+
 const RequirementResults = ({ 
   result, 
   tokenUsage, 
@@ -498,7 +502,7 @@ const RequirementResults = ({
             <CardContent>
               <div className="space-y-0 divide-y">
                 {result.userStories.map((story, index) => (
-                  <UserStoryToggle key={index} story={story} />
+                  <UserStoryItem key={index} storyItem={story} />
                 ))}
               </div>
             </CardContent>

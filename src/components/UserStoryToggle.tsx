@@ -6,9 +6,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { toast } from "sonner";
 import { cn } from '@/lib/utils';
 
-interface UserStoryToggleProps {
+export interface UserStoryItem {
   story: string;
   description?: string;
+}
+
+interface UserStoryToggleProps {
+  storyItem: UserStoryItem | string;
 }
 
 // Example descriptions for each user story pattern - these would normally come from the API
@@ -24,27 +28,32 @@ const USER_STORY_DESCRIPTIONS: Record<string, string> = {
   "Senior Management": "Senior leaders need high-level visualizations of energy usage trends to inform strategic planning, capital investment decisions, and long-term business strategy. This includes identifying patterns that affect profitability, sustainability goals, and operational efficiency."
 };
 
-const UserStoryToggle: React.FC<UserStoryToggleProps> = ({ story, description }) => {
+const UserStoryToggle: React.FC<UserStoryToggleProps> = ({ storyItem }) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Handle both string and object formats for stories
+  const storyText = typeof storyItem === 'string' ? storyItem : storyItem.story;
+  const providedDescription = typeof storyItem === 'object' ? storyItem.description : undefined;
   
   // Determine which description to use based on keywords in the story
   const getDescription = () => {
-    if (description) return description;
+    // If there's a provided description in the object, use that first
+    if (providedDescription) return providedDescription;
     
     // Ensure story is a string before using string methods
-    const storyText = String(story);
+    const storyString = String(storyText);
     
     // Fall back to matching keywords if no specific description is provided
     for (const [key, desc] of Object.entries(USER_STORY_DESCRIPTIONS)) {
-      if (storyText.includes(key)) {
+      if (storyString.includes(key)) {
         return desc;
       }
     }
     
     // If no match, extract and expand from the user story itself
-    const roleMatch = storyText.match(/As a ([^,]+)/i);
-    const actionMatch = storyText.match(/I want to ([^,]+)/i);
-    const benefitMatch = storyText.match(/so that ([^\.]+)/i);
+    const roleMatch = storyString.match(/As a ([^,]+)/i);
+    const actionMatch = storyString.match(/I want to ([^,]+)/i);
+    const benefitMatch = storyString.match(/so that ([^\.]+)/i);
     
     const role = roleMatch ? roleMatch[1].trim() : '';
     const action = actionMatch ? actionMatch[1].trim() : '';
@@ -56,7 +65,7 @@ Implementing this feature would improve their workflow efficiency and satisfacti
   }
   
   const handleCopy = () => {
-    navigator.clipboard.writeText(story);
+    navigator.clipboard.writeText(storyText);
     toast.success("User story copied to clipboard");
   };
   
@@ -70,7 +79,7 @@ Implementing this feature would improve their workflow efficiency and satisfacti
         <Check className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-0.5" />
         <div className="flex-1">
           <CollapsibleTrigger className="flex justify-between items-center w-full text-left">
-            <div className="text-sm">{story}</div>
+            <div className="text-sm">{storyText}</div>
             <div className="flex items-center">
               <Button
                 variant="ghost"

@@ -1,11 +1,11 @@
-
 import { getApiKey, getSelectedModel, getCustomPrompt } from './storageUtils';
 import { getDefaultSystemPrompt } from './supabaseService';
+import { UserStoryItem } from '@/components/UserStoryToggle';
 
 export interface RequirementAnalysisResult {
   functionalRequirements: string[];
   nonFunctionalRequirements: string[];
-  userStories: string[];
+  userStories: Array<string | UserStoryItem>;
   acceptanceCriteria: string[];
   assumptions: string[];
   followUpQuestions: string[];
