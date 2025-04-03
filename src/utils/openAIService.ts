@@ -1,4 +1,11 @@
-import { getApiKey, getSelectedModel, getCustomPrompt } from './storageUtils';
+
+import { 
+  getApiKey, 
+  getSelectedModel, 
+  getCustomPrompt, 
+  getGoogleApiKey, 
+  getSelectedProvider 
+} from './storageUtils';
 import { getDefaultSystemPrompt } from './supabaseService';
 import { UserStoryItem } from '@/components/UserStoryToggle';
 
@@ -28,6 +35,8 @@ const modelCosts = {
   'gpt-4o': { input: 0.005, output: 0.015 },
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
+  'gemini-pro': { input: 0.0005, output: 0.0005 },
+  'gemini-ultra': { input: 0.0015, output: 0.0015 },
 };
 
 // Helper to estimate token count from text
@@ -124,52 +133,58 @@ const extractJsonFromResponse = (content: string): any => {
   }
 };
 
-export const analyzeRequirements = async (clientRequest: string, additionalContext?: string): Promise<OpenAIResponse> => {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    throw new Error('API key not found. Please configure your OpenAI API key first.');
-  }
+// Analyze with Google Gemini API
+const analyzeWithGemini = async (
+  clientRequest: string,
+  apiKey: string,
+  systemPrompt: string,
+  model: string = 'gemini-pro'
+): Promise<OpenAIResponse> => {
+  const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + 
+                 model.replace('gemini-', 'gemini/') + ':generateContent';
   
-  const model = getSelectedModel();
-  const systemPrompt = await getSystemPrompt();
-  
-  let fullPrompt = clientRequest;
-  if (additionalContext && additionalContext.trim() !== '') {
-    fullPrompt += `\n\nAdditional Context:\n${additionalContext}`;
-  }
-
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: fullPrompt }
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: `${systemPrompt}\n\nClient Request: ${clientRequest}` }
+            ]
+          }
         ],
-        temperature: 0.7,
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.95,
+          topK: 40
+        }
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Failed to analyze requirements');
+      throw new Error(errorData.error?.message || 'Failed to analyze requirements with Google Gemini');
     }
 
     const data = await response.json();
     
-    // Extract and parse the JSON content, handling markdown formatting if present
-    const content = data.choices[0].message.content;
+    // Extract content from Gemini response
+    const content = data.candidates[0].content.parts[0].text;
     const result = extractJsonFromResponse(content);
     
+    // Gemini doesn't provide token usage stats, so we estimate
+    const inputTokens = estimateTokenCount(clientRequest + systemPrompt);
+    const outputTokens = estimateTokenCount(content);
+    
     const tokenUsage = {
-      promptTokens: data.usage.prompt_tokens,
-      completionTokens: data.usage.completion_tokens,
-      totalTokens: data.usage.total_tokens
+      promptTokens: inputTokens,
+      completionTokens: outputTokens,
+      totalTokens: inputTokens + outputTokens
     };
 
     return {
@@ -177,12 +192,84 @@ export const analyzeRequirements = async (clientRequest: string, additionalConte
       tokenUsage
     };
   } catch (error) {
-    console.error('Error analyzing requirements:', error);
+    console.error('Error analyzing requirements with Google Gemini:', error);
     throw error;
   }
 };
 
-// Validate API key by making a small test request
+export const analyzeRequirements = async (clientRequest: string, additionalContext?: string): Promise<OpenAIResponse> => {
+  const provider = getSelectedProvider();
+  let fullPrompt = clientRequest;
+  
+  if (additionalContext && additionalContext.trim() !== '') {
+    fullPrompt += `\n\nAdditional Context:\n${additionalContext}`;
+  }
+  
+  const systemPrompt = await getSystemPrompt();
+  
+  if (provider === 'google') {
+    const apiKey = getGoogleApiKey();
+    if (!apiKey) {
+      throw new Error('Google API key not found. Please configure your Google API key first.');
+    }
+    
+    // For Google Gemini, we combine system prompt with user message
+    return analyzeWithGemini(fullPrompt, apiKey, systemPrompt);
+  } else {
+    // Default to OpenAI
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      throw new Error('API key not found. Please configure your OpenAI API key first.');
+    }
+    
+    const model = getSelectedModel();
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: fullPrompt }
+          ],
+          temperature: 0.7,
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to analyze requirements');
+      }
+
+      const data = await response.json();
+      
+      // Extract and parse the JSON content, handling markdown formatting if present
+      const content = data.choices[0].message.content;
+      const result = extractJsonFromResponse(content);
+      
+      const tokenUsage = {
+        promptTokens: data.usage.prompt_tokens,
+        completionTokens: data.usage.completion_tokens,
+        totalTokens: data.usage.total_tokens
+      };
+
+      return {
+        result,
+        tokenUsage
+      };
+    } catch (error) {
+      console.error('Error analyzing requirements:', error);
+      throw error;
+    }
+  }
+};
+
+// Validate OpenAI API key by making a small test request
 export const validateApiKey = async (apiKey: string): Promise<boolean> => {
   try {
     const response = await fetch('https://api.openai.com/v1/models', {
@@ -197,3 +284,37 @@ export const validateApiKey = async (apiKey: string): Promise<boolean> => {
     return false;
   }
 };
+
+// Validate Google API key by making a small test request
+export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => {
+  try {
+    // For Google Gemini, we check if the key works by making a simple request
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    
+    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: 'Hello' }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 10
+        }
+      })
+    });
+    
+    return response.ok;
+  } catch (error) {
+    console.error('Error validating Google API key:', error);
+    return false;
+  }
+};
+
