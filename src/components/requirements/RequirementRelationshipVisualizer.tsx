@@ -133,14 +133,20 @@ const RequirementRelationshipVisualizer = ({
             <p className="text-xs text-muted-foreground">
               {functionalRequirements.length} functional requirements are mapped to {acceptanceCriteria.length} acceptance criteria.
             </p>
-            <Button variant="outline" size="sm" className="w-full text-xs" asChild>
-              <DialogTrigger>
-                <Network className="h-3.5 w-3.5 mr-1" /> Open Full View
-              </DialogTrigger>
+            {/* FIX: Moved the Dialog and DialogTrigger outside the Popover */}
+            <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => {
+              document.querySelector('.dialog-trigger-main')?.dispatchEvent(
+                new MouseEvent('click', { bubbles: true })
+              );
+            }}>
+              <Network className="h-3.5 w-3.5 mr-1" /> Open Full View
             </Button>
           </div>
         </PopoverContent>
       </Popover>
+      
+      {/* Hidden trigger that can be programmatically clicked */}
+      <DialogTrigger className="hidden dialog-trigger-main" />
     </div>
   );
 };
