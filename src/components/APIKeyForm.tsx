@@ -35,10 +35,10 @@ const APIKeyForm = ({
   const [isValidated, setIsValidated] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [rememberKey, setRememberKey] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(getSelectedModel());
+  const [selectedModel, setSelectedModel] = useState('');
   const [estimatedCost, setEstimatedCost] = useState(0);
 
-  // Check if an API key is already stored
+  // Load appropriate settings when provider changes
   useEffect(() => {
     let storedKey;
     if (provider === 'openai') {
@@ -52,6 +52,9 @@ const APIKeyForm = ({
     if (storedKey) {
       setApiKey(storedKey);
       setIsValidated(true);
+    } else {
+      setApiKey('');
+      setIsValidated(false);
     }
   }, [provider]);
 
@@ -168,7 +171,7 @@ const APIKeyForm = ({
   };
 
   return (
-    <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <div className="w-full mx-auto">
       <div className="flex items-center gap-3 mb-4">
         <div className="bg-red-100 p-2 mx-0 rounded-full px-8px my-0 px-[8px] py-0">
           <Key className="h-5 w-5 text-red-600 my-[20px]" />
