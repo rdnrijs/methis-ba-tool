@@ -130,26 +130,26 @@ const APIKeyForm = ({
     if (provider === 'openai') {
       return (
         <Select value={selectedModel} onValueChange={handleModelChange}>
-          <SelectTrigger id="model">
+          <SelectTrigger id="model" className="w-full p-6 text-base">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gpt-4o">GPT-4o (Most capable)</SelectItem>
-            <SelectItem value="gpt-4o-mini">GPT-4o Mini (Balanced)</SelectItem>
-            <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Economical)</SelectItem>
+            <SelectItem value="gpt-4o" className="p-3">GPT-4o (Most capable)</SelectItem>
+            <SelectItem value="gpt-4o-mini" className="p-3">GPT-4o Mini (Balanced)</SelectItem>
+            <SelectItem value="gpt-3.5-turbo" className="p-3">GPT-3.5 Turbo (Economical)</SelectItem>
           </SelectContent>
         </Select>
       );
     } else {
       return (
         <Select value={selectedModel} onValueChange={handleModelChange}>
-          <SelectTrigger id="model">
+          <SelectTrigger id="model" className="w-full p-6 text-base">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
-            <SelectItem value="gemini-flash">Gemini 2.0 Flash</SelectItem>
-            <SelectItem value="gemini-ultra">Gemini Ultra</SelectItem>
+            <SelectItem value="gemini-pro" className="p-3">Gemini Pro</SelectItem>
+            <SelectItem value="gemini-flash" className="p-3">Gemini 2.0 Flash</SelectItem>
+            <SelectItem value="gemini-ultra" className="p-3">Gemini Ultra</SelectItem>
           </SelectContent>
         </Select>
       );
@@ -172,19 +172,19 @@ const APIKeyForm = ({
 
   return (
     <div className="w-full mx-auto">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="bg-red-100 p-2 mx-0 rounded-full px-8px my-0 px-[8px] py-0">
-          <Key className="h-5 w-5 text-red-600 my-[20px]" />
+      <div className="flex items-center gap-5 mb-8">
+        <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-full">
+          <Key className="h-6 w-6 text-red-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold">{provider === 'openai' ? 'OpenAI' : 'Google Gemini'} Configuration</h2>
-          <p className="text-muted-foreground">Configure your {provider === 'openai' ? 'OpenAI' : 'Google Gemini'} API key to start </p>
+          <h2 className="text-2xl font-bold">{provider === 'openai' ? 'OpenAI' : 'Google Gemini'} Configuration</h2>
+          <p className="text-muted-foreground text-base mt-1">Configure your {provider === 'openai' ? 'OpenAI' : 'Google Gemini'} API key to start</p>
         </div>
       </div>
       
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="apiKey">{getAPIKeyLabel()}</Label>
+      <div className="space-y-8">
+        <div className="space-y-4">
+          <Label htmlFor="apiKey" className="text-lg font-medium">{getAPIKeyLabel()}</Label>
           <div className="relative">
             <Input 
               id="apiKey" 
@@ -195,45 +195,59 @@ const APIKeyForm = ({
                 setIsValidated(false);
               }} 
               placeholder={provider === 'openai' ? 'sk-...' : 'AI_...'}
-              className="pr-10" 
+              className="pr-12 p-6 text-base" 
             />
             <Button 
               type="button" 
               variant="ghost" 
               size="icon" 
-              className="absolute right-0 top-0 h-full" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10" 
               onClick={() => setShowKey(!showKey)}
             >
-              {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground ml-1 mt-2">
             {getHelpText()}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground ml-1">
             Your API key is stored locally and never sent to our servers
           </p>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="model">{getModelLabel()}</Label>
+        <div className="space-y-4">
+          <Label htmlFor="model" className="text-lg font-medium">{getModelLabel()}</Label>
           {renderModelSelector()}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground ml-1 mt-2">
             Estimated cost: ${estimatedCost.toFixed(4)} per analysis
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch id="remember" checked={rememberKey} onCheckedChange={setRememberKey} />
-          <Label htmlFor="remember" className="cursor-pointer">Remember for 30 days</Label>
+        <div className="flex items-center space-x-3 py-2">
+          <Switch 
+            id="remember" 
+            checked={rememberKey} 
+            onCheckedChange={setRememberKey}
+            className="data-[state=checked]:bg-red-500" 
+          />
+          <Label htmlFor="remember" className="cursor-pointer text-base">Remember for 30 days</Label>
         </div>
 
-        <div className="flex space-x-3 pt-2">
-          <Button onClick={handleValidateKey} variant="outline" disabled={isValidating || !apiKey.trim()} className="flex-1">
-            {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : isValidated ? <Check className="mr-2 h-4 w-4" /> : null}
+        <div className="flex space-x-4 pt-4">
+          <Button 
+            onClick={handleValidateKey} 
+            variant="outline" 
+            disabled={isValidating || !apiKey.trim()} 
+            className="flex-1 p-6 text-base font-medium"
+          >
+            {isValidating ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : isValidated ? <Check className="mr-2 h-5 w-5" /> : null}
             Validate Key
           </Button>
-          <Button onClick={handleContinue} disabled={!isValidated} className="flex-1 bg-red-300 hover:bg-red-400 text-black">
+          <Button 
+            onClick={handleContinue} 
+            disabled={!isValidated} 
+            className="flex-1 bg-red-300 hover:bg-red-400 text-black p-6 text-base font-medium"
+          >
             Continue
           </Button>
         </div>
