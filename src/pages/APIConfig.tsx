@@ -6,10 +6,12 @@ import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { getSelectedProvider } from '@/utils/storageUtils';
+import { Button } from '@/components/ui/button';
 
 const APIConfig = () => {
   const navigate = useNavigate();
-  const [provider, setProvider] = useState<'openai' | 'google'>(getSelectedProvider() as 'openai' | 'google');
+  // Initialize with null to indicate no selection yet
+  const [provider, setProvider] = useState<'openai' | 'google' | null>(null);
   
   const handleApiConfigured = () => {
     navigate('/analyze');
@@ -29,7 +31,7 @@ const APIConfig = () => {
             <h2 className="text-xl font-semibold">Select AI Provider</h2>
             
             <RadioGroup 
-              defaultValue={provider} 
+              value={provider || undefined}
               className="grid grid-cols-2 gap-4"
               onValueChange={handleProviderChange}
             >
@@ -45,12 +47,14 @@ const APIConfig = () => {
             </RadioGroup>
           </div>
           
-          <div className="p-4 border rounded-lg">
-            <APIKeyForm 
-              provider={provider}
-              onConfigured={handleApiConfigured} 
-            />
-          </div>
+          {provider && (
+            <div className="p-4 border rounded-lg">
+              <APIKeyForm 
+                provider={provider}
+                onConfigured={handleApiConfigured} 
+              />
+            </div>
+          )}
         </div>
       </div>
     </Layout>
