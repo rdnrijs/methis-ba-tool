@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +8,12 @@ import { Loader2, Key, AlertCircle, Check, Eye, EyeOff } from 'lucide-react';
 import { storeApiKey, getApiKey, storeSelectedModel, getSelectedModel, storeSelectedProvider, getSelectedProvider, storeGoogleApiKey, getGoogleApiKey } from '@/utils/storageUtils';
 import { validateApiKey, validateGoogleApiKey, estimateCost } from '@/utils/openAIService';
 import { toast } from "sonner";
+
 interface APIKeyFormProps {
   onConfigured: () => void;
   provider: 'openai' | 'google';
 }
+
 const APIKeyForm = ({
   onConfigured,
   provider
@@ -54,6 +55,7 @@ const APIKeyForm = ({
       setEstimatedCost(0.0005); // Simplified estimate
     }
   }, [selectedModel, provider]);
+
   const handleValidateKey = async () => {
     if (!apiKey.trim()) {
       toast.error('Please enter an API key');
@@ -86,6 +88,7 @@ const APIKeyForm = ({
       setIsValidating(false);
     }
   };
+
   const handleContinue = () => {
     if (isValidated) {
       if (provider === 'openai') {
@@ -100,12 +103,14 @@ const APIKeyForm = ({
       toast.error('Please validate your API key first');
     }
   };
+
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
     if (provider === 'openai') {
       storeSelectedModel(value);
     }
   };
+
   const renderModelSelector = () => {
     if (provider === 'openai') {
       return <Select value={selectedModel} onValueChange={handleModelChange}>
@@ -130,15 +135,19 @@ const APIKeyForm = ({
         </Select>;
     }
   };
+
   const getAPIKeyLabel = () => {
     return provider === 'openai' ? 'OpenAI API Key' : 'Google API Key';
   };
+
   const getModelLabel = () => {
     return provider === 'openai' ? 'OpenAI Model' : 'Google Gemini Model';
   };
+
   const getHelpText = () => {
     return provider === 'openai' ? 'Get your API key from OpenAI dashboard' : 'Get your API key from Google AI Studio';
   };
+
   return <div className="w-full">
       <div className="flex items-center gap-4 mb-5">
         <div className="bg-red-100 dark:bg-red-900/30 p-2.5 rounded-full">
@@ -174,8 +183,6 @@ const APIKeyForm = ({
           </p>
         </div>
 
-        
-
         <div className="flex space-x-3 pt-2">
           <Button onClick={handleValidateKey} variant="outline" disabled={isValidating || !apiKey.trim()} className="flex-1 h-9 text-sm font-medium">
             {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : isValidated ? <Check className="mr-2 h-4 w-4" /> : null}
@@ -188,4 +195,5 @@ const APIKeyForm = ({
       </div>
     </div>;
 };
+
 export default APIKeyForm;

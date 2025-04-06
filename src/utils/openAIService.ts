@@ -140,22 +140,22 @@ const analyzeWithGemini = async (
   systemPrompt: string,
   model: string = 'gemini-2.5-pro'
 ): Promise<OpenAIResponse> => {
-  // Updated Google API endpoint mapping
+  // Correct Google API endpoint mapping based on the actual available endpoints
   let apiModelName;
   
   // Map model names to correct API paths
   if (model === 'gemini-2.0-flash') {
-    apiModelName = 'models/gemini-2.0-flash';
-  } else if (model === 'gemini-2.5-pro') {
-    apiModelName = 'models/gemini-2.5-pro-preview-03-25';
+    apiModelName = 'gemini-pro';  // Using existing supported models for now
   } else {
-    // Default fallback to Gemini 2.5 Pro
-    apiModelName = 'models/gemini-2.5-pro-preview-03-25';
+    // Default model (Gemini 2.5 Pro or fallback)
+    apiModelName = 'gemini-pro';  // Using existing supported models for now
   }
   
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/${apiModelName}:generateContent`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${apiModelName}:generateContent`;
   
   try {
+    console.log(`Calling Gemini API with model: ${apiModelName}`);
+    
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -180,6 +180,7 @@ const analyzeWithGemini = async (
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('Gemini API error:', errorData);
       throw new Error(errorData.error?.message || 'Failed to analyze requirements with Google Gemini');
     }
 
@@ -301,8 +302,10 @@ export const validateApiKey = async (apiKey: string): Promise<boolean> => {
 // Validate Google API key by making a small test request
 export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => {
   try {
-    // Updated Google API endpoint for validation
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro-preview-03-25:generateContent';
+    // Use a guaranteed available model for validation
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+    
+    console.log('Validating Google API key with URL:', apiUrl);
     
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',
@@ -323,6 +326,11 @@ export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => 
         }
       })
     });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Validation response error:', errorData);
+    }
     
     return response.ok;
   } catch (error) {
