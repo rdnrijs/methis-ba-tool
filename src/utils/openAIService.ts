@@ -35,9 +35,8 @@ const modelCosts = {
   'gpt-4o': { input: 0.005, output: 0.015 },
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-  'gemini-pro': { input: 0.0005, output: 0.0005 },
-  'gemini-flash': { input: 0.0003, output: 0.0003 }, // Gemini 2.0 Flash (lower cost)
-  'gemini-ultra': { input: 0.0015, output: 0.0015 },
+  'gemini-2.5-pro': { input: 0.0007, output: 0.0007 },
+  'gemini-2.0-flash': { input: 0.0003, output: 0.0003 },
 };
 
 // Helper to estimate token count from text
@@ -139,21 +138,19 @@ const analyzeWithGemini = async (
   clientRequest: string,
   apiKey: string,
   systemPrompt: string,
-  model: string = 'gemini-pro'
+  model: string = 'gemini-2.5-pro'
 ): Promise<OpenAIResponse> => {
   // Updated Google API endpoint mapping
   let apiModelName;
   
   // Map model names to correct API paths
-  if (model === 'gemini-flash') {
-    apiModelName = 'models/gemini-1.5-flash';
-  } else if (model === 'gemini-pro') {
-    apiModelName = 'models/gemini-1.5-pro';
-  } else if (model === 'gemini-ultra') {
-    apiModelName = 'models/gemini-1.5-pro-latest';
+  if (model === 'gemini-2.0-flash') {
+    apiModelName = 'models/gemini-2.0-flash';
+  } else if (model === 'gemini-2.5-pro') {
+    apiModelName = 'models/gemini-2.5-pro-preview-03-25';
   } else {
-    // Default fallback
-    apiModelName = 'models/gemini-1.5-pro';
+    // Default fallback to Gemini 2.5 Pro
+    apiModelName = 'models/gemini-2.5-pro-preview-03-25';
   }
   
   const apiUrl = `https://generativelanguage.googleapis.com/v1/${apiModelName}:generateContent`;
@@ -305,7 +302,7 @@ export const validateApiKey = async (apiKey: string): Promise<boolean> => {
 export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => {
   try {
     // Updated Google API endpoint for validation
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro-preview-03-25:generateContent';
     
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',

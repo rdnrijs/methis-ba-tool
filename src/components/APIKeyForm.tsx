@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,7 @@ const APIKeyForm = ({
       setSelectedModel(getSelectedModel() || 'gpt-4o');
     } else {
       storedKey = getGoogleApiKey();
-      setSelectedModel('gemini-pro'); // Default Gemini model
+      setSelectedModel('gemini-2.5-pro'); // Default Gemini model
     }
     if (storedKey) {
       setApiKey(storedKey);
@@ -123,9 +124,8 @@ const APIKeyForm = ({
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gemini-pro" className="py-2">Gemini Pro</SelectItem>
-            <SelectItem value="gemini-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
-            <SelectItem value="gemini-ultra" className="py-2">Gemini Ultra</SelectItem>
+            <SelectItem value="gemini-2.5-pro" className="py-2">Gemini 2.5 Pro</SelectItem>
+            <SelectItem value="gemini-2.0-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
           </SelectContent>
         </Select>;
     }
