@@ -1,3 +1,4 @@
+
 import { 
   getApiKey, 
   getSelectedModel, 
@@ -140,17 +141,22 @@ const analyzeWithGemini = async (
   systemPrompt: string,
   model: string = 'gemini-pro'
 ): Promise<OpenAIResponse> => {
-  // Handle the model name for API request
-  let apiModelName = model;
+  // Updated Google API endpoint mapping
+  let apiModelName;
+  
+  // Map model names to correct API paths
   if (model === 'gemini-flash') {
-    apiModelName = 'gemini/2.0-flash'; // Use the correct API name for Gemini 2.0 Flash
+    apiModelName = 'models/gemini-1.5-flash';
   } else if (model === 'gemini-pro') {
-    apiModelName = 'gemini/pro'; // Use the correct API name
+    apiModelName = 'models/gemini-1.5-pro';
   } else if (model === 'gemini-ultra') {
-    apiModelName = 'gemini/ultra'; // Use the correct API name
+    apiModelName = 'models/gemini-1.5-pro-latest';
+  } else {
+    // Default fallback
+    apiModelName = 'models/gemini-1.5-pro';
   }
   
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${apiModelName}:generateContent`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/${apiModelName}:generateContent`;
   
   try {
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
@@ -298,8 +304,8 @@ export const validateApiKey = async (apiKey: string): Promise<boolean> => {
 // Validate Google API key by making a small test request
 export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => {
   try {
-    // For Google Gemini, we check if the key works by making a simple request
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    // Updated Google API endpoint for validation
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
     
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',
