@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,24 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Key, AlertCircle, Check, Eye, EyeOff } from 'lucide-react';
-import { 
-  storeApiKey, 
-  getApiKey, 
-  storeSelectedModel, 
-  getSelectedModel,
-  storeSelectedProvider,
-  getSelectedProvider,
-  storeGoogleApiKey,
-  getGoogleApiKey
-} from '@/utils/storageUtils';
+import { storeApiKey, getApiKey, storeSelectedModel, getSelectedModel, storeSelectedProvider, getSelectedProvider, storeGoogleApiKey, getGoogleApiKey } from '@/utils/storageUtils';
 import { validateApiKey, validateGoogleApiKey, estimateCost } from '@/utils/openAIService';
 import { toast } from "sonner";
-
 interface APIKeyFormProps {
   onConfigured: () => void;
   provider: 'openai' | 'google';
 }
-
 const APIKeyForm = ({
   onConfigured,
   provider
@@ -46,7 +34,6 @@ const APIKeyForm = ({
       storedKey = getGoogleApiKey();
       setSelectedModel('gemini-pro'); // Default Gemini model
     }
-    
     if (storedKey) {
       setApiKey(storedKey);
       setIsValidated(true);
@@ -66,7 +53,6 @@ const APIKeyForm = ({
       setEstimatedCost(0.0005); // Simplified estimate
     }
   }, [selectedModel, provider]);
-
   const handleValidateKey = async () => {
     if (!apiKey.trim()) {
       toast.error('Please enter an API key');
@@ -75,13 +61,11 @@ const APIKeyForm = ({
     setIsValidating(true);
     try {
       let isValid;
-      
       if (provider === 'openai') {
         isValid = await validateApiKey(apiKey);
       } else {
         isValid = await validateGoogleApiKey(apiKey);
       }
-      
       if (isValid) {
         setIsValidated(true);
         if (provider === 'openai') {
@@ -101,7 +85,6 @@ const APIKeyForm = ({
       setIsValidating(false);
     }
   };
-
   const handleContinue = () => {
     if (isValidated) {
       if (provider === 'openai') {
@@ -116,18 +99,15 @@ const APIKeyForm = ({
       toast.error('Please validate your API key first');
     }
   };
-
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
     if (provider === 'openai') {
       storeSelectedModel(value);
     }
   };
-
   const renderModelSelector = () => {
     if (provider === 'openai') {
-      return (
-        <Select value={selectedModel} onValueChange={handleModelChange}>
+      return <Select value={selectedModel} onValueChange={handleModelChange}>
           <SelectTrigger id="model" className="w-full text-sm">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
@@ -136,11 +116,9 @@ const APIKeyForm = ({
             <SelectItem value="gpt-4o-mini" className="py-2">GPT-4o Mini (Balanced)</SelectItem>
             <SelectItem value="gpt-3.5-turbo" className="py-2">GPT-3.5 Turbo (Economical)</SelectItem>
           </SelectContent>
-        </Select>
-      );
+        </Select>;
     } else {
-      return (
-        <Select value={selectedModel} onValueChange={handleModelChange}>
+      return <Select value={selectedModel} onValueChange={handleModelChange}>
           <SelectTrigger id="model" className="w-full text-sm">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
@@ -149,27 +127,19 @@ const APIKeyForm = ({
             <SelectItem value="gemini-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
             <SelectItem value="gemini-ultra" className="py-2">Gemini Ultra</SelectItem>
           </SelectContent>
-        </Select>
-      );
+        </Select>;
     }
   };
-
   const getAPIKeyLabel = () => {
     return provider === 'openai' ? 'OpenAI API Key' : 'Google API Key';
   };
-  
   const getModelLabel = () => {
     return provider === 'openai' ? 'OpenAI Model' : 'Google Gemini Model';
   };
-  
   const getHelpText = () => {
-    return provider === 'openai' 
-      ? 'Get your API key from OpenAI dashboard' 
-      : 'Get your API key from Google AI Studio';
+    return provider === 'openai' ? 'Get your API key from OpenAI dashboard' : 'Get your API key from Google AI Studio';
   };
-
-  return (
-    <div className="w-full">
+  return <div className="w-full">
       <div className="flex items-center gap-4 mb-5">
         <div className="bg-red-100 dark:bg-red-900/30 p-2.5 rounded-full">
           <Key className="h-5 w-5 text-red-600" />
@@ -184,33 +154,16 @@ const APIKeyForm = ({
         <div className="space-y-2.5">
           <Label htmlFor="apiKey" className="text-sm font-medium">{getAPIKeyLabel()}</Label>
           <div className="relative">
-            <Input 
-              id="apiKey" 
-              type={showKey ? 'text' : 'password'} 
-              value={apiKey} 
-              onChange={e => {
-                setApiKey(e.target.value);
-                setIsValidated(false);
-              }} 
-              placeholder={provider === 'openai' ? 'sk-...' : 'AI_...'}
-              className="pr-10 text-sm" 
-            />
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="icon" 
-              className="absolute right-1.5 top-1/2 transform -translate-y-1/2 h-7 w-7" 
-              onClick={() => setShowKey(!showKey)}
-            >
+            <Input id="apiKey" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => {
+            setApiKey(e.target.value);
+            setIsValidated(false);
+          }} placeholder={provider === 'openai' ? 'sk-...' : 'AI_...'} className="pr-10 text-sm" />
+            <Button type="button" variant="ghost" size="icon" className="absolute right-1.5 top-1/2 transform -translate-y-1/2 h-7 w-7" onClick={() => setShowKey(!showKey)}>
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground ml-0.5">
-            {getHelpText()}
-          </p>
-          <p className="text-xs text-muted-foreground ml-0.5">
-            Your API key is stored locally and never sent to our servers
-          </p>
+          
+          <p className="text-xs text-muted-foreground ml-0.5">Your API key is stored locally and never sent to our servers</p>
         </div>
 
         <div className="space-y-2.5">
@@ -221,37 +174,18 @@ const APIKeyForm = ({
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 py-1">
-          <Switch 
-            id="remember" 
-            checked={rememberKey} 
-            onCheckedChange={setRememberKey}
-            className="data-[state=checked]:bg-red-500" 
-          />
-          <Label htmlFor="remember" className="cursor-pointer text-sm">Remember for 30 days</Label>
-        </div>
+        
 
         <div className="flex space-x-3 pt-2">
-          <Button 
-            onClick={handleValidateKey} 
-            variant="outline" 
-            disabled={isValidating || !apiKey.trim()} 
-            className="flex-1 h-9 text-sm font-medium"
-          >
+          <Button onClick={handleValidateKey} variant="outline" disabled={isValidating || !apiKey.trim()} className="flex-1 h-9 text-sm font-medium">
             {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : isValidated ? <Check className="mr-2 h-4 w-4" /> : null}
             Validate Key
           </Button>
-          <Button 
-            onClick={handleContinue} 
-            disabled={!isValidated} 
-            className="flex-1 bg-red-300 hover:bg-red-400 text-black h-9 text-sm font-medium"
-          >
+          <Button onClick={handleContinue} disabled={!isValidated} className="flex-1 bg-red-300 hover:bg-red-400 text-black h-9 text-sm font-medium">
             Continue
           </Button>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default APIKeyForm;
