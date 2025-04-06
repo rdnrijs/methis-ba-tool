@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Key, AlertCircle, Check, Eye, EyeOff } from 'lucide-react';
 import { 
   storeApiKey, 
@@ -19,7 +18,6 @@ import {
 } from '@/utils/storageUtils';
 import { validateApiKey, validateGoogleApiKey, estimateCost } from '@/utils/openAIService';
 import { toast } from "sonner";
-import InfoCard from './ui/InfoCard';
 
 interface APIKeyFormProps {
   onConfigured: () => void;
@@ -43,7 +41,7 @@ const APIKeyForm = ({
     let storedKey;
     if (provider === 'openai') {
       storedKey = getApiKey();
-      setSelectedModel(getSelectedModel());
+      setSelectedModel(getSelectedModel() || 'gpt-4o');
     } else {
       storedKey = getGoogleApiKey();
       setSelectedModel('gemini-pro'); // Default Gemini model
@@ -130,26 +128,26 @@ const APIKeyForm = ({
     if (provider === 'openai') {
       return (
         <Select value={selectedModel} onValueChange={handleModelChange}>
-          <SelectTrigger id="model" className="w-full p-6 text-base">
+          <SelectTrigger id="model" className="w-full text-sm">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gpt-4o" className="p-3">GPT-4o (Most capable)</SelectItem>
-            <SelectItem value="gpt-4o-mini" className="p-3">GPT-4o Mini (Balanced)</SelectItem>
-            <SelectItem value="gpt-3.5-turbo" className="p-3">GPT-3.5 Turbo (Economical)</SelectItem>
+            <SelectItem value="gpt-4o" className="py-2">GPT-4o (Most capable)</SelectItem>
+            <SelectItem value="gpt-4o-mini" className="py-2">GPT-4o Mini (Balanced)</SelectItem>
+            <SelectItem value="gpt-3.5-turbo" className="py-2">GPT-3.5 Turbo (Economical)</SelectItem>
           </SelectContent>
         </Select>
       );
     } else {
       return (
         <Select value={selectedModel} onValueChange={handleModelChange}>
-          <SelectTrigger id="model" className="w-full p-6 text-base">
+          <SelectTrigger id="model" className="w-full text-sm">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gemini-pro" className="p-3">Gemini Pro</SelectItem>
-            <SelectItem value="gemini-flash" className="p-3">Gemini 2.0 Flash</SelectItem>
-            <SelectItem value="gemini-ultra" className="p-3">Gemini Ultra</SelectItem>
+            <SelectItem value="gemini-pro" className="py-2">Gemini Pro</SelectItem>
+            <SelectItem value="gemini-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
+            <SelectItem value="gemini-ultra" className="py-2">Gemini Ultra</SelectItem>
           </SelectContent>
         </Select>
       );
@@ -171,20 +169,20 @@ const APIKeyForm = ({
   };
 
   return (
-    <div className="w-full mx-auto">
-      <div className="flex items-center gap-5 mb-8">
-        <div className="bg-red-100 dark:bg-red-900/30 p-4 rounded-full">
-          <Key className="h-6 w-6 text-red-600" />
+    <div className="w-full">
+      <div className="flex items-center gap-4 mb-5">
+        <div className="bg-red-100 dark:bg-red-900/30 p-2.5 rounded-full">
+          <Key className="h-5 w-5 text-red-600" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold">{provider === 'openai' ? 'OpenAI' : 'Google Gemini'} Configuration</h2>
-          <p className="text-muted-foreground text-base mt-1">Configure your {provider === 'openai' ? 'OpenAI' : 'Google Gemini'} API key to start</p>
+          <h2 className="text-base font-semibold">{provider === 'openai' ? 'OpenAI' : 'Google Gemini'} Configuration</h2>
+          <p className="text-muted-foreground text-sm">Configure your {provider === 'openai' ? 'OpenAI' : 'Google Gemini'} API key to start</p>
         </div>
       </div>
       
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <Label htmlFor="apiKey" className="text-lg font-medium">{getAPIKeyLabel()}</Label>
+      <div className="space-y-5">
+        <div className="space-y-2.5">
+          <Label htmlFor="apiKey" className="text-sm font-medium">{getAPIKeyLabel()}</Label>
           <div className="relative">
             <Input 
               id="apiKey" 
@@ -195,58 +193,58 @@ const APIKeyForm = ({
                 setIsValidated(false);
               }} 
               placeholder={provider === 'openai' ? 'sk-...' : 'AI_...'}
-              className="pr-12 p-6 text-base" 
+              className="pr-10 text-sm" 
             />
             <Button 
               type="button" 
               variant="ghost" 
               size="icon" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10" 
+              className="absolute right-1.5 top-1/2 transform -translate-y-1/2 h-7 w-7" 
               onClick={() => setShowKey(!showKey)}
             >
-              {showKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground ml-1 mt-2">
+          <p className="text-xs text-muted-foreground ml-0.5">
             {getHelpText()}
           </p>
-          <p className="text-sm text-muted-foreground ml-1">
+          <p className="text-xs text-muted-foreground ml-0.5">
             Your API key is stored locally and never sent to our servers
           </p>
         </div>
 
-        <div className="space-y-4">
-          <Label htmlFor="model" className="text-lg font-medium">{getModelLabel()}</Label>
+        <div className="space-y-2.5">
+          <Label htmlFor="model" className="text-sm font-medium">{getModelLabel()}</Label>
           {renderModelSelector()}
-          <p className="text-sm text-muted-foreground ml-1 mt-2">
+          <p className="text-xs text-muted-foreground ml-0.5">
             Estimated cost: ${estimatedCost.toFixed(4)} per analysis
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 py-2">
+        <div className="flex items-center space-x-2 py-1">
           <Switch 
             id="remember" 
             checked={rememberKey} 
             onCheckedChange={setRememberKey}
             className="data-[state=checked]:bg-red-500" 
           />
-          <Label htmlFor="remember" className="cursor-pointer text-base">Remember for 30 days</Label>
+          <Label htmlFor="remember" className="cursor-pointer text-sm">Remember for 30 days</Label>
         </div>
 
-        <div className="flex space-x-4 pt-4">
+        <div className="flex space-x-3 pt-2">
           <Button 
             onClick={handleValidateKey} 
             variant="outline" 
             disabled={isValidating || !apiKey.trim()} 
-            className="flex-1 p-6 text-base font-medium"
+            className="flex-1 h-9 text-sm font-medium"
           >
-            {isValidating ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : isValidated ? <Check className="mr-2 h-5 w-5" /> : null}
+            {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : isValidated ? <Check className="mr-2 h-4 w-4" /> : null}
             Validate Key
           </Button>
           <Button 
             onClick={handleContinue} 
             disabled={!isValidated} 
-            className="flex-1 bg-red-300 hover:bg-red-400 text-black p-6 text-base font-medium"
+            className="flex-1 bg-red-300 hover:bg-red-400 text-black h-9 text-sm font-medium"
           >
             Continue
           </Button>
