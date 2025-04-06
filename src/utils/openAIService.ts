@@ -35,8 +35,8 @@ const modelCosts = {
   'gpt-4o': { input: 0.005, output: 0.015 },
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-  'gemini-2.5-pro': { input: 0.0007, output: 0.0007 },
-  'gemini-2.0-flash': { input: 0.0003, output: 0.0003 },
+  'gemini-1.5-pro': { input: 0.0007, output: 0.0007 },
+  'gemini-1.0-flash': { input: 0.0003, output: 0.0003 },
 };
 
 // Helper to estimate token count from text
@@ -133,28 +133,30 @@ const extractJsonFromResponse = (content: string): any => {
   }
 };
 
+// Map UI model names to actual API model names for Google Gemini
+const getGeminiApiModelName = (modelName: string): string => {
+  const modelMap: Record<string, string> = {
+    'gemini-1.5-pro': 'models/gemini-1.5-pro', 
+    'gemini-1.0-flash': 'models/gemini-1.0-flash'
+  };
+  
+  return modelMap[modelName] || 'models/gemini-1.5-pro'; // Default to 1.5 Pro if not found
+};
+
 // Analyze with Google Gemini API
 const analyzeWithGemini = async (
   clientRequest: string,
   apiKey: string,
   systemPrompt: string,
-  model: string = 'gemini-2.5-pro'
+  model: string = 'gemini-1.5-pro'
 ): Promise<OpenAIResponse> => {
-  // Correct Google API endpoint mapping based on the actual available endpoints
-  let apiModelName;
+  // Get the correct API model name
+  const apiModelPath = getGeminiApiModelName(model);
   
-  // Map model names to correct API paths
-  if (model === 'gemini-2.0-flash') {
-    apiModelName = 'gemini-pro';  // Using existing supported models for now
-  } else {
-    // Default model (Gemini 2.5 Pro or fallback)
-    apiModelName = 'gemini-pro';  // Using existing supported models for now
-  }
-  
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${apiModelName}:generateContent`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/${apiModelPath}:generateContent`;
   
   try {
-    console.log(`Calling Gemini API with model: ${apiModelName}`);
+    console.log(`Calling Gemini API with model path: ${apiModelPath}`);
     
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',
@@ -302,29 +304,16 @@ export const validateApiKey = async (apiKey: string): Promise<boolean> => {
 // Validate Google API key by making a small test request
 export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => {
   try {
-    // Use a guaranteed available model for validation
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
+    // Use models/gemini-1.5-pro for validation (this endpoint should be valid)
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models';
     
     console.log('Validating Google API key with URL:', apiUrl);
     
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: 'Hello' }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 10
-        }
-      })
+      }
     });
     
     if (!response.ok) {

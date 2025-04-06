@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +35,7 @@ const APIKeyForm = ({
       setSelectedModel(getSelectedModel() || 'gpt-4o');
     } else {
       storedKey = getGoogleApiKey();
-      setSelectedModel('gemini-2.5-pro'); // Default Gemini model
+      setSelectedModel(getSelectedModel() || 'gemini-1.5-pro'); // Default Gemini model
     }
     if (storedKey) {
       setApiKey(storedKey);
@@ -76,6 +77,7 @@ const APIKeyForm = ({
           storeSelectedModel(selectedModel);
         } else {
           storeGoogleApiKey(apiKey, rememberKey);
+          storeSelectedModel(selectedModel);
         }
         storeSelectedProvider(provider);
         toast.success('API key validated successfully');
@@ -96,6 +98,7 @@ const APIKeyForm = ({
         storeSelectedModel(selectedModel);
       } else {
         storeGoogleApiKey(apiKey, rememberKey);
+        storeSelectedModel(selectedModel);
       }
       storeSelectedProvider(provider);
       onConfigured();
@@ -106,9 +109,7 @@ const APIKeyForm = ({
 
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
-    if (provider === 'openai') {
-      storeSelectedModel(value);
-    }
+    storeSelectedModel(value);
   };
 
   const renderModelSelector = () => {
@@ -129,8 +130,8 @@ const APIKeyForm = ({
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gemini-2.5-pro" className="py-2">Gemini 2.5 Pro</SelectItem>
-            <SelectItem value="gemini-2.0-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
+            <SelectItem value="gemini-1.5-pro" className="py-2">Gemini 2.5 Pro</SelectItem>
+            <SelectItem value="gemini-1.0-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
           </SelectContent>
         </Select>;
     }
