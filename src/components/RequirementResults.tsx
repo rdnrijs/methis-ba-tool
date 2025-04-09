@@ -1,8 +1,8 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RequirementAnalysisResult, TokenUsage } from '@/utils/openAIService';
-import type { UserStoryItem } from './UserStoryToggle';
+import { RequirementAnalysisResult, TokenUsage, UserStoryItem } from '@/utils/api/types';
 import BriefingSection from './requirements/BriefingSection';
 import NextStepsSection from './requirements/NextStepsSection';
 import RequirementsSection from './requirements/RequirementsSection';

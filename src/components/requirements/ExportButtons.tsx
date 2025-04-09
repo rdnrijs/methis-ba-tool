@@ -1,19 +1,18 @@
 
 import React from 'react';
-import { RequirementAnalysisResult } from '@/utils/api/types';
+import { RequirementAnalysisResult, UserStoryItem } from '@/utils/api/types';
 import { Button } from "@/components/ui/button";
 import { Download } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { convertToMarkdown } from '@/utils/markdownUtils';
 import { toast } from "sonner";
-import { UserStoryItem } from "../UserStoryToggle";
 
 interface ExportButtonsProps {
   result: RequirementAnalysisResult;
   clientRequest: string;
-  stakeholders: string;
-  systems: string;
-  companyContext: string;
+  stakeholders?: string;
+  systems?: string;
+  companyContext?: string;
 }
 
 // Get the story text based on the format of the user story

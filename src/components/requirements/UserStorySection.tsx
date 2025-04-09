@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
-import UserStoryToggle, { UserStoryItem } from '../UserStoryToggle';
+import UserStoryToggle from '../UserStoryToggle';
+import { UserStoryItem } from '@/utils/api/types';
 
 interface UserStorySectionProps {
   userStories: Array<string | UserStoryItem>;

@@ -1,17 +1,7 @@
 
 import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
-export interface UserStoryItem {
-  id: string;
-  title: string;
-  description: string;
-  story?: string; 
-  persona?: string;
-  goal?: string;
-  reason?: string;
-  acceptanceCriteria: string[];
-}
+import { UserStoryItem } from '@/utils/api/types';
 
 interface UserStoryToggleProps {
   storyItem: string | UserStoryItem;

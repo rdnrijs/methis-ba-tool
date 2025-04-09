@@ -1,19 +1,37 @@
 
 export interface RequirementAnalysisResult {
-  functionalRequirements: string[];
-  nonFunctionalRequirements: string[];
+  functionalRequirements: Requirement[];
+  nonFunctionalRequirements: Requirement[];
   userStories: Array<string | UserStoryItem>;
-  acceptanceCriteria: string[];
+  acceptanceCriteria: AcceptanceCriteria[];
   assumptions: string[];
   followUpQuestions: string[];
   confidenceScore: number;
 }
 
+export interface Requirement {
+  title: string;
+  description: string;
+  priority?: string;
+  dependencies?: string[];
+  category?: string;
+}
+
+export interface AcceptanceCriteria {
+  title: string;
+  description: string;
+  relatedRequirements?: string[];
+}
+
 export interface UserStoryItem {
-  role: string;
-  want: string;
-  benefit: string;
-  story?: string; // Add the story property to match the component expectation
+  id: string;
+  title: string;
+  description: string;
+  story?: string;
+  persona?: string;
+  goal?: string;
+  reason?: string;
+  acceptanceCriteria: string[];
 }
 
 export interface TokenUsage {

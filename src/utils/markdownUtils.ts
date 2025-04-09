@@ -1,5 +1,5 @@
 
-import { RequirementAnalysisResult } from "@/utils/api/types";
+import { RequirementAnalysisResult, UserStoryItem, Requirement, AcceptanceCriteria } from "@/utils/api/types";
 import { formatDisplayText } from "@/components/requirements/DisplayUtils";
 
 export const convertToMarkdown = (
@@ -46,7 +46,7 @@ export const convertToMarkdown = (
 
   // Add functional requirements
   markdown += `## Functional Requirements\n\n`;
-  result.functionalRequirements.forEach((req, index) => {
+  result.functionalRequirements.forEach((req: Requirement, index) => {
     markdown += `### FR${index + 1}: ${req.title}\n\n`;
     markdown += `${formatDisplayText(req.description)}\n\n`;
     
@@ -61,7 +61,7 @@ export const convertToMarkdown = (
 
   // Add non-functional requirements
   markdown += `## Non-Functional Requirements\n\n`;
-  result.nonFunctionalRequirements.forEach((req, index) => {
+  result.nonFunctionalRequirements.forEach((req: Requirement, index) => {
     markdown += `### NFR${index + 1}: ${req.title}\n\n`;
     markdown += `${formatDisplayText(req.description)}\n\n`;
     
@@ -84,7 +84,7 @@ export const convertToMarkdown = (
 
   // Add acceptance criteria
   markdown += `## Acceptance Criteria\n\n`;
-  result.acceptanceCriteria.forEach((criterion, index) => {
+  result.acceptanceCriteria.forEach((criterion: AcceptanceCriteria, index) => {
     markdown += `### AC${index + 1}: ${criterion.title}\n\n`;
     markdown += `${formatDisplayText(criterion.description)}\n\n`;
     
