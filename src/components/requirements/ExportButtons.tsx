@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { RequirementAnalysisResult } from '@/utils/api/types';
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Download } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { convertToMarkdown } from '@/utils/markdownUtils';
 import { toast } from "sonner";
-import type { UserStoryItem } from "../UserStoryToggle";
+import { UserStoryItem } from "../UserStoryToggle";
 
 interface ExportButtonsProps {
   result: RequirementAnalysisResult;

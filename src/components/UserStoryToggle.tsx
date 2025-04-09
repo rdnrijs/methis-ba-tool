@@ -1,21 +1,21 @@
+
 import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { UserStoryItem } from '@/utils/api/types';
-
-interface UserStoryToggleProps {
-  storyItem: string | UserStoryItem;
-  isExpanded?: boolean;
-}
 
 export interface UserStoryItem {
   id: string;
   title: string;
   description: string;
-  story?: string; // Make story optional to support both formats
+  story?: string; 
   persona?: string;
   goal?: string;
   reason?: string;
   acceptanceCriteria: string[];
+}
+
+interface UserStoryToggleProps {
+  storyItem: string | UserStoryItem;
+  isExpanded?: boolean;
 }
 
 const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps) => {
@@ -41,13 +41,19 @@ const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps
       // If it doesn't match the format, just return the string
       return <p>{story}</p>;
     } else {
-      // For object format with role, want, benefit
-      const { role, want, benefit, story: storyContent } = story;
+      // For object format with persona, goal, reason
+      const { persona, goal, reason, story: storyContent } = story;
       return (
         <div>
-          <p><span className="font-semibold">As a</span> {role},</p>
-          <p><span className="font-semibold">I want</span> {want},</p>
-          <p><span className="font-semibold">so that</span> {benefit}</p>
+          {persona && goal && reason ? (
+            <>
+              <p><span className="font-semibold">As a</span> {persona},</p>
+              <p><span className="font-semibold">I want</span> {goal},</p>
+              <p><span className="font-semibold">so that</span> {reason}</p>
+            </>
+          ) : (
+            <p>{story.title}</p>
+          )}
           {storyContent && (
             <div className="mt-2 pt-2 border-t border-border/30">
               <p className="text-muted-foreground">{storyContent}</p>
@@ -65,8 +71,8 @@ const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps
       const asAMatch = story.match(/As a [^,]+, I want ([^,]+),/i);
       return asAMatch ? asAMatch[1] : story.substring(0, 60) + (story.length > 60 ? '...' : '');
     } else {
-      // Use the "want" field from the object
-      return story.want;
+      // Use the goal field or title field from the object
+      return story.goal || story.title;
     }
   };
 
