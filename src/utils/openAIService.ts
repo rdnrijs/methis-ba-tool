@@ -1,3 +1,4 @@
+
 import { 
   getApiKey, 
   getSelectedModel, 
@@ -34,8 +35,8 @@ const modelCosts = {
   'gpt-4o': { input: 0.005, output: 0.015 },
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-  'gemini-pro': { input: 0.0007, output: 0.0007 },
-  'gemini-flash': { input: 0.0003, output: 0.0003 },
+  'gemini-1.5-pro': { input: 0.0007, output: 0.0007 },
+  'gemini-1.0-pro': { input: 0.0003, output: 0.0003 },
 };
 
 // Helper to estimate token count from text
@@ -135,11 +136,11 @@ const extractJsonFromResponse = (content: string): any => {
 // Map UI model names to actual API model names for Google Gemini
 const getGeminiApiModelName = (modelName: string): string => {
   const modelMap: Record<string, string> = {
-    'gemini-pro': 'gemini-pro', 
-    'gemini-flash': 'gemini-flash'
+    'gemini-1.5-pro': 'models/gemini-1.5-pro', 
+    'gemini-1.0-pro': 'models/gemini-1.0-pro'
   };
   
-  return modelMap[modelName] || 'gemini-pro'; // Default to gemini-pro if not found
+  return modelMap[modelName] || 'models/gemini-1.0-pro'; // Default to gemini-1.0-pro if not found
 };
 
 // Analyze with Google Gemini API
@@ -147,12 +148,14 @@ const analyzeWithGemini = async (
   clientRequest: string,
   apiKey: string,
   systemPrompt: string,
-  model: string = 'gemini-pro'
+  model: string = 'gemini-1.0-pro'
 ): Promise<OpenAIResponse> => {
   // Get the correct API model name
   const apiModelName = getGeminiApiModelName(model);
   
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${apiModelName}:generateContent`;
+  // Base API URL for Gemini
+  const baseUrl = "https://generativelanguage.googleapis.com/v1/";
+  const apiUrl = `${baseUrl}${apiModelName}:generateContent`;
   
   try {
     console.log(`Calling Gemini API with model: ${apiModelName}`);

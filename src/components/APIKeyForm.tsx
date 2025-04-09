@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,8 +126,8 @@ const APIKeyForm = ({
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gemini-pro" className="py-2">Gemini 2.5 Pro</SelectItem>
-            <SelectItem value="gemini-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
+            <SelectItem value="gemini-1.5-pro" className="py-2">Gemini 1.5 Pro</SelectItem>
+            <SelectItem value="gemini-1.0-pro" className="py-2">Gemini 1.0 Pro</SelectItem>
           </SelectContent>
         </Select>;
     }

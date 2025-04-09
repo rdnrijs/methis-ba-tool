@@ -7,7 +7,7 @@ import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
 import APIKeyForm from '@/components/APIKeyForm';
 import Layout from '@/components/Layout';
-import { getSelectedProvider } from '@/utils/storageUtils';
+import { getSelectedProvider, getApiKey, getGoogleApiKey } from '@/utils/storageUtils';
 
 const Analyze = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +19,17 @@ const Analyze = () => {
   const [companyContext, setCompanyContext] = useState('');
   const [showApiConfig, setShowApiConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Check if API key is configured
+  useEffect(() => {
+    const provider = getSelectedProvider();
+    const hasApiKey = provider === 'openai' ? !!getApiKey() : !!getGoogleApiKey();
+    
+    if (!hasApiKey) {
+      setShowApiConfig(true);
+    }
+  }, []);
 
   // Function to properly format input data
   const formatInputData = (text: string): string => {
@@ -46,6 +57,13 @@ const Analyze = () => {
       console.error('Error analyzing requirements:', error);
       setError(error instanceof Error ? error.message : 'Unknown error occurred');
       toast.error('Failed to analyze requirements. Please check the console for details.');
+      
+      // If API key error, show config form
+      if (error instanceof Error && 
+          (error.message.includes('API key not found') || 
+           error.message.includes('Invalid API key'))) {
+        setShowApiConfig(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -53,6 +71,10 @@ const Analyze = () => {
 
   const handleApiConfigured = () => {
     setShowApiConfig(false);
+  };
+
+  const handleConfigureApiClick = () => {
+    navigate('/api-config');
   };
 
   return (
@@ -70,6 +92,11 @@ const Analyze = () => {
               <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md">
                 <h3 className="font-semibold">Error analyzing requirements:</h3>
                 <p className="mt-1">{error}</p>
+                {error.includes('API key') && (
+                  <Button onClick={handleConfigureApiClick} className="mt-2">
+                    Configure API Key
+                  </Button>
+                )}
               </div>
             )}
           </>
