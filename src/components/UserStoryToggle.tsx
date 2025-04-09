@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { UserStoryItem } from '@/utils/api/types';
@@ -6,6 +5,17 @@ import { UserStoryItem } from '@/utils/api/types';
 interface UserStoryToggleProps {
   storyItem: string | UserStoryItem;
   isExpanded?: boolean;
+}
+
+export interface UserStoryItem {
+  id: string;
+  title: string;
+  description: string;
+  story?: string; // Make story optional to support both formats
+  persona?: string;
+  goal?: string;
+  reason?: string;
+  acceptanceCriteria: string[];
 }
 
 const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps) => {

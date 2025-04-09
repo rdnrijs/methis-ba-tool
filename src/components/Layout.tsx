@@ -3,6 +3,10 @@ import { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import Ribbon from './navigation/Ribbon';
+import { useAuth } from '@/contexts/AuthContext';
+import UserMenu from './navigation/UserMenu';
+import { Button } from '@/components/ui/button';
+import { LogIn } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +20,7 @@ const Layout = ({
   fullWidth = false
 }: LayoutProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const handleNavigation = (path: string) => () => {
     // Force a clean navigation to the homepage
@@ -35,7 +40,19 @@ const Layout = ({
             Methis BA tool
           </div>
           <nav className="flex items-center space-x-6">
-            
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/auth')} 
+                className="flex items-center gap-2"
+              >
+                <LogIn className="h-4 w-4" />
+                Login
+              </Button>
+            )}
           </nav>
         </div>
       </header>

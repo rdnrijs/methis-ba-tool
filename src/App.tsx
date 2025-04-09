@@ -8,22 +8,36 @@ import Index from "./pages/Index";
 import Analyze from "./pages/Analyze";
 import NotFound from "./pages/NotFound";
 import APIConfig from "./pages/APIConfig";
+import Auth from "./pages/Auth";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/analyze" element={<Analyze />} />
-          <Route path="/api-config" element={<APIConfig />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/analyze" element={
+              <ProtectedRoute>
+                <Analyze />
+              </ProtectedRoute>
+            } />
+            <Route path="/api-config" element={
+              <ProtectedRoute>
+                <APIConfig />
+              </ProtectedRoute>
+            } />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

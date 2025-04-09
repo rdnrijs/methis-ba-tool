@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,6 +31,14 @@ const RequirementResults = ({
 }: RequirementResultsProps) => {
   const [activeTab, setActiveTab] = useState('briefing');
   
+  const exportProps = {
+    result,
+    clientRequest,
+    stakeholders,
+    systems,
+    companyContext
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-blur-in animate-once">
       <StatisticsCards 
@@ -43,7 +50,7 @@ const RequirementResults = ({
         followUpQuestionsCount={result.followUpQuestions.length}
       />
       
-      <ExportButtons result={result} clientRequest={clientRequest} />
+      <ExportButtons {...exportProps} />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-2 md:grid-cols-6 mb-6">

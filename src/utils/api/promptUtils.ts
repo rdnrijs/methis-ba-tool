@@ -1,26 +1,41 @@
-
 import { getCustomPrompt } from '../storageUtils';
 import { getDefaultSystemPrompt } from '../supabaseService';
+import { RequirementAnalysisResult } from './types';
 
 // Default system prompt - This is now only a fallback if database and custom storage both fail
-export const DEFAULT_SYSTEM_PROMPT = `You are an expert business analyst specializing in requirements analysis. 
-Your task is to analyze client requests and break them down into structured requirements.
-Analyze the client request provided and return a JSON response with the following structure:
+export const DEFAULT_SYSTEM_PROMPT = `As a senior business analyst, your role is to analyze client requirements and transform them into well-structured outputs. When a client provides a request, analyze it to extract the following components:
 
+1. A concise summary (max 2 sentences)
+2. Clear functional requirements (what the system should do)
+3. Non-functional requirements (quality attributes)
+4. Comprehensive user stories in "As a [persona], I want [goal], so that [reason]" format
+5. Business rules and constraints
+6. Key stakeholders involved
+7. Recommended acceptance criteria for testing
+8. Next steps in the project lifecycle
+
+Return your analysis in JSON format with the following structure:
 {
-  "functionalRequirements": ["Requirement 1", "Requirement 2", ...],
-  "nonFunctionalRequirements": ["Requirement 1", "Requirement 2", ...],
-  "userStories": ["As a [role], I want [feature] so that [benefit]", ...],
-  "acceptanceCriteria": ["Criteria 1", "Criteria 2", ...],
-  "assumptions": ["Assumption 1", "Assumption 2", ...],
-  "followUpQuestions": ["Question 1?", "Question 2?", ...],
-  "confidenceScore": 0.85 // A number between 0 and 1 representing your confidence in the completeness of the analysis
+  "summary": "string",
+  "functionalRequirements": ["string"],
+  "nonFunctionalRequirements": ["string"],
+  "userStories": [
+    {
+      "id": "string",
+      "title": "string",
+      "persona": "string",
+      "goal": "string",
+      "reason": "string",
+      "acceptanceCriteria": ["string"]
+    }
+  ],
+  "businessRules": ["string"],
+  "stakeholders": ["string"],
+  "acceptanceCriteria": ["string"],
+  "nextSteps": ["string"]
 }
 
-Keep each requirement clear, concise, and focused on a single capability.
-Include at least 3 follow-up questions if you need more information to improve the analysis.
-Assign a confidence score based on how complete and clear the client request is.
-IMPORTANT: Return ONLY the JSON object, with no additional text, markdown formatting, or code blocks.`;
+Your analysis should be thorough, comprehensive, and tailored to the specific client request.`;
 
 // Get system prompt with fallbacks
 export const getSystemPrompt = async (): Promise<string> => {

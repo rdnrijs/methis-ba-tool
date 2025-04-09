@@ -1,5 +1,5 @@
-
-import type { UserStoryItem } from '../UserStoryToggle';
+import { RequirementAnalysisResult } from "@/utils/api/types";
+import type { UserStoryItem } from "../UserStoryToggle";
 
 export const formatDisplayText = (text: string | UserStoryItem): string => {
   if (typeof text === 'object' && text !== null && 'story' in text) {
