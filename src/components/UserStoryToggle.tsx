@@ -1,138 +1,85 @@
 
-import React, { useState } from 'react';
-import { Check, ChevronDown, ChevronUp, Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { toast } from "sonner";
-import { cn } from '@/lib/utils';
-import type { UserStoryItem as ApiUserStoryItem } from '@/utils/api/types';
-
-export interface UserStoryItem {
-  story: string;
-  description?: string;
-}
+import { useState } from 'react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { UserStoryItem } from '@/utils/api/types';
 
 interface UserStoryToggleProps {
-  storyItem: UserStoryItem | string | ApiUserStoryItem;
+  storyItem: string | UserStoryItem;
+  isExpanded?: boolean;
 }
 
-// Example descriptions for each user story pattern - these would normally come from the API
-const USER_STORY_DESCRIPTIONS: Record<string, string> = {
-  "Grid Operations": "Grid operations team members need real-time monitoring capabilities to ensure the grid operates within safe parameters and to quickly respond to any anomalies or issues. This includes tracking load balancing, voltage regulation, and overall system stability metrics.",
-  
-  "Maintenance Crew": "Maintenance crew members require timely alerts about potential issues to schedule preventative maintenance, minimize downtime, and efficiently allocate resources. This includes notifications about equipment wear, unusual behavior patterns, and scheduled service intervals.",
-  
-  "Customer Service": "Customer service representatives need access to historical usage data to answer customer inquiries accurately, provide personalized advice on energy usage patterns, and assist with billing inquiries or disputed charges.",
-  
-  "Regulatory Compliance": "Compliance officers must generate comprehensive reports that demonstrate adherence to industry regulations, environmental standards, and safety requirements. These reports need to be formatted according to regulatory specifications and include all required metrics.",
-  
-  "Senior Management": "Senior leaders need high-level visualizations of energy usage trends to inform strategic planning, capital investment decisions, and long-term business strategy. This includes identifying patterns that affect profitability, sustainability goals, and operational efficiency."
-};
+const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps) => {
+  const [expanded, setExpanded] = useState(isExpanded);
 
-// Helper function to normalize story format
-const normalizeStory = (item: UserStoryItem | string | ApiUserStoryItem): { storyText: string, description?: string } => {
-  if (typeof item === 'string') {
-    return { storyText: item };
-  } 
-  
-  if ('story' in item) {
-    return { 
-      storyText: item.story,
-      description: item.description
-    };
-  }
-  
-  // Handle API format - convert it to the expected format
-  if ('role' in item && 'want' in item && 'benefit' in item) {
-    const storyText = `As a ${item.role}, I want ${item.want} so that ${item.benefit}`;
-    return { storyText };
-  }
-  
-  // Fallback
-  return { storyText: JSON.stringify(item) };
-};
-
-const UserStoryToggle: React.FC<UserStoryToggleProps> = ({ storyItem }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  // Normalize story format from any of the possible types
-  const { storyText, description: providedDescription } = normalizeStory(storyItem);
-  
-  // Determine which description to use based on keywords in the story
-  const getDescription = () => {
-    // If there's a provided description in the object, use that first
-    if (providedDescription) return providedDescription;
-    
-    // Ensure story is a string before using string methods
-    const storyString = String(storyText);
-    
-    // Fall back to matching keywords if no specific description is provided
-    for (const [key, desc] of Object.entries(USER_STORY_DESCRIPTIONS)) {
-      if (storyString.includes(key)) {
-        return desc;
-      }
-    }
-    
-    // If no match, extract and expand from the user story itself
-    const roleMatch = storyString.match(/As a ([^,]+)/i);
-    const actionMatch = storyString.match(/I want to ([^,]+)/i);
-    const benefitMatch = storyString.match(/so that ([^\.]+)/i);
-    
-    const role = roleMatch ? roleMatch[1].trim() : '';
-    const action = actionMatch ? actionMatch[1].trim() : '';
-    const benefit = benefitMatch ? benefitMatch[1].trim() : '';
-    
-    return `This user story represents the needs of ${role}. 
-They need to ${action}, which will enable them to ${benefit}. 
-Implementing this feature would improve their workflow efficiency and satisfaction.`;
-  }
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(storyText);
-    toast.success("User story copied to clipboard");
-  };
-  
-  return (
-    <Collapsible 
-      open={isOpen} 
-      onOpenChange={setIsOpen}
-      className="border-b last:border-b-0"
-    >
-      <div className="flex items-start py-3 group">
-        <Check className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <CollapsibleTrigger className="flex justify-between items-center w-full text-left">
-            <div className="text-sm">{storyText}</div>
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCopy();
-                }}
-                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity mr-1"
-              >
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-              {isOpen ? 
-                <ChevronUp className="h-4 w-4 text-muted-foreground" /> : 
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              }
-            </div>
-          </CollapsibleTrigger>
-        </div>
-      </div>
+  // Format the user story string based on the format
+  const formatStory = (story: string | UserStoryItem): JSX.Element => {
+    if (typeof story === 'string') {
+      // For string format, try to extract parts if it's in "As a X, I want Y, so that Z" format
+      const asAMatch = story.match(/As a ([^,]+), I want ([^,]+), so that (.+)/i);
       
-      <CollapsibleContent className="pl-7 pb-3">
-        <div className={cn(
-          "text-sm text-muted-foreground bg-muted/30 p-3 rounded-md",
-          "border border-border/50"
-        )}>
-          {getDescription()}
+      if (asAMatch) {
+        const [, role, want, benefit] = asAMatch;
+        return (
+          <div>
+            <p><span className="font-semibold">As a</span> {role},</p>
+            <p><span className="font-semibold">I want</span> {want},</p>
+            <p><span className="font-semibold">so that</span> {benefit}</p>
+          </div>
+        );
+      }
+      
+      // If it doesn't match the format, just return the string
+      return <p>{story}</p>;
+    } else {
+      // For object format with role, want, benefit
+      const { role, want, benefit, story: storyContent } = story;
+      return (
+        <div>
+          <p><span className="font-semibold">As a</span> {role},</p>
+          <p><span className="font-semibold">I want</span> {want},</p>
+          <p><span className="font-semibold">so that</span> {benefit}</p>
+          {storyContent && (
+            <div className="mt-2 pt-2 border-t border-border/30">
+              <p className="text-muted-foreground">{storyContent}</p>
+            </div>
+          )}
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      );
+    }
+  };
+
+  // Create a summarized title for the story
+  const createTitle = (story: string | UserStoryItem): string => {
+    if (typeof story === 'string') {
+      // Try to extract the "want" part from the story string
+      const asAMatch = story.match(/As a [^,]+, I want ([^,]+),/i);
+      return asAMatch ? asAMatch[1] : story.substring(0, 60) + (story.length > 60 ? '...' : '');
+    } else {
+      // Use the "want" field from the object
+      return story.want;
+    }
+  };
+
+  const handleAccordionChange = (value: string) => {
+    setExpanded(value === "item-1");
+  };
+
+  return (
+    <Accordion 
+      type="single" 
+      value={expanded ? "item-1" : ""} 
+      onValueChange={handleAccordionChange} 
+      className="border-b-0"
+    >
+      <AccordionItem value="item-1" className="border-0 py-2">
+        <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline">
+          {createTitle(storyItem)}
+        </AccordionTrigger>
+        <AccordionContent className="text-sm pt-2 pb-1">
+          {formatStory(storyItem)}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 };
 
