@@ -1,4 +1,3 @@
-
 import { 
   getApiKey, 
   getSelectedModel, 
@@ -35,8 +34,8 @@ const modelCosts = {
   'gpt-4o': { input: 0.005, output: 0.015 },
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-  'gemini-1.5-pro': { input: 0.0007, output: 0.0007 },
-  'gemini-1.0-flash': { input: 0.0003, output: 0.0003 },
+  'gemini-pro': { input: 0.0007, output: 0.0007 },
+  'gemini-flash': { input: 0.0003, output: 0.0003 },
 };
 
 // Helper to estimate token count from text
@@ -136,11 +135,11 @@ const extractJsonFromResponse = (content: string): any => {
 // Map UI model names to actual API model names for Google Gemini
 const getGeminiApiModelName = (modelName: string): string => {
   const modelMap: Record<string, string> = {
-    'gemini-1.5-pro': 'models/gemini-1.5-pro', 
-    'gemini-1.0-flash': 'models/gemini-1.0-flash'
+    'gemini-pro': 'gemini-pro', 
+    'gemini-flash': 'gemini-flash'
   };
   
-  return modelMap[modelName] || 'models/gemini-1.5-pro'; // Default to 1.5 Pro if not found
+  return modelMap[modelName] || 'gemini-pro'; // Default to gemini-pro if not found
 };
 
 // Analyze with Google Gemini API
@@ -148,15 +147,15 @@ const analyzeWithGemini = async (
   clientRequest: string,
   apiKey: string,
   systemPrompt: string,
-  model: string = 'gemini-1.5-pro'
+  model: string = 'gemini-pro'
 ): Promise<OpenAIResponse> => {
   // Get the correct API model name
-  const apiModelPath = getGeminiApiModelName(model);
+  const apiModelName = getGeminiApiModelName(model);
   
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/${apiModelPath}:generateContent`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${apiModelName}:generateContent`;
   
   try {
-    console.log(`Calling Gemini API with model path: ${apiModelPath}`);
+    console.log(`Calling Gemini API with model: ${apiModelName}`);
     
     const response = await fetch(`${apiUrl}?key=${apiKey}`, {
       method: 'POST',
@@ -304,7 +303,7 @@ export const validateApiKey = async (apiKey: string): Promise<boolean> => {
 // Validate Google API key by making a small test request
 export const validateGoogleApiKey = async (apiKey: string): Promise<boolean> => {
   try {
-    // Use models/gemini-1.5-pro for validation (this endpoint should be valid)
+    // Use the models endpoint to validate the key
     const apiUrl = 'https://generativelanguage.googleapis.com/v1/models';
     
     console.log('Validating Google API key with URL:', apiUrl);

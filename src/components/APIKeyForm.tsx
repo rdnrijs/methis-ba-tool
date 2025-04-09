@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,7 +26,6 @@ const APIKeyForm = ({
   const [selectedModel, setSelectedModel] = useState('');
   const [estimatedCost, setEstimatedCost] = useState(0);
 
-  // Load appropriate settings when provider changes
   useEffect(() => {
     let storedKey;
     if (provider === 'openai') {
@@ -46,13 +44,10 @@ const APIKeyForm = ({
     }
   }, [provider]);
 
-  // Update cost estimation when model changes
   useEffect(() => {
     if (provider === 'openai') {
-      // Estimate based on average usage (1000 input, 500 output tokens)
       setEstimatedCost(estimateCost(1000, 500, selectedModel));
     } else {
-      // Google pricing is different, approximately estimate
       setEstimatedCost(0.0005); // Simplified estimate
     }
   }, [selectedModel, provider]);
@@ -130,8 +125,8 @@ const APIKeyForm = ({
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gemini-1.5-pro" className="py-2">Gemini 2.5 Pro</SelectItem>
-            <SelectItem value="gemini-1.0-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
+            <SelectItem value="gemini-pro" className="py-2">Gemini 2.5 Pro</SelectItem>
+            <SelectItem value="gemini-flash" className="py-2">Gemini 2.0 Flash</SelectItem>
           </SelectContent>
         </Select>;
     }
