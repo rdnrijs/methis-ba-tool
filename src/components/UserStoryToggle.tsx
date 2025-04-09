@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from "sonner";
 import { cn } from '@/lib/utils';
+import type { UserStoryItem as ApiUserStoryItem } from '@/utils/api/types';
 
 export interface UserStoryItem {
   story: string;
@@ -12,7 +13,7 @@ export interface UserStoryItem {
 }
 
 interface UserStoryToggleProps {
-  storyItem: UserStoryItem | string;
+  storyItem: UserStoryItem | string | ApiUserStoryItem;
 }
 
 // Example descriptions for each user story pattern - these would normally come from the API
@@ -28,12 +29,34 @@ const USER_STORY_DESCRIPTIONS: Record<string, string> = {
   "Senior Management": "Senior leaders need high-level visualizations of energy usage trends to inform strategic planning, capital investment decisions, and long-term business strategy. This includes identifying patterns that affect profitability, sustainability goals, and operational efficiency."
 };
 
+// Helper function to normalize story format
+const normalizeStory = (item: UserStoryItem | string | ApiUserStoryItem): { storyText: string, description?: string } => {
+  if (typeof item === 'string') {
+    return { storyText: item };
+  } 
+  
+  if ('story' in item) {
+    return { 
+      storyText: item.story,
+      description: item.description
+    };
+  }
+  
+  // Handle API format - convert it to the expected format
+  if ('role' in item && 'want' in item && 'benefit' in item) {
+    const storyText = `As a ${item.role}, I want ${item.want} so that ${item.benefit}`;
+    return { storyText };
+  }
+  
+  // Fallback
+  return { storyText: JSON.stringify(item) };
+};
+
 const UserStoryToggle: React.FC<UserStoryToggleProps> = ({ storyItem }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Handle both string and object formats for stories
-  const storyText = typeof storyItem === 'string' ? storyItem : storyItem.story;
-  const providedDescription = typeof storyItem === 'object' ? storyItem.description : undefined;
+  // Normalize story format from any of the possible types
+  const { storyText, description: providedDescription } = normalizeStory(storyItem);
   
   // Determine which description to use based on keywords in the story
   const getDescription = () => {

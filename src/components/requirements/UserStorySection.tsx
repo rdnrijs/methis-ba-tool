@@ -1,11 +1,11 @@
 
-import type { UserStoryItem } from '../UserStoryToggle';
+import { UserStoryItem as ApiUserStoryItem } from '@/utils/api/types';
 import UserStoryToggle from '../UserStoryToggle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
 
 interface UserStorySectionProps {
-  userStories: Array<string | UserStoryItem>;
+  userStories: Array<string | ApiUserStoryItem>;
 }
 
 const UserStorySection = ({ userStories }: UserStorySectionProps) => {

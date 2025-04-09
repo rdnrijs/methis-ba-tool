@@ -3,11 +3,32 @@ import { FileSpreadsheet, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { RequirementAnalysisResult } from '@/utils/openAIService';
+import { UserStoryItem as ApiUserStoryItem } from '@/utils/api/types';
 
 interface ExportButtonsProps {
   result: RequirementAnalysisResult;
   clientRequest: string;
 }
+
+// Helper function to get the formatted story text regardless of format
+const getStoryText = (story: string | ApiUserStoryItem): string => {
+  if (typeof story === 'string') {
+    return story;
+  }
+  
+  // Handle the API format with role/want/benefit
+  if ('role' in story && 'want' in story && 'benefit' in story) {
+    return `As a ${story.role}, I want ${story.want} so that ${story.benefit}`;
+  }
+  
+  // Handle the case where 'story' property exists
+  if ('story' in story) {
+    return story.story;
+  }
+  
+  // Fallback to JSON representation
+  return JSON.stringify(story);
+};
 
 const ExportButtons = ({ result, clientRequest }: ExportButtonsProps) => {
   const handleExport = () => {
@@ -36,7 +57,7 @@ const ExportButtons = ({ result, clientRequest }: ExportButtonsProps) => {
       ...result.functionalRequirements.map(req => ["Functional Requirement", req]),
       ...result.nonFunctionalRequirements.map(req => ["Non-Functional Requirement", req]),
       ...result.userStories.map(story => {
-        const storyText = typeof story === 'object' ? story.story : story;
+        const storyText = getStoryText(story);
         return ["User Story", storyText];
       }),
       ...result.acceptanceCriteria.map(criteria => ["Acceptance Criteria", criteria]),

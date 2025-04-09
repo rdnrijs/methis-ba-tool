@@ -13,6 +13,7 @@ export interface UserStoryItem {
   role: string;
   want: string;
   benefit: string;
+  story?: string; // Add the story property to match the component expectation
 }
 
 export interface TokenUsage {
