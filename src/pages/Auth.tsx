@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,17 +8,37 @@ import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
 import Layout from '@/components/Layout';
 import ValidationAlert from '@/components/prompt-config/ValidationAlert';
-import { UserPlus, LogIn, Mail } from 'lucide-react';
+import { UserPlus, LogIn, Mail, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [signupSuccess, setSignupSuccess] = useState(false);
+  const [initialTab, setInitialTab] = useState('login');
+
+  // Check for password reset or email confirmation params
+  useEffect(() => {
+    const reset = searchParams.get('reset');
+    const type = searchParams.get('type');
+    
+    if (reset === 'true') {
+      setInitialTab('reset');
+      toast.info('You can now reset your password');
+    } else if (type === 'recovery') {
+      setInitialTab('reset');
+      toast.info('You can now reset your password');
+    } else if (type === 'signup') {
+      toast.success('Email confirmed! You can now sign in');
+      setInitialTab('login');
+    }
+  }, [searchParams]);
 
   // Handle sign in with email and password
   const handleSignIn = async (e: React.FormEvent) => {
@@ -92,11 +112,11 @@ const Auth = () => {
         }
         
         setSignupSuccess(true);
-        toast.success('Account created successfully!');
+        console.log('User created:', data.user);
         
         if (data.user.confirmed_at) {
           // User is already confirmed (if email confirmation is disabled in Supabase)
-          toast.success('You can now sign in with your credentials');
+          toast.success('Account created successfully! You can now sign in');
         } else {
           // User needs to confirm email
           toast.info('Please check your email to confirm your registration');
@@ -149,7 +169,7 @@ const Auth = () => {
             <p className="mt-2 text-muted-foreground">Sign in or create an account</p>
           </div>
           
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue={initialTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -228,12 +248,16 @@ const Auth = () => {
                   {signupSuccess ? (
                     <div className="p-4 text-center space-y-4">
                       <h3 className="font-medium text-lg">Account Created Successfully!</h3>
-                      <p>
-                        If email verification is enabled, please check your email and click the confirmation link to activate your account.
-                      </p>
-                      <p>
-                        If you don't receive an email within a few minutes, please check your spam folder. You may also need to check your Supabase dashboard settings for email confirmation.
-                      </p>
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Verification Required</AlertTitle>
+                        <AlertDescription>
+                          Please check your email and click the confirmation link to complete your registration.
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            If you don't see the email, be sure to check your spam folder.
+                          </p>
+                        </AlertDescription>
+                      </Alert>
                       <Button 
                         onClick={() => {
                           const loginTab = document.querySelector('[value="login"]') as HTMLElement;
