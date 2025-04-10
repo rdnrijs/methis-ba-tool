@@ -35,15 +35,30 @@ const Auth = () => {
           const accessToken = hashParams.get('access_token');
           
           if (accessToken) {
-            // The supabase client will automatically handle the session
-            const { error } = await supabase.auth.getUser(accessToken);
-            
-            if (error) {
-              console.error('Error verifying email:', error);
-              toast.error('Failed to verify email: ' + error.message);
-            } else {
-              toast.success('Email verified successfully! You can now sign in');
-              setActiveTab('login');
+            // First, set the session using the token
+            const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: hashParams.get('refresh_token') || '',
+            });
+
+            if (sessionError) {
+              console.error('Error setting session:', sessionError);
+              toast.error('Failed to verify email: ' + sessionError.message);
+            } else if (session) {
+              // Then get the user to confirm the session is valid
+              const { data: { user }, error: userError } = await supabase.auth.getUser();
+              
+              if (userError) {
+                console.error('Error getting user:', userError);
+                toast.error('Failed to verify user: ' + userError.message);
+              } else if (user) {
+                console.log('User verified successfully:', user.email);
+                toast.success('Email verified successfully! You are now signed in');
+                
+                // Redirect to the main page since user is now logged in
+                navigate('/analyze', { replace: true });
+                return; // Skip the rest of the function
+              }
             }
           }
           setIsProcessing(false);
@@ -57,6 +72,7 @@ const Auth = () => {
       } catch (error) {
         console.error('Error processing auth params:', error);
         setIsProcessing(false);
+        toast.error('An error occurred while processing authentication. Please try again.');
       }
     };
 
