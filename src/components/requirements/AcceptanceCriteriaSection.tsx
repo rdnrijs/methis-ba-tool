@@ -2,9 +2,10 @@
 import { CheckCheck } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import RequirementItem from './RequirementItem';
+import { AcceptanceCriteria } from '@/utils/api/types';
 
 interface AcceptanceCriteriaSectionProps {
-  criteria: string[];
+  criteria: AcceptanceCriteria[];
 }
 
 const AcceptanceCriteriaSection = ({ criteria }: AcceptanceCriteriaSectionProps) => {
@@ -21,8 +22,8 @@ const AcceptanceCriteriaSection = ({ criteria }: AcceptanceCriteriaSectionProps)
       </CardHeader>
       <CardContent>
         <div className="space-y-1 divide-y">
-          {criteria.map((criteria, index) => (
-            <RequirementItem key={index} text={criteria} />
+          {criteria.map((criterion, index) => (
+            <RequirementItem key={index} text={criterion.description} />
           ))}
         </div>
       </CardContent>

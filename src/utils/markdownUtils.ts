@@ -8,7 +8,7 @@ export const convertToMarkdown = (
   stakeholders: string = "",
   systems: string = "",
   companyContext: string = "",
-  getUserStoryText: (story: any) => string
+  getUserStoryText: (story: UserStoryItem) => string
 ): string => {
   let markdown = `# Requirements Analysis Document\n\n`;
 
@@ -77,7 +77,7 @@ export const convertToMarkdown = (
   // Add user stories
   markdown += `## User Stories\n\n`;
   result.userStories.forEach((story, index) => {
-    const storyText = typeof story === 'string' ? story : getUserStoryText(story);
+    const storyText = typeof story === 'string' ? story : getUserStoryText(story as UserStoryItem);
     markdown += `### Story ${index + 1}\n\n`;
     markdown += `${formatDisplayText(storyText)}\n\n`;
   });

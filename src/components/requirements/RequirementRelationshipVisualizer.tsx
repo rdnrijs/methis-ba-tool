@@ -15,25 +15,25 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatDisplayText } from './DisplayUtils';
 import { Network, Share2, ArrowRightLeft, ZoomIn } from 'lucide-react';
+import { Requirement, AcceptanceCriteria } from '@/utils/api/types';
 
 interface RequirementRelationshipVisualizerProps {
-  functionalRequirements: string[];
-  acceptanceCriteria: string[];
+  functionalRequirements: Requirement[];
+  acceptanceCriteria: AcceptanceCriteria[];
 }
 
 const RequirementRelationshipVisualizer = ({ 
   functionalRequirements,
   acceptanceCriteria
 }: RequirementRelationshipVisualizerProps) => {
-  const [selectedRequirement, setSelectedRequirement] = useState<string | null>(null);
+  const [selectedRequirement, setSelectedRequirement] = useState<Requirement | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   
   // Enhanced relationship mapping algorithm
-  const getRelatedCriteria = (requirement: string) => {
+  const getRelatedCriteria = (requirement: Requirement | null) => {
     if (!requirement) return [];
     
-    // Extract key phrases from the requirement (nouns and verbs)
-    const reqText = requirement.toLowerCase();
+    const reqText = requirement.description.toLowerCase();
     
     // Split requirement into words for keyword matching
     const reqWords = reqText.split(/\s+/)
@@ -42,7 +42,7 @@ const RequirementRelationshipVisualizer = ({
     
     // Create a scoring system for each acceptance criteria
     const scoredCriteria = acceptanceCriteria.map(criteria => {
-      const criteriaText = criteria.toLowerCase();
+      const criteriaText = criteria.description.toLowerCase();
       
       // Calculate base score from direct text matching
       let score = 0;
@@ -74,7 +74,6 @@ const RequirementRelationshipVisualizer = ({
       });
       
       // Check for subject matter alignment
-      // If requirement is about alerts and criteria mentions notifications
       if ((reqText.includes('alert') || reqText.includes('notif')) && 
           (criteriaText.includes('alert') || criteriaText.includes('notif'))) {
         score += 3;
@@ -131,7 +130,7 @@ const RequirementRelationshipVisualizer = ({
                       }`}
                       onClick={() => setSelectedRequirement(req === selectedRequirement ? null : req)}
                     >
-                      {formatDisplayText(req)}
+                      {formatDisplayText(req.description)}
                     </div>
                   ))}
                 </div>
@@ -147,7 +146,7 @@ const RequirementRelationshipVisualizer = ({
                     {getRelatedCriteria(selectedRequirement).length > 0 ? (
                       getRelatedCriteria(selectedRequirement).map((criteria, index) => (
                         <div key={index} className="p-3 text-sm bg-muted/20">
-                          {formatDisplayText(criteria)}
+                          {formatDisplayText(criteria.description)}
                         </div>
                       ))
                     ) : (
@@ -169,7 +168,7 @@ const RequirementRelationshipVisualizer = ({
               <p className="text-sm text-muted-foreground">
                 {selectedRequirement ? (
                   <>
-                    <span className="font-medium">"{formatDisplayText(selectedRequirement).substring(0, 50)}..."</span> is related to {getRelatedCriteria(selectedRequirement).length} acceptance criteria.
+                    <span className="font-medium">"{formatDisplayText(selectedRequirement.description).substring(0, 50)}..."</span> is related to {getRelatedCriteria(selectedRequirement).length} acceptance criteria.
                   </>
                 ) : (
                   <>Select a requirement to see its relationship summary.</>

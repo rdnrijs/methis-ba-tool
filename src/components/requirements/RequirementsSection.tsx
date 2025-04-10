@@ -3,13 +3,14 @@ import { GitBranch, GitCommitHorizontal } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import RequirementItem from './RequirementItem';
 import RequirementRelationshipVisualizer from './RequirementRelationshipVisualizer';
+import { Requirement, AcceptanceCriteria } from '@/utils/api/types';
 
 interface RequirementsSectionProps {
-  requirements: string[];
+  requirements: Requirement[];
   title: string;
   description: string;
   icon: 'functional' | 'nonfunctional';
-  acceptanceCriteria?: string[]; // Added to pass to the visualizer
+  acceptanceCriteria?: AcceptanceCriteria[]; // Updated to use the correct type
 }
 
 const RequirementsSection = ({ 
@@ -49,7 +50,7 @@ const RequirementsSection = ({
       <CardContent>
         <div className="space-y-1 divide-y">
           {requirements.map((req, index) => (
-            <RequirementItem key={index} text={req} />
+            <RequirementItem key={index} text={req.description} />
           ))}
         </div>
         
