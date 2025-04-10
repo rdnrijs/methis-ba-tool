@@ -18,6 +18,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   // Handle sign in with email and password
   const handleSignIn = async (e: React.FormEvent) => {
@@ -57,6 +58,7 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
+    setSignupSuccess(false);
     
     if (!email || !password) {
       setValidationError('Please enter both email and password');
@@ -73,6 +75,9 @@ const Auth = () => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+        }
       });
 
       if (error) {
@@ -81,8 +86,21 @@ const Auth = () => {
       }
 
       if (data.user) {
-        toast.success('Account created successfully! Please check your email to confirm your registration.');
-        // Don't navigate yet, wait for email confirmation
+        if (data.user.identities && data.user.identities.length === 0) {
+          setValidationError('This email is already registered. Please sign in instead.');
+          return;
+        }
+        
+        setSignupSuccess(true);
+        toast.success('Account created successfully!');
+        
+        if (data.user.confirmed_at) {
+          // User is already confirmed (if email confirmation is disabled in Supabase)
+          toast.success('You can now sign in with your credentials');
+        } else {
+          // User needs to confirm email
+          toast.info('Please check your email to confirm your registration');
+        }
       }
     } catch (error) {
       console.error('Error signing up:', error);
@@ -207,42 +225,63 @@ const Auth = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email</Label>
-                      <Input
-                        id="signup-email"
-                        type="email" 
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={loading}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Password</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={loading}
-                        required
-                      />
-                      <p className="text-sm text-muted-foreground">
-                        Password must be at least 6 characters
+                  {signupSuccess ? (
+                    <div className="p-4 text-center space-y-4">
+                      <h3 className="font-medium text-lg">Account Created Successfully!</h3>
+                      <p>
+                        If email verification is enabled, please check your email and click the confirmation link to activate your account.
                       </p>
+                      <p>
+                        If you don't receive an email within a few minutes, please check your spam folder. You may also need to check your Supabase dashboard settings for email confirmation.
+                      </p>
+                      <Button 
+                        onClick={() => {
+                          const loginTab = document.querySelector('[value="login"]') as HTMLElement;
+                          if (loginTab) loginTab.click();
+                        }}
+                        className="mt-4"
+                      >
+                        Proceed to Login
+                      </Button>
                     </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full"
-                      disabled={loading}
-                    >
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      {loading ? 'Creating account...' : 'Create Account'}
-                    </Button>
-                  </form>
+                  ) : (
+                    <form onSubmit={handleSignUp} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email">Email</Label>
+                        <Input
+                          id="signup-email"
+                          type="email" 
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={loading}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-password">Password</Label>
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          disabled={loading}
+                          required
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Password must be at least 6 characters
+                        </p>
+                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full"
+                        disabled={loading}
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        {loading ? 'Creating account...' : 'Create Account'}
+                      </Button>
+                    </form>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -284,7 +323,7 @@ const Auth = () => {
                     variant="outline" 
                     className="w-full"
                     onClick={() => {
-                      const loginTab = document.getElementById('login-tab');
+                      const loginTab = document.querySelector('[value="login"]') as HTMLElement;
                       if (loginTab) loginTab.click();
                     }}
                   >
