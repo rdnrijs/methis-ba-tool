@@ -80,10 +80,11 @@ export async function getSampleData(name: string): Promise<SampleData | null> {
   console.log(`Fetching sample data with name: ${name}...`);
   
   try {
+    // First try with the exact name
     const { data, error } = await supabase
       .from('sample_data')
       .select('*')
-      .ilike('name', name) // Using case-insensitive comparison to handle different formats
+      .eq('name', name)
       .maybeSingle();
     
     if (error) {
@@ -91,13 +92,30 @@ export async function getSampleData(name: string): Promise<SampleData | null> {
       return null;
     }
     
-    if (!data) {
-      console.warn(`No sample data found with name: ${name}`);
+    if (data) {
+      console.log(`Successfully loaded sample data for: ${name}`);
+      return data;
+    }
+    
+    // If no match, try a less strict comparison
+    const { data: fuzzyData, error: fuzzyError } = await supabase
+      .from('sample_data')
+      .select('*')
+      .ilike('name', `%${name}%`)
+      .maybeSingle();
+    
+    if (fuzzyError) {
+      console.error(`Error in fuzzy search for ${name}:`, fuzzyError);
       return null;
     }
     
-    console.log(`Successfully loaded sample data for: ${name}`);
-    return data;
+    if (!fuzzyData) {
+      console.warn(`No sample data found with name similar to: ${name}`);
+      return null;
+    }
+    
+    console.log(`Found sample data with fuzzy match for: ${name}`);
+    return fuzzyData;
   } catch (e) {
     console.error(`Exception while fetching sample data for ${name}:`, e);
     return null;

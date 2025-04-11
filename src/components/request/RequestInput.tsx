@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { convertSampleDataToAppFormat } from './templates';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
-import { getSampleData } from '@/utils/supabaseService';
+import { getSampleData, getAllSampleData } from '@/utils/supabaseService';
 import PromptConfig from '@/components/PromptConfig';
 
 interface RequestInputProps {
@@ -51,12 +51,20 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const loadSampleData = async () => {
     setIsLoadingSample(true);
     try {
-      // Try with both underscore and space to handle database differences
-      let dbSampleData = await getSampleData("utility sample");
+      // Try to load using the exact name first
+      let dbSampleData = await getSampleData("utility_sample");
       
       if (!dbSampleData) {
-        // Fallback to check with underscore
-        dbSampleData = await getSampleData("utility_sample");
+        // If not found, try to get all samples and find the one that contains "utility"
+        const allSamples = await getAllSampleData();
+        const utilitySample = allSamples.find(sample => 
+          sample.name.toLowerCase().includes('utility')
+        );
+        
+        if (utilitySample) {
+          dbSampleData = utilitySample;
+          console.log(`Found sample with name: ${utilitySample.name}`);
+        }
       }
       
       if (dbSampleData) {
@@ -68,7 +76,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
         toast("Utility sector sample data has been loaded");
       } else {
         toast.error("Sample data not found. Please check database configuration.");
-        console.error("Sample data 'utility sample' or 'utility_sample' not found in database.");
+        console.error("No utility sample data found in database. Please ensure a record with 'utility' in the name exists.");
       }
     } catch (error) {
       console.error('Error loading sample data:', error);
