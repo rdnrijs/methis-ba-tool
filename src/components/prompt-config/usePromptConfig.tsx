@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
-import { DEFAULT_SYSTEM_PROMPT } from '@/utils/api/promptUtils';
 import { saveCustomPrompt, getCustomPrompt, getApiKey } from '@/utils/storageUtils';
 import { validateApiKey } from '@/utils/api/openaiService';
 import { getDefaultSystemPrompt } from '@/utils/supabaseService';
@@ -33,13 +32,16 @@ export const usePromptConfig = (isOpen: boolean) => {
           if (defaultPrompt) {
             setOriginalPrompt(defaultPrompt);
           } else {
-            setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+            toast.error("No default system prompt found in database");
+            setIsLoading(false);
+            return;
           }
         } catch (error) {
           console.error('Error loading default system prompt:', error);
-          setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+          toast.error("Failed to load system prompt from database");
         }
         
+        setIsLoading(false);
         return;
       }
       
@@ -50,15 +52,12 @@ export const usePromptConfig = (isOpen: boolean) => {
           setSystemPrompt(defaultPrompt);
           setOriginalPrompt(defaultPrompt);
         } else {
-          // Fall back to the hard-coded default if Supabase fails
-          setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
-          setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
-          console.warn('No default system prompt found in database, using hardcoded default');
+          // Show error if database has no prompts
+          toast.error("No default system prompt found in database");
         }
       } catch (error) {
         console.error('Error loading default system prompt:', error);
-        setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
-        setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
+        toast.error("Failed to load system prompt from database");
       } finally {
         setIsLoading(false);
       }
@@ -154,15 +153,12 @@ export const usePromptConfig = (isOpen: boolean) => {
           setOriginalPrompt(defaultPrompt);
           toast.info("Prompt reset to database default.");
         } else {
-          setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
-          setOriginalPrompt(DEFAULT_SYSTEM_PROMPT);
-          toast.info("Prompt reset to application default.");
+          toast.error("No default system prompt found in database");
         }
       }
     } catch (error) {
       console.error('Error resetting to default prompt:', error);
-      setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
-      toast.info("Prompt reset to application default.");
+      toast.error("Failed to reset prompt from database");
     } finally {
       setValidationError(null);
       setIsLoading(false);

@@ -1,64 +1,31 @@
+
 import { getCustomPrompt } from '../storageUtils';
 import { getDefaultSystemPrompt } from '../supabaseService';
 import { RequirementAnalysisResult } from './types';
-
-// Default system prompt - This is now only a fallback if database and custom storage both fail
-export const DEFAULT_SYSTEM_PROMPT = `As a senior business analyst, your role is to analyze client requirements and transform them into well-structured outputs. When a client provides a request, analyze it to extract the following components:
-
-1. A concise summary (max 2 sentences)
-2. Clear functional requirements (what the system should do)
-3. Non-functional requirements (quality attributes)
-4. Comprehensive user stories in "As a [persona], I want [goal], so that [reason]" format
-5. Business rules and constraints
-6. Key stakeholders involved
-7. Recommended acceptance criteria for testing
-8. Next steps in the project lifecycle
-
-Return your analysis in JSON format with the following structure:
-{
-  "summary": "string",
-  "functionalRequirements": ["string"],
-  "nonFunctionalRequirements": ["string"],
-  "userStories": [
-    {
-      "id": "string",
-      "title": "string",
-      "persona": "string",
-      "goal": "string",
-      "reason": "string",
-      "acceptanceCriteria": ["string"]
-    }
-  ],
-  "businessRules": ["string"],
-  "stakeholders": ["string"],
-  "acceptanceCriteria": ["string"],
-  "nextSteps": ["string"]
-}
-
-Your analysis should be thorough, comprehensive, and tailored to the specific client request.`;
 
 // Get system prompt with fallbacks
 export const getSystemPrompt = async (): Promise<string> => {
   // First check for user-configured prompt in local storage
   const customPrompt = getCustomPrompt();
   if (customPrompt) {
+    console.log('Using custom prompt from local storage');
     return customPrompt;
   }
   
-  // Then try to get default from Supabase
+  // Get default from Supabase - no fallback to hardcoded default
   try {
     const dbPrompt = await getDefaultSystemPrompt();
     if (dbPrompt) {
+      console.log('Using default prompt from database');
       return dbPrompt;
     } else {
       console.warn('No default system prompt found in database');
+      throw new Error('No system prompt available in database. Please configure a system prompt in the database.');
     }
   } catch (error) {
     console.error('Error loading system prompt from database:', error);
+    throw error;
   }
-  
-  // Fall back to hardcoded default
-  return DEFAULT_SYSTEM_PROMPT;
 };
 
 // Helper function to clean the response and extract JSON

@@ -14,6 +14,7 @@ import ValidationAlert from './prompt-config/ValidationAlert';
 import PromptTextarea from './prompt-config/PromptTextarea';
 import PromptDialogFooter from './prompt-config/PromptDialogFooter';
 import { usePromptConfig } from './prompt-config/usePromptConfig';
+import { toast } from "sonner";
 
 const PromptConfig = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +30,11 @@ const PromptConfig = () => {
   } = usePromptConfig(isOpen);
 
   const onSave = async () => {
+    if (!systemPrompt.trim()) {
+      toast.error("System prompt cannot be empty");
+      return;
+    }
+    
     const success = await handleSave();
     if (success) {
       setIsOpen(false);

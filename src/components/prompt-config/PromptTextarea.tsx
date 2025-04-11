@@ -2,7 +2,7 @@
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface PromptTextareaProps {
   systemPrompt: string;
@@ -11,12 +11,20 @@ interface PromptTextareaProps {
 }
 
 const PromptTextarea = ({ systemPrompt, isLoading, onChange }: PromptTextareaProps) => {
+  const isEmpty = !systemPrompt && !isLoading;
+  
   return (
     <div className="space-y-4 my-4">
       <Label htmlFor="systemPrompt">System Prompt Instructions</Label>
       {isLoading ? (
         <div className="h-[400px] flex items-center justify-center bg-muted/20">
           <RefreshCw className="h-6 w-6 animate-spin opacity-50" />
+        </div>
+      ) : isEmpty ? (
+        <div className="h-[400px] flex flex-col items-center justify-center bg-destructive/10 rounded-md">
+          <AlertTriangle className="h-8 w-8 text-destructive mb-4" />
+          <p className="text-destructive font-medium">No system prompt found in database</p>
+          <p className="text-muted-foreground text-sm mt-2">Please add a default prompt in the database</p>
         </div>
       ) : (
         <Textarea

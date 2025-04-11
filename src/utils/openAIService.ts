@@ -8,7 +8,7 @@ import {
 
 import { OpenAIResponse } from './api/types';
 import { estimateCost, estimateTokenCount, modelCosts } from './api/costUtils';
-import { getSystemPrompt, DEFAULT_SYSTEM_PROMPT } from './api/promptUtils';
+import { getSystemPrompt } from './api/promptUtils';
 import { analyzeWithOpenAI, validateApiKey } from './api/openaiService';
 import { analyzeWithGemini, validateGoogleApiKey } from './api/geminiService';
 
@@ -16,7 +16,7 @@ import { analyzeWithGemini, validateGoogleApiKey } from './api/geminiService';
 export type { RequirementAnalysisResult, TokenUsage, OpenAIResponse } from './api/types';
 
 // Re-export utility functions
-export { estimateCost, estimateTokenCount, modelCosts, DEFAULT_SYSTEM_PROMPT };
+export { estimateCost, estimateTokenCount, modelCosts };
 
 // Main analyze function that delegates to the appropriate service
 export const analyzeRequirements = async (clientRequest: string, additionalContext?: string): Promise<OpenAIResponse> => {
