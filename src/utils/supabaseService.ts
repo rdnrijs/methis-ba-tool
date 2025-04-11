@@ -25,11 +25,24 @@ export async function getDefaultSystemPrompt(): Promise<string | null> {
   console.log('Fetching default system prompt from database...');
   
   try {
-    const { data, error } = await supabase
+    // First try to find a prompt with is_default = true
+    const { data: defaultPrompt, error: defaultError } = await supabase
       .from('system_prompts')
       .select('content')
       .eq('is_default', true)
-      .single();
+      .maybeSingle();
+    
+    if (!defaultError && defaultPrompt) {
+      console.log('Found default system prompt by is_default flag');
+      return defaultPrompt.content;
+    }
+    
+    // If no default prompt by flag, try to find one by name
+    const { data, error } = await supabase
+      .from('system_prompts')
+      .select('content')
+      .eq('name', 'Default System Prompt')
+      .maybeSingle();
     
     if (error) {
       console.error('Error fetching default system prompt:', error);
@@ -41,7 +54,7 @@ export async function getDefaultSystemPrompt(): Promise<string | null> {
       return null;
     }
     
-    console.log('Successfully loaded system prompt from database');
+    console.log('Successfully loaded system prompt from database by name');
     return data.content;
   } catch (error) {
     console.error('Exception while fetching default system prompt:', error);
