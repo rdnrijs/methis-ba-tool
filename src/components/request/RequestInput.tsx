@@ -51,7 +51,14 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const loadSampleData = async () => {
     setIsLoadingSample(true);
     try {
-      const dbSampleData = await getSampleData('utility_sample');
+      // Try with both underscore and space to handle database differences
+      let dbSampleData = await getSampleData("utility sample");
+      
+      if (!dbSampleData) {
+        // Fallback to check with underscore
+        dbSampleData = await getSampleData("utility_sample");
+      }
+      
       if (dbSampleData) {
         const formattedData = convertSampleDataToAppFormat(dbSampleData);
         setClientRequest(formattedData.clientRequest);
@@ -61,7 +68,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
         toast("Utility sector sample data has been loaded");
       } else {
         toast.error("Sample data not found. Please check database configuration.");
-        console.error("Sample data 'utility_sample' not found in database.");
+        console.error("Sample data 'utility sample' or 'utility_sample' not found in database.");
       }
     } catch (error) {
       console.error('Error loading sample data:', error);

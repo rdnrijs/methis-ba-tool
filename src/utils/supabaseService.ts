@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SystemPrompt {
@@ -82,7 +83,7 @@ export async function getSampleData(name: string): Promise<SampleData | null> {
     const { data, error } = await supabase
       .from('sample_data')
       .select('*')
-      .eq('name', name)
+      .ilike('name', name) // Using case-insensitive comparison to handle different formats
       .maybeSingle();
     
     if (error) {
