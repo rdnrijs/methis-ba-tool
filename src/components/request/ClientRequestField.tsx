@@ -1,10 +1,10 @@
 
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { FileText, CircleHelp, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FileText, CircleHelp } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { estimateTokenCount } from '@/utils/openAIService';
+import TemplateSelector from './TemplateSelector';
 
 interface ClientRequestFieldProps {
   clientRequest: string;
@@ -27,30 +27,10 @@ const ClientRequestField = ({
           <Label htmlFor="clientRequest" className="text-sm font-medium">Client Request</Label>
         </div>
         <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={onLoadSample}
-                  disabled={isLoadingSample}
-                >
-                  {isLoadingSample ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    'Load Sample'
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Load utility sector sample data</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <TemplateSelector
+            onLoadSample={onLoadSample}
+            isLoadingSample={isLoadingSample}
+          />
           
           <TooltipProvider>
             <Tooltip>
