@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Send, RefreshCw, Settings } from 'lucide-react';
+import { Send, RefreshCw } from 'lucide-react';
 import { toast } from "sonner";
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
-import { UTILITY_SAMPLE_DATA, convertSampleDataToAppFormat } from './templates';
+import { convertSampleDataToAppFormat } from './templates';
 import ClientRequestField from './ClientRequestField';
 import ContextFields from './ContextFields';
 import { getSampleData } from '@/utils/supabaseService';
@@ -23,23 +23,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
   const [systems, setSystems] = useState('');
   const [companyContext, setCompanyContext] = useState('');
   const [tokenCount, setTokenCount] = useState(0);
-  const [sampleData, setSampleData] = useState(UTILITY_SAMPLE_DATA);
-  
-  useEffect(() => {
-    // Load sample data from Supabase
-    const loadSampleData = async () => {
-      try {
-        const dbSampleData = await getSampleData('utility_sample');
-        if (dbSampleData) {
-          setSampleData(convertSampleDataToAppFormat(dbSampleData));
-        }
-      } catch (error) {
-        console.error('Error loading sample data:', error);
-      }
-    };
-    
-    loadSampleData();
-  }, []);
+  const [isLoadingSample, setIsLoadingSample] = useState(false);
   
   useEffect(() => {
     // Estimate token count for all fields combined
@@ -64,12 +48,27 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
     onSubmit(clientRequest, contextData, stakeholders, systems, companyContext);
   };
   
-  const loadSampleData = () => {
-    setClientRequest(sampleData.clientRequest);
-    setStakeholders(sampleData.stakeholders);
-    setSystems(sampleData.systems);
-    setCompanyContext(sampleData.companyContext);
-    toast("Utility sector sample data has been loaded");
+  const loadSampleData = async () => {
+    setIsLoadingSample(true);
+    try {
+      const dbSampleData = await getSampleData('utility_sample');
+      if (dbSampleData) {
+        const formattedData = convertSampleDataToAppFormat(dbSampleData);
+        setClientRequest(formattedData.clientRequest);
+        setStakeholders(formattedData.stakeholders);
+        setSystems(formattedData.systems);
+        setCompanyContext(formattedData.companyContext);
+        toast("Utility sector sample data has been loaded");
+      } else {
+        toast.error("Sample data not found. Please check database configuration.");
+        console.error("Sample data 'utility_sample' not found in database.");
+      }
+    } catch (error) {
+      console.error('Error loading sample data:', error);
+      toast.error("Failed to load sample data. See console for details.");
+    } finally {
+      setIsLoadingSample(false);
+    }
   };
   
   return (
@@ -85,6 +84,7 @@ const RequestInput = ({ onSubmit, isLoading }: RequestInputProps) => {
               clientRequest={clientRequest} 
               onChange={setClientRequest}
               onLoadSample={loadSampleData}
+              isLoadingSample={isLoadingSample}
             />
             
             <ContextFields 

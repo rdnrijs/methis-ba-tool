@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SystemPrompt {
@@ -77,18 +76,31 @@ export async function getAllSystemPrompts(): Promise<SystemPrompt[]> {
 }
 
 export async function getSampleData(name: string): Promise<SampleData | null> {
-  const { data, error } = await supabase
-    .from('sample_data')
-    .select('*')
-    .eq('name', name)
-    .maybeSingle();
+  console.log(`Fetching sample data with name: ${name}...`);
   
-  if (error) {
-    console.error(`Error fetching sample data for ${name}:`, error);
+  try {
+    const { data, error } = await supabase
+      .from('sample_data')
+      .select('*')
+      .eq('name', name)
+      .maybeSingle();
+    
+    if (error) {
+      console.error(`Error fetching sample data for ${name}:`, error);
+      return null;
+    }
+    
+    if (!data) {
+      console.warn(`No sample data found with name: ${name}`);
+      return null;
+    }
+    
+    console.log(`Successfully loaded sample data for: ${name}`);
+    return data;
+  } catch (e) {
+    console.error(`Exception while fetching sample data for ${name}:`, e);
     return null;
   }
-  
-  return data;
 }
 
 export async function getAllSampleData(): Promise<SampleData[]> {
