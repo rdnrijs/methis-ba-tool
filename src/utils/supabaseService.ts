@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SystemPrompt {
@@ -137,6 +138,14 @@ export async function getSampleDataById(id: string): Promise<SampleData | null> 
   console.log(`Fetching sample data with ID: ${id}...`);
   
   try {
+    // Check if user is authenticated
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log('Current auth status:', sessionData.session ? 'Authenticated' : 'Not authenticated');
+    
+    if (!sessionData.session) {
+      console.warn('User is not authenticated when trying to fetch sample data');
+    }
+    
     const { data, error } = await supabase
       .from('sample_data')
       .select('*')
@@ -145,6 +154,12 @@ export async function getSampleDataById(id: string): Promise<SampleData | null> 
     
     if (error) {
       console.error(`Error fetching sample data with ID ${id}:`, error);
+      
+      // Check specifically for auth/permission related errors
+      if (error.code === 'PGRST301' || error.message.includes('permission denied')) {
+        console.error('This appears to be an authorization error. Check RLS policies on the sample_data table.');
+      }
+      
       return null;
     }
     
@@ -163,15 +178,35 @@ export async function getSampleDataById(id: string): Promise<SampleData | null> 
 
 export async function getAllSampleData(): Promise<SampleData[]> {
   console.log('Fetching all sample data...');
-  const { data, error } = await supabase
-    .from('sample_data')
-    .select('*');
   
-  if (error) {
-    console.error('Error fetching all sample data:', error);
+  try {
+    // Check if user is authenticated
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log('Current auth status:', sessionData.session ? 'Authenticated' : 'Not authenticated');
+    
+    if (!sessionData.session) {
+      console.warn('User is not authenticated when trying to fetch all sample data');
+    }
+    
+    const { data, error } = await supabase
+      .from('sample_data')
+      .select('*');
+  
+    if (error) {
+      console.error('Error fetching all sample data:', error);
+      
+      // Check specifically for auth/permission related errors
+      if (error.code === 'PGRST301' || error.message.includes('permission denied')) {
+        console.error('This appears to be an authorization error. Check RLS policies on the sample_data table.');
+      }
+      
+      return [];
+    }
+    
+    console.log(`Found ${data?.length || 0} sample data records`);
+    return data || [];
+  } catch (e) {
+    console.error('Exception while fetching all sample data:', e);
     return [];
   }
-  
-  console.log(`Found ${data?.length || 0} sample data records`);
-  return data || [];
 }

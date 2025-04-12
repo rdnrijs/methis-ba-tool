@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { getSampleData, getAllSampleData, getSampleDataById } from '@/utils/supabaseService';
 import { convertSampleDataToAppFormat } from '../components/request/templates';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SampleData {
   clientRequest: string;
@@ -20,11 +21,17 @@ export const useSampleData = (
   onDataLoaded: (data: SampleData) => void
 ): UseSampleDataReturn => {
   const [isLoadingSample, setIsLoadingSample] = useState(false);
+  const { user } = useAuth();
   
   const loadSampleData = async () => {
     setIsLoadingSample(true);
     try {
       console.log('Attempting to load sample data...');
+      
+      if (!user) {
+        console.warn('User is not authenticated. Sample data may not be accessible if RLS is enabled.');
+        toast.warning('You may need to be signed in to access sample data');
+      }
       
       // Load the specific sample by ID
       const specificSampleId = "68062195-5335-4e40-9ae5-ba15a20867ff";
@@ -48,7 +55,11 @@ export const useSampleData = (
         console.log('Available samples:', allSamples);
         
         if (allSamples.length === 0) {
-          toast.error("No sample data found in database.");
+          if (!user) {
+            toast.error("No sample data found. You may need to sign in to access this data.");
+          } else {
+            toast.error("No sample data found in database.");
+          }
           console.error("No sample data found in database.");
           return;
         }
@@ -63,7 +74,11 @@ export const useSampleData = (
       }
     } catch (error) {
       console.error('Error loading sample data:', error);
-      toast.error("Failed to load sample data. See console for details.");
+      if (!user) {
+        toast.error("Failed to load sample data. You may need to sign in first.");
+      } else {
+        toast.error("Failed to load sample data. See console for details.");
+      }
     } finally {
       setIsLoadingSample(false);
     }
