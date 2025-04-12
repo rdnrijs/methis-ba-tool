@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { getSampleData, getAllSampleData } from '@/utils/supabaseService';
 import { convertSampleDataToAppFormat } from '../components/request/templates';
@@ -36,35 +36,34 @@ export const useSampleData = (
         return;
       }
       
-      // Try to find a utility sample through different methods
+      // Try to find the utility_sample by exact name
       let dbSampleData = allSamples.find(sample => 
         sample.name.toLowerCase() === 'utility_sample'
       );
       
       if (!dbSampleData) {
-        dbSampleData = allSamples.find(sample => 
-          sample.name.toLowerCase() === 'utility sample'
-        );
-      }
-      
-      if (!dbSampleData) {
+        // Try with different formats or fallback to any available sample
         dbSampleData = allSamples.find(sample => 
           sample.name.toLowerCase().includes('utility')
         );
-      }
-      
-      // If still no sample found, just take the first one
-      if (!dbSampleData && allSamples.length > 0) {
-        dbSampleData = allSamples[0];
-        console.log('No utility sample found, using first available sample:', dbSampleData.name);
+        
+        if (!dbSampleData && allSamples.length > 0) {
+          // If no utility sample found, take the first one
+          dbSampleData = allSamples[0];
+          console.log('No utility sample found, using first available sample:', dbSampleData.name);
+        }
       }
       
       if (dbSampleData) {
         console.log('Sample data found:', dbSampleData);
+        
+        // Convert database fields to frontend format
         const formattedData = convertSampleDataToAppFormat(dbSampleData);
-        console.log('Formatted data:', formattedData);
+        console.log('Formatted data for UI:', formattedData);
+        
+        // Notify the component to update its state with the sample data
         onDataLoaded(formattedData);
-        toast(`Sample data "${dbSampleData.name}" has been loaded`);
+        toast.success(`Sample "${dbSampleData.name}" loaded successfully`);
       } else {
         toast.error("Sample data not found. Please check database configuration.");
         console.error("No sample data found in database after multiple search attempts.");

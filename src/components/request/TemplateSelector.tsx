@@ -24,6 +24,8 @@ const TemplateSelector = ({
               size="sm"
               onClick={onLoadSample}
               disabled={isLoadingSample}
+              className="flex items-center"
+              data-testid="load-sample-button"
             >
               {isLoadingSample ? (
                 <>

@@ -6,6 +6,7 @@ export function convertSampleDataToAppFormat(sample: SampleData) {
   console.log('Converting sample data to app format:', sample);
   
   // Ensure all fields are strings, even if null/undefined in database
+  // Using the correct field mappings from database to frontend
   return {
     clientRequest: sample.client_request || '',
     stakeholders: sample.stakeholders || '',
