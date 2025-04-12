@@ -24,29 +24,50 @@ export const useSampleData = (
   const loadSampleData = async () => {
     setIsLoadingSample(true);
     try {
-      // Try to load using the exact name first
-      let dbSampleData = await getSampleData("utility_sample");
+      console.log('Attempting to load sample data...');
+      
+      // Get all samples first to check what's available
+      const allSamples = await getAllSampleData();
+      console.log('Available samples:', allSamples);
+      
+      if (allSamples.length === 0) {
+        toast.error("No sample data found in database.");
+        console.error("No sample data found in database.");
+        return;
+      }
+      
+      // Try to find a utility sample through different methods
+      let dbSampleData = allSamples.find(sample => 
+        sample.name.toLowerCase() === 'utility_sample'
+      );
       
       if (!dbSampleData) {
-        // If not found, try to get all samples and find the one that contains "utility"
-        const allSamples = await getAllSampleData();
-        const utilitySample = allSamples.find(sample => 
+        dbSampleData = allSamples.find(sample => 
+          sample.name.toLowerCase() === 'utility sample'
+        );
+      }
+      
+      if (!dbSampleData) {
+        dbSampleData = allSamples.find(sample => 
           sample.name.toLowerCase().includes('utility')
         );
-        
-        if (utilitySample) {
-          dbSampleData = utilitySample;
-          console.log(`Found sample with name: ${utilitySample.name}`);
-        }
+      }
+      
+      // If still no sample found, just take the first one
+      if (!dbSampleData && allSamples.length > 0) {
+        dbSampleData = allSamples[0];
+        console.log('No utility sample found, using first available sample:', dbSampleData.name);
       }
       
       if (dbSampleData) {
+        console.log('Sample data found:', dbSampleData);
         const formattedData = convertSampleDataToAppFormat(dbSampleData);
+        console.log('Formatted data:', formattedData);
         onDataLoaded(formattedData);
-        toast("Utility sector sample data has been loaded");
+        toast(`Sample data "${dbSampleData.name}" has been loaded`);
       } else {
         toast.error("Sample data not found. Please check database configuration.");
-        console.error("No utility sample data found in database. Please ensure a record with 'utility' in the name exists.");
+        console.error("No sample data found in database after multiple search attempts.");
       }
     } catch (error) {
       console.error('Error loading sample data:', error);

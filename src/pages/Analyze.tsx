@@ -9,6 +9,7 @@ import RequirementResults from '@/components/RequirementResults';
 import APIKeyForm from '@/components/APIKeyForm';
 import Layout from '@/components/Layout';
 import { getSelectedProvider, getApiKey, getGoogleApiKey } from '@/utils/storageUtils';
+import { useSampleData } from '@/hooks/useSampleData';
 
 const Analyze = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,18 @@ const Analyze = () => {
   const [showApiConfig, setShowApiConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Create a function to handle sample data loading
+  const handleSampleDataLoaded = (data: any) => {
+    console.log('Sample data loaded:', data);
+    setClientRequest(data.clientRequest);
+    setStakeholders(data.stakeholders);
+    setSystems(data.systems);
+    setCompanyContext(data.companyContext);
+  };
+
+  // Use the sample data hook
+  const { isLoadingSample, loadSampleData } = useSampleData(handleSampleDataLoaded);
 
   // Check if API key is configured
   useEffect(() => {
@@ -149,7 +162,18 @@ const Analyze = () => {
           />
         ) : !result ? (
           <>
-            <RequestInput onSubmit={handleSubmit} isLoading={isLoading} />
+            <RequestInput 
+              onSubmit={handleSubmit} 
+              isLoading={isLoading} 
+              onLoadSample={loadSampleData}
+              isLoadingSample={isLoadingSample}
+              initialData={{
+                clientRequest,
+                stakeholders,
+                systems,
+                companyContext
+              }}
+            />
             {error && (
               <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md">
                 <h3 className="font-semibold">Error analyzing requirements:</h3>

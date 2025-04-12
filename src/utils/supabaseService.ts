@@ -97,6 +97,18 @@ export async function getSampleData(name: string): Promise<SampleData | null> {
       return data;
     }
     
+    // Try with different casing
+    const { data: caseData, error: caseError } = await supabase
+      .from('sample_data')
+      .select('*')
+      .ilike('name', name)
+      .maybeSingle();
+    
+    if (!caseError && caseData) {
+      console.log(`Found sample data with case-insensitive match for: ${name}`);
+      return caseData;
+    }
+    
     // If no match, try a less strict comparison
     const { data: fuzzyData, error: fuzzyError } = await supabase
       .from('sample_data')
@@ -123,6 +135,7 @@ export async function getSampleData(name: string): Promise<SampleData | null> {
 }
 
 export async function getAllSampleData(): Promise<SampleData[]> {
+  console.log('Fetching all sample data...');
   const { data, error } = await supabase
     .from('sample_data')
     .select('*');
@@ -132,5 +145,6 @@ export async function getAllSampleData(): Promise<SampleData[]> {
     return [];
   }
   
+  console.log(`Found ${data?.length || 0} sample data records`);
   return data || [];
 }

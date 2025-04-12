@@ -36,7 +36,7 @@ const TemplateSelector = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Load utility sector sample data</p>
+            <p>Load sample data from database</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
