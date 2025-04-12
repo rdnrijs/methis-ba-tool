@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
-import { getSampleData, getAllSampleData } from '@/utils/supabaseService';
+import { getSampleData, getAllSampleData, getSampleDataById } from '@/utils/supabaseService';
 import { convertSampleDataToAppFormat } from '../components/request/templates';
 
 interface SampleData {
@@ -26,33 +26,11 @@ export const useSampleData = (
     try {
       console.log('Attempting to load sample data...');
       
-      // Get all samples first to check what's available
-      const allSamples = await getAllSampleData();
-      console.log('Available samples:', allSamples);
+      // Load the specific sample by ID
+      const specificSampleId = "68062195-5335-4e40-9ae5-ba15a20867ff";
+      console.log(`Attempting to load sample with ID: ${specificSampleId}`);
       
-      if (allSamples.length === 0) {
-        toast.error("No sample data found in database.");
-        console.error("No sample data found in database.");
-        return;
-      }
-      
-      // Try to find the utility_sample by exact name
-      let dbSampleData = allSamples.find(sample => 
-        sample.name.toLowerCase() === 'utility_sample'
-      );
-      
-      if (!dbSampleData) {
-        // Try with different formats or fallback to any available sample
-        dbSampleData = allSamples.find(sample => 
-          sample.name.toLowerCase().includes('utility')
-        );
-        
-        if (!dbSampleData && allSamples.length > 0) {
-          // If no utility sample found, take the first one
-          dbSampleData = allSamples[0];
-          console.log('No utility sample found, using first available sample:', dbSampleData.name);
-        }
-      }
+      const dbSampleData = await getSampleDataById(specificSampleId);
       
       if (dbSampleData) {
         console.log('Sample data found:', dbSampleData);
@@ -65,8 +43,23 @@ export const useSampleData = (
         onDataLoaded(formattedData);
         toast.success(`Sample "${dbSampleData.name}" loaded successfully`);
       } else {
-        toast.error("Sample data not found. Please check database configuration.");
-        console.error("No sample data found in database after multiple search attempts.");
+        // Fallback to get all samples if the specific one is not found
+        const allSamples = await getAllSampleData();
+        console.log('Available samples:', allSamples);
+        
+        if (allSamples.length === 0) {
+          toast.error("No sample data found in database.");
+          console.error("No sample data found in database.");
+          return;
+        }
+        
+        // Use the first sample as fallback
+        const fallbackSample = allSamples[0];
+        console.log('Using fallback sample:', fallbackSample);
+        
+        const formattedData = convertSampleDataToAppFormat(fallbackSample);
+        onDataLoaded(formattedData);
+        toast.success(`Sample "${fallbackSample.name}" loaded successfully (fallback)`);
       }
     } catch (error) {
       console.error('Error loading sample data:', error);

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SystemPrompt {
@@ -130,6 +129,34 @@ export async function getSampleData(name: string): Promise<SampleData | null> {
     return fuzzyData;
   } catch (e) {
     console.error(`Exception while fetching sample data for ${name}:`, e);
+    return null;
+  }
+}
+
+export async function getSampleDataById(id: string): Promise<SampleData | null> {
+  console.log(`Fetching sample data with ID: ${id}...`);
+  
+  try {
+    const { data, error } = await supabase
+      .from('sample_data')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error) {
+      console.error(`Error fetching sample data with ID ${id}:`, error);
+      return null;
+    }
+    
+    if (!data) {
+      console.warn(`No sample data found with ID: ${id}`);
+      return null;
+    }
+    
+    console.log(`Successfully loaded sample data with ID: ${id}`);
+    return data;
+  } catch (e) {
+    console.error(`Exception while fetching sample data with ID ${id}:`, e);
     return null;
   }
 }
