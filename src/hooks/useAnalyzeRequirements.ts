@@ -5,13 +5,16 @@ import { analyzeRequirements } from '@/utils/openAIService';
 import { toast } from "sonner";
 import { getSelectedProvider, getApiKey, getGoogleApiKey } from '@/utils/storageUtils';
 import { RequirementAnalysisResult, TokenUsage, Requirement } from '@/utils/api/types';
+import { useAnalyze } from '@/contexts/AnalyzeContext';
 
 export const useAnalyzeRequirements = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<RequirementAnalysisResult | null>(null);
-  const [tokenUsage, setTokenUsage] = useState<TokenUsage | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { 
+    setIsLoading,
+    setResult, 
+    setTokenUsage, 
+    setError 
+  } = useAnalyze();
 
   // Function to properly format input data
   const formatInputData = (text: string): string => {
@@ -34,6 +37,7 @@ export const useAnalyzeRequirements = () => {
       const formattedRequest = formatInputData(request);
       const formattedContext = formatInputData(context);
       
+      console.log('Calling analyzeRequirements with:', formattedRequest);
       const response = await analyzeRequirements(formattedRequest, formattedContext);
       console.log('API Response:', response); // Debug log to see the response
       
@@ -132,10 +136,13 @@ export const useAnalyzeRequirements = () => {
       
       setResult(response.result);
       setTokenUsage(response.tokenUsage);
+      return response; // Return the response for any additional handling
     } catch (error) {
       console.error('Error analyzing requirements:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error occurred');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(errorMessage);
       toast.error('Failed to analyze requirements. Please check the console for details.');
+      throw error; // Rethrow the error for the caller to handle
     } finally {
       setIsLoading(false);
     }
@@ -151,13 +158,8 @@ export const useAnalyzeRequirements = () => {
   };
 
   return {
-    isLoading,
-    result,
-    tokenUsage,
-    error,
     handleSubmit,
     checkApiKey,
-    handleConfigureApiClick,
-    setResult
+    handleConfigureApiClick
   };
 };

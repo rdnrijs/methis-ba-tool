@@ -11,13 +11,19 @@ interface SubmitButtonProps {
 }
 
 const SubmitButton = ({ isLoading, isDisabled, onClick, tokenCount }: SubmitButtonProps) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any default form submission
+    console.log('Analyze button clicked');
+    onClick();
+  };
+
   return (
     <div className="flex items-center justify-between pt-2">
       <div className="text-sm text-muted-foreground">
         Total: ~{tokenCount} tokens
       </div>
       <Button 
-        onClick={onClick}
+        onClick={handleClick}
         disabled={isLoading || isDisabled}
         className={cn(
           "transition-all duration-300",

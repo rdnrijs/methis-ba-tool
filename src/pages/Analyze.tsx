@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { toast } from "sonner";
 import Layout from '@/components/Layout';
 import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
@@ -16,11 +15,9 @@ import BackButton from '@/components/analyze/BackButton';
 const AnalyzeContent = () => {
   const {
     isLoading,
-    setIsLoading,
     result,
     setResult,
     tokenUsage,
-    setTokenUsage,
     clientRequest,
     setClientRequest,
     stakeholders,
@@ -37,8 +34,8 @@ const AnalyzeContent = () => {
 
   const {
     handleSubmit: submitAnalysis,
+    checkApiKey,
     handleConfigureApiClick,
-    checkApiKey
   } = useAnalyzeRequirements();
 
   // Check if API key is configured
@@ -67,9 +64,11 @@ const AnalyzeContent = () => {
     setCompanyContext(companyContextData);
     
     try {
-      const response = await submitAnalysis(request, context, stakeholdersData, systemsData, companyContextData);
+      console.log('Submitting request:', request);
+      await submitAnalysis(request, context, stakeholdersData, systemsData, companyContextData);
     } catch (err) {
       console.error('Error in handleSubmit:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
     }
   };
 
