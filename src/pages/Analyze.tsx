@@ -10,6 +10,7 @@ import { useAnalyzeRequirements } from '@/hooks/useAnalyzeRequirements';
 import { AnalyzeProvider, useAnalyze } from '@/contexts/AnalyzeContext';
 import ErrorDisplay from '@/components/analyze/ErrorDisplay';
 import BackButton from '@/components/analyze/BackButton';
+import PromptConfig from '@/components/PromptConfig';
 
 // Create a component that contains the main Analyze page content
 const AnalyzeContent = () => {
@@ -78,6 +79,10 @@ const AnalyzeContent = () => {
 
   return (
     <div className="py-8">
+      <div className="flex justify-end mb-4 max-w-3xl mx-auto">
+        <PromptConfig />
+      </div>
+      
       {showApiConfig ? (
         <APIKeyForm 
           onConfigured={handleApiConfigured} 
