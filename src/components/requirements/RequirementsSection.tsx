@@ -25,6 +25,9 @@ const RequirementsSection = ({
   // Only show the visualizer for functional requirements
   const showVisualizer = icon === 'functional' && acceptanceCriteria.length > 0;
   
+  // Debug logging to help troubleshoot
+  console.log(`Rendering ${title} with ${requirements.length} requirements`, requirements);
+  
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -49,9 +52,18 @@ const RequirementsSection = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-1 divide-y">
-          {requirements.map((req, index) => (
-            <RequirementItem key={index} text={req.description} />
-          ))}
+          {requirements && requirements.length > 0 ? (
+            requirements.map((req, index) => (
+              <RequirementItem 
+                key={index} 
+                text={typeof req === 'string' ? req : req.description} 
+              />
+            ))
+          ) : (
+            <div className="py-4 text-center text-muted-foreground">
+              No requirements found
+            </div>
+          )}
         </div>
         
         {showVisualizer && (

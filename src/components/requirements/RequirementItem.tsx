@@ -8,10 +8,15 @@ interface RequirementItemProps {
 }
 
 const RequirementItem = ({ text }: RequirementItemProps) => {
+  if (!text || text.trim() === '') {
+    console.warn('Empty requirement text received in RequirementItem');
+    return null;
+  }
+
   return (
     <div className="flex items-start py-2 group">
       <Check className="h-5 w-5 mr-2 text-primary flex-shrink-0 mt-0.5" />
-      <div className="text-sm">{text}</div>
+      <div className="text-sm flex-grow">{text}</div>
       <Button
         variant="ghost"
         size="icon"
