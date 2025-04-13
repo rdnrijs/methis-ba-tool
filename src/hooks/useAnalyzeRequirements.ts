@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { analyzeRequirements } from '@/utils/openAIService';
 import { toast } from "sonner";
 import { getSelectedProvider, getApiKey, getGoogleApiKey } from '@/utils/storageUtils';
-import { RequirementAnalysisResult, TokenUsage } from '@/utils/api/types';
+import { RequirementAnalysisResult, TokenUsage, Requirement } from '@/utils/api/types';
 
 export const useAnalyzeRequirements = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,11 +41,13 @@ export const useAnalyzeRequirements = () => {
       if (response.result) {
         // Transform string requirements to object format if needed
         if (Array.isArray(response.result.functionalRequirements)) {
-          response.result.functionalRequirements = response.result.functionalRequirements.map(req => {
+          response.result.functionalRequirements = response.result.functionalRequirements.map((req) => {
             if (typeof req === 'string') {
+              // Fix: Properly cast the type and access properties
+              const reqString = req as string;
               return { 
-                title: req.substring(0, 50) + (req.length > 50 ? '...' : ''), 
-                description: req,
+                title: reqString.substring(0, 50) + (reqString.length > 50 ? '...' : ''), 
+                description: reqString,
                 priority: 'Medium'
               };
             }
@@ -54,11 +56,13 @@ export const useAnalyzeRequirements = () => {
         }
         
         if (Array.isArray(response.result.nonFunctionalRequirements)) {
-          response.result.nonFunctionalRequirements = response.result.nonFunctionalRequirements.map(req => {
+          response.result.nonFunctionalRequirements = response.result.nonFunctionalRequirements.map((req) => {
             if (typeof req === 'string') {
+              // Fix: Properly cast the type and access properties
+              const reqString = req as string;
               return { 
-                title: req.substring(0, 50) + (req.length > 50 ? '...' : ''), 
-                description: req,
+                title: reqString.substring(0, 50) + (reqString.length > 50 ? '...' : ''), 
+                description: reqString,
                 category: 'General',
                 priority: 'Medium'
               };
