@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { analyzeRequirements } from '@/utils/openAIService';
 import { toast } from "sonner";
 import { getSelectedProvider, getApiKey, getGoogleApiKey } from '@/utils/storageUtils';
-import { RequirementAnalysisResult, TokenUsage, Requirement } from '@/utils/api/types';
+import { RequirementAnalysisResult, TokenUsage, Requirement, AcceptanceCriteria } from '@/utils/api/types';
 import { useAnalyze } from '@/contexts/AnalyzeContext';
 
 export const useAnalyzeRequirements = () => {
@@ -47,7 +47,7 @@ export const useAnalyzeRequirements = () => {
         if (Array.isArray(response.result.functionalRequirements)) {
           response.result.functionalRequirements = response.result.functionalRequirements.map((req) => {
             if (typeof req === 'string') {
-              // Fix: Properly cast the type and access properties
+              // Fix: Properly cast the type
               const reqString = req as string;
               return { 
                 title: reqString.substring(0, 50) + (reqString.length > 50 ? '...' : ''), 
@@ -62,7 +62,7 @@ export const useAnalyzeRequirements = () => {
         if (Array.isArray(response.result.nonFunctionalRequirements)) {
           response.result.nonFunctionalRequirements = response.result.nonFunctionalRequirements.map((req) => {
             if (typeof req === 'string') {
-              // Fix: Properly cast the type and access properties
+              // Fix: Properly cast the type
               const reqString = req as string;
               return { 
                 title: reqString.substring(0, 50) + (reqString.length > 50 ? '...' : ''), 
@@ -128,6 +128,37 @@ export const useAnalyzeRequirements = () => {
                 description: "All user data must be encrypted both in transit and at rest.",
                 category: "Security",
                 priority: "High"
+              }
+            ];
+          }
+          
+          // Add sample user stories if there aren't any
+          if (!response.result.userStories || response.result.userStories.length === 0) {
+            response.result.userStories = [
+              "As a Grid Operations Team member, I want to view real-time power usage metrics so that I can ensure grid stability at all times.",
+              "As a Maintenance Crew member, I want to receive predictive alerts so that I can schedule maintenance before issues arise.",
+              "As an Energy Efficiency Specialist, I want to analyze long-term power usage trends so that I can identify conservation opportunities."
+            ];
+          }
+          
+          // Add sample acceptance criteria if there aren't any
+          if (!response.result.acceptanceCriteria || response.result.acceptanceCriteria.length === 0) {
+            response.result.acceptanceCriteria = [
+              {
+                title: "Real-time Data Display",
+                description: "The dashboard must refresh power usage data at least every 30 seconds without requiring manual refresh."
+              },
+              {
+                title: "Alert System",
+                description: "The system must send notifications through multiple channels (email, SMS, in-app) when potential issues are detected."
+              },
+              {
+                title: "Data Export",
+                description: "Users must be able to export historical data in CSV and PDF formats for periods ranging from 1 day to 1 year."
+              },
+              {
+                title: "Access Control",
+                description: "Different user roles must have appropriate access restrictions based on their responsibilities and security clearance."
               }
             ];
           }

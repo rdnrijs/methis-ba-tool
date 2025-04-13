@@ -1,5 +1,5 @@
 
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import RequirementItem from './RequirementItem';
 import { AcceptanceCriteria } from '@/utils/api/types';
@@ -9,6 +9,8 @@ interface AcceptanceCriteriaSectionProps {
 }
 
 const AcceptanceCriteriaSection = ({ criteria }: AcceptanceCriteriaSectionProps) => {
+  const isEmpty = !criteria || criteria.length === 0;
+
   return (
     <Card>
       <CardHeader>
@@ -21,11 +23,26 @@ const AcceptanceCriteriaSection = ({ criteria }: AcceptanceCriteriaSectionProps)
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-1 divide-y">
-          {criteria.map((criterion, index) => (
-            <RequirementItem key={index} text={criterion.description} />
-          ))}
-        </div>
+        {isEmpty ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+            <AlertTriangle className="h-12 w-12 text-muted-foreground/50" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">No acceptance criteria available</p>
+              <p className="text-xs text-muted-foreground">
+                Try providing more detailed requirements or ask follow-up questions to generate acceptance criteria.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-1 divide-y">
+            {criteria.map((criterion, index) => (
+              <RequirementItem 
+                key={index} 
+                text={criterion.description} 
+              />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

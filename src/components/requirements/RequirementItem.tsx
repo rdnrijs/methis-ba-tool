@@ -8,9 +8,15 @@ interface RequirementItemProps {
 }
 
 const RequirementItem = ({ text }: RequirementItemProps) => {
+  // Handle empty or undefined text gracefully
   if (!text || text.trim() === '') {
-    console.warn('Empty requirement text received in RequirementItem');
-    return null;
+    console.log('Empty requirement text received in RequirementItem');
+    return (
+      <div className="flex items-start py-2 group">
+        <Check className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0 mt-0.5" />
+        <div className="text-sm text-muted-foreground italic">No details provided</div>
+      </div>
+    );
   }
 
   return (

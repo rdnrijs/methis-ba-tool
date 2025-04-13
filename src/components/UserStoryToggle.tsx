@@ -32,21 +32,34 @@ const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps
       return <p>{story}</p>;
     } else {
       // For object format with persona, goal, reason
-      const { persona, goal, reason, story: storyContent } = story;
+      const { persona, goal, reason, story: storyContent, acceptanceCriteria = [] } = story;
+      
       return (
         <div>
-          {persona && goal && reason ? (
+          {persona && goal ? (
             <>
               <p><span className="font-semibold">As a</span> {persona},</p>
               <p><span className="font-semibold">I want</span> {goal},</p>
-              <p><span className="font-semibold">so that</span> {reason}</p>
+              {reason && <p><span className="font-semibold">so that</span> {reason}</p>}
             </>
           ) : (
-            <p>{story.title}</p>
+            <p>{story.title || 'No user story details available'}</p>
           )}
+          
           {storyContent && (
             <div className="mt-2 pt-2 border-t border-border/30">
               <p className="text-muted-foreground">{storyContent}</p>
+            </div>
+          )}
+          
+          {acceptanceCriteria && acceptanceCriteria.length > 0 && (
+            <div className="mt-3 pt-2 border-t border-border/30">
+              <h4 className="text-sm font-medium mb-2">Acceptance Criteria:</h4>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                {acceptanceCriteria.map((criteria, i) => (
+                  <li key={i}>{criteria}</li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
@@ -62,7 +75,7 @@ const UserStoryToggle = ({ storyItem, isExpanded = false }: UserStoryToggleProps
       return asAMatch ? asAMatch[1] : story.substring(0, 60) + (story.length > 60 ? '...' : '');
     } else {
       // Use the goal field or title field from the object
-      return story.goal || story.title;
+      return story.goal || story.title || 'User Story';
     }
   };
 
