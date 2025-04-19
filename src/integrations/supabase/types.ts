@@ -33,7 +33,7 @@ export type Database = {
       sample_data: {
         Row: {
           client_request: string
-          company_context: string | null
+          processes_context: string | null
           created_at: string
           id: string
           name: string
@@ -43,7 +43,7 @@ export type Database = {
         }
         Insert: {
           client_request: string
-          company_context?: string | null
+          processes_context?: string | null
           created_at?: string
           id?: string
           name: string
@@ -53,7 +53,7 @@ export type Database = {
         }
         Update: {
           client_request?: string
-          company_context?: string | null
+          processes_context?: string | null
           created_at?: string
           id?: string
           name?: string

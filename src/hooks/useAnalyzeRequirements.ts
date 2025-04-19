@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { analyzeRequirements } from '@/utils/openAIService';
@@ -27,7 +26,8 @@ export const useAnalyzeRequirements = () => {
     context: string, 
     stakeholdersData: string, 
     systemsData: string, 
-    companyContextData: string
+    companyContextData: string,
+    clientContextData: string
   ) => {
     try {
       setIsLoading(true);

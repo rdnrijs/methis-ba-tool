@@ -1,13 +1,13 @@
-
 import { OpenAIResponse, TokenUsage } from './types';
 import { extractJsonFromResponse } from './promptUtils';
+import { logLLMInput } from '../loggingService';
 
 // Analyze with OpenAI API
 export const analyzeWithOpenAI = async (
-  fullPrompt: string,
+  clientRequest: string,
   apiKey: string,
   systemPrompt: string,
-  model: string
+  model: string = 'gpt-4-turbo-preview'
 ): Promise<OpenAIResponse> => {
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -20,32 +20,39 @@ export const analyzeWithOpenAI = async (
         model,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: fullPrompt }
+          { role: 'user', content: clientRequest }
         ],
-        temperature: 0.7,
+        temperature: 0.7
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Failed to analyze requirements');
+      console.error('OpenAI API error:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to analyze requirements with OpenAI');
     }
 
     const data = await response.json();
-    
-    // Extract and parse the JSON content, handling markdown formatting if present
     const content = data.choices[0].message.content;
     const result = extractJsonFromResponse(content);
-    
-    const tokenUsage: TokenUsage = {
-      promptTokens: data.usage.prompt_tokens,
-      completionTokens: data.usage.completion_tokens,
-      totalTokens: data.usage.total_tokens
-    };
+
+    // Log the interaction with complete response
+    logLLMInput({
+      timestamp: new Date().toISOString(),
+      systemPrompt,
+      userInput: clientRequest,
+      model,
+      response: content,
+      tokenUsage: {
+        promptTokens: data.usage.prompt_tokens,
+        completionTokens: data.usage.completion_tokens,
+        totalTokens: data.usage.total_tokens
+      }
+    });
 
     return {
       result,
-      tokenUsage
+      tokenUsage: data.usage
     };
   } catch (error) {
     console.error('Error analyzing requirements with OpenAI:', error);

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,8 +115,8 @@ const APIKeyForm = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="gpt-4o" className="py-2">GPT-4o (Most capable)</SelectItem>
+            <SelectItem value="gpt-4.1-mini" className="py-2">GPT-4.1-mini (2025-04-14)</SelectItem>
             <SelectItem value="gpt-4o-mini" className="py-2">GPT-4o Mini (Balanced)</SelectItem>
-            <SelectItem value="gpt-3.5-turbo" className="py-2">GPT-3.5 Turbo (Economical)</SelectItem>
           </SelectContent>
         </Select>;
     } else {

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +9,8 @@ import UserStorySection from './requirements/UserStorySection';
 import AcceptanceCriteriaSection from './requirements/AcceptanceCriteriaSection';
 import StatisticsCards from './requirements/StatisticsCards';
 import ExportButtons from './requirements/ExportButtons';
-import { FileText, GitBranch, GitCommitHorizontal, User, CheckCheck, ArrowRight } from 'lucide-react';
+import { FileText, GitBranch, GitCommitHorizontal, User, CheckCheck, ArrowRight, ArrowLeft } from 'lucide-react';
+import PromptConfig from '@/components/PromptConfig';
 
 interface RequirementResultsProps {
   result: RequirementAnalysisResult;
@@ -19,6 +19,9 @@ interface RequirementResultsProps {
   stakeholders?: string;
   systems?: string;
   companyContext?: string;
+  clientContext?: string;
+  onBackClick: () => void;
+  onConfigureClick: () => void;
 }
 
 const RequirementResults = ({ 
@@ -27,7 +30,10 @@ const RequirementResults = ({
   clientRequest,
   stakeholders,
   systems,
-  companyContext
+  companyContext,
+  clientContext,
+  onBackClick,
+  onConfigureClick
 }: RequirementResultsProps) => {
   const [activeTab, setActiveTab] = useState('briefing');
   
@@ -36,21 +42,38 @@ const RequirementResults = ({
     clientRequest,
     stakeholders,
     systems,
-    companyContext
+    companyContext,
+    clientContext
   };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-blur-in animate-once">
-      <StatisticsCards 
-        confidenceScore={result.confidenceScore}
-        tokenUsage={tokenUsage}
-        functionalRequirementsCount={result.functionalRequirements.length}
-        nonFunctionalRequirementsCount={result.nonFunctionalRequirements.length}
-        userStoriesCount={result.userStories.length}
-        followUpQuestionsCount={result.followUpQuestions.length}
-      />
-      
-      <ExportButtons {...exportProps} />
+      <div className="flex flex-col space-y-6">
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="ghost" 
+            className="gap-2 text-primary hover:text-primary/90"
+            onClick={onBackClick}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Input
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <PromptConfig />
+            <ExportButtons {...exportProps} />
+          </div>
+        </div>
+        
+        <StatisticsCards 
+          confidenceScore={result.confidenceScore}
+          tokenUsage={tokenUsage}
+          functionalRequirementsCount={result.functionalRequirements.length}
+          nonFunctionalRequirementsCount={result.nonFunctionalRequirements.length}
+          userStoriesCount={result.userStories.length}
+          followUpQuestionsCount={result.followUpQuestions.length}
+        />
+      </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-2 md:grid-cols-6 mb-6">
@@ -86,6 +109,7 @@ const RequirementResults = ({
             stakeholders={stakeholders}
             systems={systems}
             companyContext={companyContext}
+            clientContext={clientContext}
             assumptions={result.assumptions}
             confidenceScore={result.confidenceScore}
           />

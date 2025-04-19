@@ -1,4 +1,3 @@
-
 import { FileText, Users, Database, Building, Check } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ConfidenceIndicator from './ConfidenceIndicator';
@@ -12,6 +11,7 @@ interface BriefingSectionProps {
   stakeholders?: string;
   systems?: string;
   companyContext?: string;
+  clientContext?: string;
   assumptions: string[];
   confidenceScore: number;
 }
@@ -21,6 +21,7 @@ const BriefingSection = ({
   stakeholders,
   systems,
   companyContext,
+  clientContext,
   assumptions,
   confidenceScore
 }: BriefingSectionProps) => {
@@ -74,10 +75,22 @@ const BriefingSection = ({
             <div className="p-4 bg-muted/30 rounded-lg">
               <h3 className="text-lg font-medium mb-2 flex items-center">
                 <Building className="h-5 w-5 mr-2 text-primary" />
-                Company Context
+                Business Processes
               </h3>
               <div className="text-sm whitespace-pre-wrap">
                 {formatDisplayText(companyContext)}
+              </div>
+            </div>
+          )}
+          
+          {clientContext && (
+            <div className="p-4 bg-muted/30 rounded-lg">
+              <h3 className="text-lg font-medium mb-2 flex items-center">
+                <Building className="h-5 w-5 mr-2 text-primary" />
+                Client Context
+              </h3>
+              <div className="text-sm whitespace-pre-wrap">
+                {formatDisplayText(clientContext)}
               </div>
             </div>
           )}

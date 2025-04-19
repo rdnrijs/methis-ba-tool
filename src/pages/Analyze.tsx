@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import RequestInput from '@/components/request/RequestInput';
@@ -7,13 +6,12 @@ import APIKeyForm from '@/components/APIKeyForm';
 import { getSelectedProvider } from '@/utils/storageUtils';
 import { useSampleData } from '@/hooks/useSampleData';
 import { useAnalyzeRequirements } from '@/hooks/useAnalyzeRequirements';
-import { AnalyzeProvider, useAnalyze } from '@/contexts/AnalyzeContext';
+import { useAnalyze } from '@/contexts/AnalyzeContext';
 import ErrorDisplay from '@/components/analyze/ErrorDisplay';
 import BackButton from '@/components/analyze/BackButton';
 import PromptConfig from '@/components/PromptConfig';
 
-// Create a component that contains the main Analyze page content
-const AnalyzeContent = () => {
+const Analyze = () => {
   const {
     isLoading,
     result,
@@ -27,6 +25,8 @@ const AnalyzeContent = () => {
     setSystems,
     companyContext,
     setCompanyContext,
+    clientContext,
+    setClientContext,
     showApiConfig,
     setShowApiConfig,
     error,
@@ -53,20 +53,29 @@ const AnalyzeContent = () => {
     setStakeholders(data.stakeholders);
     setSystems(data.systems);
     setCompanyContext(data.companyContext);
+    setClientContext(data.clientContext || '');
   };
 
   // Use the sample data hook
   const { isLoadingSample, loadSampleData } = useSampleData(handleSampleDataLoaded);
 
-  const handleSubmit = async (request: string, context: string, stakeholdersData: string, systemsData: string, companyContextData: string) => {
+  const handleSubmit = async (
+    request: string, 
+    context: string, 
+    stakeholdersData: string, 
+    systemsData: string, 
+    companyContextData: string, 
+    clientContextData: string
+  ) => {
     setClientRequest(request);
     setStakeholders(stakeholdersData);
     setSystems(systemsData);
     setCompanyContext(companyContextData);
+    setClientContext(clientContextData);
     
     try {
       console.log('Submitting request:', request);
-      await submitAnalysis(request, context, stakeholdersData, systemsData, companyContextData);
+      await submitAnalysis(request, context, stakeholdersData, systemsData, companyContextData, clientContextData);
     } catch (err) {
       console.error('Error in handleSubmit:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -78,61 +87,49 @@ const AnalyzeContent = () => {
   };
 
   return (
-    <div className="py-8">
-      <div className="flex justify-end mb-4 max-w-3xl mx-auto">
-        <PromptConfig />
-      </div>
-      
-      {showApiConfig ? (
-        <APIKeyForm 
-          onConfigured={handleApiConfigured} 
-          provider={getSelectedProvider() as 'openai' | 'google'}
-        />
-      ) : !result ? (
-        <>
-          <RequestInput 
-            onSubmit={handleSubmit} 
-            isLoading={isLoading} 
-            onLoadSample={loadSampleData}
-            isLoadingSample={isLoadingSample}
-            initialData={{
-              clientRequest,
-              stakeholders,
-              systems,
-              companyContext
-            }}
+    <Layout>
+      <div className="py-8">
+        {showApiConfig ? (
+          <APIKeyForm 
+            onConfigured={handleApiConfigured} 
+            provider={getSelectedProvider() as 'openai' | 'google'}
           />
-          {error && (
-            <ErrorDisplay 
-              error={error} 
-              onConfigureApiClick={handleConfigureApiClick} 
+        ) : !result ? (
+          <>
+            <RequestInput 
+              onSubmit={handleSubmit} 
+              isLoading={isLoading} 
+              onLoadSample={loadSampleData}
+              isLoadingSample={isLoadingSample}
+              initialData={{
+                clientRequest,
+                stakeholders,
+                systems,
+                companyContext,
+                clientContext
+              }}
             />
-          )}
-        </>
-      ) : (
-        <>
-          <BackButton onClick={() => setResult(null)} />
+            {error && (
+              <ErrorDisplay 
+                error={error} 
+                onConfigureApiClick={handleConfigureApiClick} 
+              />
+            )}
+          </>
+        ) : (
           <RequirementResults 
             result={result} 
             tokenUsage={tokenUsage!} 
             clientRequest={clientRequest} 
             stakeholders={stakeholders} 
             systems={systems} 
-            companyContext={companyContext} 
+            companyContext={companyContext}
+            clientContext={clientContext}
+            onBackClick={() => setResult(null)}
+            onConfigureClick={() => setShowApiConfig(true)}
           />
-        </>
-      )}
-    </div>
-  );
-};
-
-// The main Analyze component that wraps the content with the context provider
-const Analyze = () => {
-  return (
-    <Layout>
-      <AnalyzeProvider>
-        <AnalyzeContent />
-      </AnalyzeProvider>
+        )}
+      </div>
     </Layout>
   );
 };

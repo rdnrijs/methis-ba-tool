@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -9,11 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, ClipboardList, Key } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   
   if (!user) return null;
   
@@ -22,6 +23,14 @@ const UserMenu = () => {
   const handleSignOut = async () => {
     await signOut();
     toast.success('Successfully signed out');
+  };
+
+  const handleViewLogs = () => {
+    navigate('/logs');
+  };
+
+  const handleConfigureAPI = () => {
+    navigate('/api-config');
   };
 
   return (
@@ -43,6 +52,14 @@ const UserMenu = () => {
           </div>
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleConfigureAPI} className="cursor-pointer">
+          <Key className="mr-2 h-4 w-4" />
+          <span>API Configuration</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleViewLogs} className="cursor-pointer">
+          <ClipboardList className="mr-2 h-4 w-4" />
+          <span>View Logs</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>

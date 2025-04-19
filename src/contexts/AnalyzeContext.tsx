@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { RequirementAnalysisResult, TokenUsage } from '@/utils/api/types';
 
@@ -17,6 +16,8 @@ interface AnalyzeContextType {
   setSystems: (systems: string) => void;
   companyContext: string;
   setCompanyContext: (companyContext: string) => void;
+  clientContext: string;
+  setClientContext: (clientContext: string) => void;
   showApiConfig: boolean;
   setShowApiConfig: (showApiConfig: boolean) => void;
   error: string | null;
@@ -33,6 +34,7 @@ export const AnalyzeProvider = ({ children }: { children: ReactNode }) => {
   const [stakeholders, setStakeholders] = useState('');
   const [systems, setSystems] = useState('');
   const [companyContext, setCompanyContext] = useState('');
+  const [clientContext, setClientContext] = useState('');
   const [showApiConfig, setShowApiConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +53,8 @@ export const AnalyzeProvider = ({ children }: { children: ReactNode }) => {
     setSystems,
     companyContext,
     setCompanyContext,
+    clientContext,
+    setClientContext,
     showApiConfig,
     setShowApiConfig,
     error,

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { getSampleData, getAllSampleData, getSampleDataById } from '@/utils/supabaseService';

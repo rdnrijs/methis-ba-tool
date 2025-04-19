@@ -1,11 +1,10 @@
-
 import { ModelCostsMap } from './types';
 
 // Map to estimate costs for different models (in USD per 1K tokens)
 export const modelCosts: ModelCostsMap = {
   'gpt-4o': { input: 0.005, output: 0.015 },
+  'gpt-4.1-mini': { input: 0.002, output: 0.008 },
   'gpt-4o-mini': { input: 0.0015, output: 0.006 },
-  'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
   'gemini-1.5-pro': { input: 0.0007, output: 0.0007 },
   'gemini-1.0-pro': { input: 0.0003, output: 0.0003 },
 };

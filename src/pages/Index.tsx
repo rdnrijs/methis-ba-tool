@@ -1,5 +1,3 @@
-
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiKey, getSelectedProvider } from '@/utils/storageUtils';
 import Layout from '@/components/Layout';
@@ -9,13 +7,6 @@ import { ArrowRight } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    // If API key is already configured, redirect to analyze
-    if (getApiKey()) {
-      navigate('/analyze');
-    }
-  }, [navigate]);
   
   const handleApiConfigured = () => {
     navigate('/analyze');

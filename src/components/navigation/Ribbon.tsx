@@ -1,15 +1,14 @@
-
-import { Home, Key, FileText } from 'lucide-react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { Home, FileText, BarChart2, History } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { getApiKey } from '@/utils/storageUtils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAnalyze } from '@/contexts/AnalyzeContext';
 
 const Ribbon = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const hasApiKey = !!getApiKey();
+  const { result } = useAnalyze();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -18,14 +17,36 @@ const Ribbon = () => {
   const handleNavigation = (path: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     
-    // For the home button, use direct URL change to ensure a clean reload
+    // For the home button, always navigate directly to the root path
     if (path === '/') {
-      window.location.href = '/';
+      navigate('/');
       return;
     }
     
     // For other paths, use navigate
     navigate(path);
+  };
+
+  const handleResultsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (result) {
+      navigate('/analyze');
+    }
+  };
+
+  const getTooltipContent = (stage: string) => {
+    switch (stage) {
+      case 'home':
+        return "Home";
+      case 'input':
+        return "Start a new analysis";
+      case 'results':
+        return result ? "View analysis results" : "No analysis results available yet. Complete an analysis first.";
+      case 'logs':
+        return "View analysis logs";
+      default:
+        return "";
+    }
   };
   
   return (
@@ -47,28 +68,7 @@ const Ribbon = () => {
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Home</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleNavigation('/api-config')}
-              className={cn(
-                "rounded-full",
-                !hasApiKey && "text-yellow-500",
-                isActive('/api-config') && "bg-accent text-accent-foreground"
-              )}
-            >
-              <Key className="h-5 w-5" />
-              <span className="sr-only">API Configuration</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>API Configuration</p>
+            <p>{getTooltipContent('home')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -80,15 +80,56 @@ const Ribbon = () => {
               onClick={handleNavigation('/analyze')}
               className={cn(
                 "rounded-full",
-                isActive('/analyze') && "bg-accent text-accent-foreground"
+                isActive('/analyze') && !result && "bg-accent text-accent-foreground"
               )}
             >
               <FileText className="h-5 w-5" />
-              <span className="sr-only">Analyze</span>
+              <span className="sr-only">Input</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Analyze</p>
+            <p>{getTooltipContent('input')}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleResultsClick}
+              className={cn(
+                "rounded-full",
+                isActive('/analyze') && result && "bg-accent text-accent-foreground",
+                !result && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              <BarChart2 className="h-5 w-5" />
+              <span className="sr-only">Results</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{getTooltipContent('results')}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleNavigation('/logs')}
+              className={cn(
+                "rounded-full",
+                isActive('/logs') && "bg-accent text-accent-foreground"
+              )}
+            >
+              <History className="h-5 w-5" />
+              <span className="sr-only">Logs</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{getTooltipContent('logs')}</p>
           </TooltipContent>
         </Tooltip>
       </div>

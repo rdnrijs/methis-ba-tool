@@ -1,4 +1,3 @@
-
 import { CheckCheck, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import RequirementItem from './RequirementItem';
@@ -38,7 +37,7 @@ const AcceptanceCriteriaSection = ({ criteria }: AcceptanceCriteriaSectionProps)
             {criteria.map((criterion, index) => (
               <RequirementItem 
                 key={index} 
-                text={criterion.description} 
+                text={criterion.description}
               />
             ))}
           </div>

@@ -1,9 +1,7 @@
-
-import { Brain, GitCommitHorizontal, CheckCheck, Lightbulb } from 'lucide-react';
+import { Brain, GitCommitHorizontal, CheckCheck, Network } from 'lucide-react';
 import InfoCard from '../ui/InfoCard';
 import ConfidenceIndicator from './ConfidenceIndicator';
 import { TokenUsage } from '@/utils/openAIService';
-import { Check, AlertCircle } from 'lucide-react';
 
 interface StatisticsCardsProps {
   confidenceScore: number;
@@ -56,7 +54,7 @@ const StatisticsCards = ({
       </InfoCard>
       
       <InfoCard 
-        title="Requirements" 
+        title="Requirements & Next Steps" 
         className="animate-fade-in animate-once animate-delay-200"
         icon={<CheckCheck className="h-5 w-5 text-primary" />}
         glassmorphism
@@ -74,28 +72,32 @@ const StatisticsCards = ({
             <span className="text-muted-foreground">User stories:</span>
             <span>{userStoriesCount}</span>
           </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Follow-up Questions:</span>
+            <span>{followUpQuestionsCount}</span>
+          </div>
         </div>
       </InfoCard>
-      
+
       <InfoCard 
-        title="Follow-up Questions" 
+        title="Relationship with NBility" 
         className="animate-fade-in animate-once animate-delay-300"
-        icon={<Lightbulb className="h-5 w-5 text-primary" />}
+        icon={<Network className="h-5 w-5 text-primary" />}
         glassmorphism
-        hoverEffect
       >
-        <div className="text-sm">
-          {followUpQuestionsCount > 0 ? (
-            <div className="text-muted-foreground flex items-center">
-              <AlertCircle className="h-4 w-4 mr-1 text-yellow-500" />
-              <span>{followUpQuestionsCount} question{followUpQuestionsCount > 1 ? 's' : ''} to clarify</span>
-            </div>
-          ) : (
-            <div className="text-muted-foreground flex items-center">
-              <Check className="h-4 w-4 mr-1 text-green-500" />
-              <span>No follow-up questions needed</span>
-            </div>
-          )}
+        <div className="text-sm space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Mapped:</span>
+            <span>0</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Unmapped:</span>
+            <span>0</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Total:</span>
+            <span>0</span>
+          </div>
         </div>
       </InfoCard>
     </div>

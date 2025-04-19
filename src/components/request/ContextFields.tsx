@@ -1,4 +1,3 @@
-
 import { Users, Database, Building } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -72,7 +71,7 @@ const ContextFields = ({
       <div className="space-y-1">
         <div className="flex items-center">
           <Building className="h-5 w-5 mr-2 text-primary" />
-          <Label htmlFor="companyContext" className="text-sm font-medium">Company Context</Label>
+          <Label htmlFor="companyContext" className="text-sm font-medium">Context (e.g. business processes)</Label>
         </div>
         <Textarea
           id="companyContext"

@@ -1,24 +1,35 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/types/supabase';
 
-export interface SystemPrompt {
-  id: string;
-  name: string;
-  content: string;
-  is_default: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type Tables = Database['public']['Tables']
+export type SystemPrompt = Tables['system_prompts']['Row']
+export type SampleData = Tables['sample_data']['Row']
+export type Client = Tables['client']['Row']
 
-export interface SampleData {
-  id: string;
-  name: string;
-  client_request: string;
-  stakeholders: string | null;
-  systems: string | null;
-  company_context: string | null;
-  created_at: string;
-  updated_at: string;
+export async function getAllClients(): Promise<Client[]> {
+  console.log('Fetching all clients...');
+  
+  try {
+    const { data, error } = await supabase
+      .from('client')
+      .select('*')
+      .order('client_name');
+    
+    if (error) {
+      // Check if the error is because the table doesn't exist
+      if (error.code === '42P01') {
+        console.warn('Clients table does not exist yet');
+        return [];
+      }
+      console.error('Error fetching clients:', error);
+      throw error;
+    }
+    
+    return data || [];
+  } catch (e) {
+    console.error('Exception while fetching clients:', e);
+    throw e;
+  }
 }
 
 export async function getDefaultSystemPrompt(): Promise<string | null> {

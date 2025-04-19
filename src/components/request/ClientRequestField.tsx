@@ -1,58 +1,49 @@
-
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { FileText, CircleHelp } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { MessageSquare } from 'lucide-react';
 import { estimateTokenCount } from '@/utils/openAIService';
-import TemplateSelector from './TemplateSelector';
 
 interface ClientRequestFieldProps {
   clientRequest: string;
   onChange: (value: string) => void;
-  onLoadSample: () => void;
+  onLoadSample?: () => void;
   isLoadingSample?: boolean;
+  showButtons?: boolean;
 }
 
 const ClientRequestField = ({ 
   clientRequest, 
   onChange, 
-  onLoadSample,
-  isLoadingSample = false
+  onLoadSample, 
+  isLoadingSample,
+  showButtons = true 
 }: ClientRequestFieldProps) => {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <FileText className="h-5 w-5 mr-2 text-primary" />
+          <MessageSquare className="h-5 w-5 mr-2 text-primary" />
           <Label htmlFor="clientRequest" className="text-sm font-medium">Client Request</Label>
         </div>
-        <div className="flex items-center gap-2">
-          <TemplateSelector
-            onLoadSample={onLoadSample}
-            isLoadingSample={isLoadingSample}
-          />
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <CircleHelp className="h-5 w-5 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs">
-                  Describe what the client is requesting. 
-                  Be as detailed as possible to get more accurate requirements.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {showButtons && onLoadSample && (
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onLoadSample}
+              disabled={isLoadingSample}
+            >
+              {isLoadingSample ? 'Loading...' : 'Load Sample'}
+            </Button>
+          </div>
+        )}
       </div>
-      <Textarea
+      <textarea
         id="clientRequest"
-        placeholder="Enter a detailed description of what the client is requesting..."
+        placeholder="What is the client's request?"
         value={clientRequest}
         onChange={(e) => onChange(e.target.value)}
-        className="min-h-[120px] resize-y"
+        className="min-h-[100px] resize-y w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       />
       <div className="text-xs text-muted-foreground text-right">
         {clientRequest.length} characters / ~{estimateTokenCount(clientRequest)} tokens

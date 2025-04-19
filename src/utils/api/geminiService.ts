@@ -1,7 +1,8 @@
-
 import { OpenAIResponse, TokenUsage } from './types';
 import { estimateTokenCount } from './costUtils';
 import { extractJsonFromResponse } from './promptUtils';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { logLLMInput } from '../loggingService';
 
 // Map UI model names to actual API model names for Google Gemini
 export const getGeminiApiModelName = (modelName: string): string => {
@@ -20,66 +21,45 @@ export const analyzeWithGemini = async (
   systemPrompt: string,
   model: string = 'gemini-1.0-pro'
 ): Promise<OpenAIResponse> => {
-  // Get the correct API model name
-  const apiModelName = getGeminiApiModelName(model);
-  
-  // Base API URL for Gemini
-  const baseUrl = "https://generativelanguage.googleapis.com/v1/";
-  const apiUrl = `${baseUrl}${apiModelName}:generateContent`;
-  
   try {
-    console.log(`Calling Gemini API with model: ${apiModelName}`);
-    
-    const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: `${systemPrompt}\n\nClient Request: ${clientRequest}` }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.95,
-          topK: 40
-        }
-      })
-    });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const modelName = getGeminiApiModelName(model);
+    const geminiModel = genAI.getGenerativeModel({ model: modelName });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Gemini API error:', errorData);
-      throw new Error(errorData.error?.message || 'Failed to analyze requirements with Google Gemini');
-    }
+    const prompt = `${systemPrompt}\n\nUser Request: ${clientRequest}`;
+    const result = await geminiModel.generateContent(prompt);
+    const response = await result.response;
+    const content = response.text();
+    const jsonResult = extractJsonFromResponse(content);
 
-    const data = await response.json();
-    
-    // Extract content from Gemini response
-    const content = data.candidates[0].content.parts[0].text;
-    const result = extractJsonFromResponse(content);
-    
-    // Gemini doesn't provide token usage stats, so we estimate
-    const inputTokens = estimateTokenCount(clientRequest + systemPrompt);
-    const outputTokens = estimateTokenCount(content);
-    
-    const tokenUsage: TokenUsage = {
-      promptTokens: inputTokens,
-      completionTokens: outputTokens,
-      totalTokens: inputTokens + outputTokens
+    // Estimate token usage since Gemini doesn't provide it directly
+    const estimatedTokens = Math.ceil((prompt.length + content.length) / 4);
+    const tokenUsage = {
+      promptTokens: Math.ceil(prompt.length / 4),
+      completionTokens: Math.ceil(content.length / 4),
+      totalTokens: estimatedTokens
     };
 
+    // Log the interaction with complete response
+    logLLMInput({
+      timestamp: new Date().toISOString(),
+      systemPrompt,
+      userInput: clientRequest,
+      model: modelName,
+      response: content,
+      tokenUsage: {
+        promptTokens: Math.ceil(prompt.length / 4),
+        completionTokens: Math.ceil(content.length / 4),
+        totalTokens: estimatedTokens
+      }
+    });
+
     return {
-      result,
+      result: jsonResult,
       tokenUsage
     };
   } catch (error) {
-    console.error('Error analyzing requirements with Google Gemini:', error);
+    console.error('Error analyzing requirements with Gemini:', error);
     throw error;
   }
 };
