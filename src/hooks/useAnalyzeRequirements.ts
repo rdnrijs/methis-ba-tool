@@ -41,6 +41,21 @@ export const useAnalyzeRequirements = () => {
       const response = await analyzeRequirements(formattedRequest, formattedContext);
       console.log('API Response:', response); // Debug log to see the response
       
+      // Ensure tokenUsage has valid values
+      if (!response.tokenUsage) {
+        response.tokenUsage = {
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0
+        };
+      } else {
+        // Ensure no null/undefined values in tokenUsage
+        response.tokenUsage.promptTokens = response.tokenUsage.promptTokens || 0;
+        response.tokenUsage.completionTokens = response.tokenUsage.completionTokens || 0;
+        response.tokenUsage.totalTokens = response.tokenUsage.totalTokens || 
+          (response.tokenUsage.promptTokens + response.tokenUsage.completionTokens);
+      }
+      
       // Ensure the requirements objects are properly structured
       if (response.result) {
         // Transform string requirements to object format if needed

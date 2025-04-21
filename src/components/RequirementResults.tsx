@@ -9,8 +9,16 @@ import UserStorySection from './requirements/UserStorySection';
 import AcceptanceCriteriaSection from './requirements/AcceptanceCriteriaSection';
 import StatisticsCards from './requirements/StatisticsCards';
 import ExportButtons from './requirements/ExportButtons';
-import { FileText, GitBranch, GitCommitHorizontal, User, CheckCheck, ArrowRight, ArrowLeft } from 'lucide-react';
+import { FileText, GitBranch, GitCommitHorizontal, User, CheckCheck, ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
 import PromptConfig from '@/components/PromptConfig';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface RequirementResultsProps {
   result: RequirementAnalysisResult;
@@ -21,6 +29,7 @@ interface RequirementResultsProps {
   companyContext?: string;
   clientContext?: string;
   onBackClick: () => void;
+  onClearClick: () => void;
   onConfigureClick: () => void;
 }
 
@@ -33,6 +42,7 @@ const RequirementResults = ({
   companyContext,
   clientContext,
   onBackClick,
+  onClearClick,
   onConfigureClick
 }: RequirementResultsProps) => {
   const [activeTab, setActiveTab] = useState('briefing');
@@ -44,6 +54,12 @@ const RequirementResults = ({
     systems,
     companyContext,
     clientContext
+  };
+
+  const safeTokenUsage: TokenUsage = tokenUsage || {
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0
   };
 
   return (
@@ -67,11 +83,12 @@ const RequirementResults = ({
         
         <StatisticsCards 
           confidenceScore={result.confidenceScore}
-          tokenUsage={tokenUsage}
+          tokenUsage={safeTokenUsage}
           functionalRequirementsCount={result.functionalRequirements.length}
           nonFunctionalRequirementsCount={result.nonFunctionalRequirements.length}
           userStoriesCount={result.userStories.length}
           followUpQuestionsCount={result.followUpQuestions.length}
+          userStories={result.userStories}
         />
       </div>
       

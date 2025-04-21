@@ -33,12 +33,18 @@ export const analyzeWithGemini = async (
     const jsonResult = extractJsonFromResponse(content);
 
     // Estimate token usage since Gemini doesn't provide it directly
-    const estimatedTokens = Math.ceil((prompt.length + content.length) / 4);
-    const tokenUsage = {
-      promptTokens: Math.ceil(prompt.length / 4),
-      completionTokens: Math.ceil(content.length / 4),
-      totalTokens: estimatedTokens
+    const promptTokens = Math.ceil(prompt.length / 4);
+    const completionTokens = Math.ceil(content.length / 4);
+    const totalTokens = promptTokens + completionTokens;
+
+    // Properly structure token usage
+    const tokenUsage: TokenUsage = {
+      promptTokens,
+      completionTokens,
+      totalTokens
     };
+
+    console.log('Gemini estimated token usage:', tokenUsage);
 
     // Log the interaction with complete response
     logLLMInput({
@@ -47,11 +53,7 @@ export const analyzeWithGemini = async (
       userInput: clientRequest,
       model: modelName,
       response: content,
-      tokenUsage: {
-        promptTokens: Math.ceil(prompt.length / 4),
-        completionTokens: Math.ceil(content.length / 4),
-        totalTokens: estimatedTokens
-      }
+      tokenUsage
     });
 
     return {

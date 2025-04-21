@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
 import { LogIn } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import ValidationAlert from '@/components/prompt-config/ValidationAlert';
 
 interface LoginFormProps {
@@ -57,13 +56,7 @@ const LoginForm = ({ switchToReset }: LoginFormProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <ValidationAlert validationError={validationError} />
         <form onSubmit={handleSignIn} className="space-y-4">
           <div className="space-y-2">
@@ -103,7 +96,7 @@ const LoginForm = ({ switchToReset }: LoginFormProps) => {
           </div>
           <Button 
             type="submit" 
-            className="w-full"
+            className="w-full bg-red-600 hover:bg-red-700 text-white"
             disabled={loading}
           >
             <LogIn className="mr-2 h-4 w-4" />

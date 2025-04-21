@@ -1,4 +1,3 @@
-
 import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +12,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [user, loading, navigate]);
 

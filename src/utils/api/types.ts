@@ -1,4 +1,3 @@
-
 export interface RequirementAnalysisResult {
   functionalRequirements: Requirement[];
   nonFunctionalRequirements: Requirement[];
@@ -32,6 +31,7 @@ export interface UserStoryItem {
   goal?: string;
   reason?: string;
   acceptanceCriteria: string[];
+  testcases?: string | string[];
 }
 
 export interface TokenUsage {

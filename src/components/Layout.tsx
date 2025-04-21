@@ -65,7 +65,7 @@ const Layout = ({
       
       <footer className="py-6 pl-20 pr-6 border-t border-border/50">
         <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between text-sm text-muted-foreground px-0">
-          <p>© {new Date().getFullYear()} Requlator. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Methis. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms</a>

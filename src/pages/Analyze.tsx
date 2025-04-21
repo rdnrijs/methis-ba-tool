@@ -30,7 +30,8 @@ const Analyze = () => {
     showApiConfig,
     setShowApiConfig,
     error,
-    setError
+    setError,
+    clearStoredData
   } = useAnalyze();
 
   const {
@@ -86,6 +87,16 @@ const Analyze = () => {
     setShowApiConfig(false);
   };
 
+  // Handle navigation back to the input form without clearing stored data
+  const handleBackClick = () => {
+    setResult(null);
+  };
+
+  // Handle clearing all stored data and returning to the input form
+  const handleClearAndBackClick = () => {
+    clearStoredData();
+  };
+
   return (
     <Layout>
       <div className="py-8">
@@ -119,13 +130,14 @@ const Analyze = () => {
         ) : (
           <RequirementResults 
             result={result} 
-            tokenUsage={tokenUsage!} 
+            tokenUsage={tokenUsage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }} 
             clientRequest={clientRequest} 
             stakeholders={stakeholders} 
             systems={systems} 
             companyContext={companyContext}
             clientContext={clientContext}
-            onBackClick={() => setResult(null)}
+            onBackClick={handleBackClick}
+            onClearClick={handleClearAndBackClick}
             onConfigureClick={() => setShowApiConfig(true)}
           />
         )}

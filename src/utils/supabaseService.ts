@@ -221,3 +221,31 @@ export async function getAllSampleData(): Promise<SampleData[]> {
     return [];
   }
 }
+
+export async function getSystemPromptById(id: string): Promise<SystemPrompt | null> {
+  console.log(`Fetching system prompt with ID: ${id}...`);
+  
+  try {
+    const { data, error } = await supabase
+      .from('system_prompts')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error) {
+      console.error(`Error fetching system prompt with ID ${id}:`, error);
+      return null;
+    }
+    
+    if (!data) {
+      console.warn(`No system prompt found with ID: ${id}`);
+      return null;
+    }
+    
+    console.log(`Successfully loaded system prompt with ID: ${id}`);
+    return data;
+  } catch (e) {
+    console.error(`Exception while fetching system prompt with ID ${id}:`, e);
+    return null;
+  }
+}

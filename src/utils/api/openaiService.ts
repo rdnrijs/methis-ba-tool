@@ -36,6 +36,13 @@ export const analyzeWithOpenAI = async (
     const content = data.choices[0].message.content;
     const result = extractJsonFromResponse(content);
 
+    // Convert OpenAI's snake_case to our camelCase
+    const tokenUsage: TokenUsage = {
+      promptTokens: data.usage.prompt_tokens,
+      completionTokens: data.usage.completion_tokens,
+      totalTokens: data.usage.total_tokens
+    };
+
     // Log the interaction with complete response
     logLLMInput({
       timestamp: new Date().toISOString(),
@@ -43,16 +50,14 @@ export const analyzeWithOpenAI = async (
       userInput: clientRequest,
       model,
       response: content,
-      tokenUsage: {
-        promptTokens: data.usage.prompt_tokens,
-        completionTokens: data.usage.completion_tokens,
-        totalTokens: data.usage.total_tokens
-      }
+      tokenUsage
     });
+
+    console.log('OpenAI token usage:', tokenUsage);
 
     return {
       result,
-      tokenUsage: data.usage
+      tokenUsage
     };
   } catch (error) {
     console.error('Error analyzing requirements with OpenAI:', error);
