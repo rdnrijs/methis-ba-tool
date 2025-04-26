@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { 
   Users,
   Database,
-  Building
+  Building,
+  Paperclip
 } from 'lucide-react';
 import { estimateTokenCount } from '@/utils/openAIService';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,15 @@ import ClientSelector from './ClientSelector';
 import { Client } from '@/utils/supabaseService';
 import TemplateSelector from './TemplateSelector';
 import PromptConfig from '@/components/PromptConfig';
+import { FileAttachment, FileAttachment as FileAttachmentType } from '@/components/ui/file-attachment';
+import { storeAttachment, getAttachment, deleteAttachment, extractTextFromAttachments } from '@/utils/fileStorageUtils';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import { getAllSampleData, getSampleDataById } from '@/utils/supabaseService';
 
 interface RequestInputProps {
   onSubmit: (request: string, context: string, stakeholders: string, systems: string, companyContext: string, clientContext: string) => void;
@@ -54,7 +64,51 @@ const RequestInput = ({
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [tokenCount, setTokenCount] = useState(0);
   const [template, setTemplate] = useState('blank');
-  
+  const [attachments, setAttachments] = useState<FileAttachmentType[]>([]);
+  const [sampleDropdownOpen, setSampleDropdownOpen] = useState(false);
+  const [sampleOptions, setSampleOptions] = useState<{ id: string; name: string }[]>([]);
+  const [isLoadingSamples, setIsLoadingSamples] = useState(false);
+
+  // Load attachments from IndexedDB on mount
+  useEffect(() => {
+    (async () => {
+      // For demo: load all attachments (could be filtered by session/user)
+      // You may want to implement getAllAttachments utility for bulk load
+      setAttachments([]); // Placeholder: implement getAllAttachments if needed
+    })();
+  }, []);
+
+  // Add new attachments and persist
+  const handleAttach = async (newAttachments: FileAttachmentType[]) => {
+    setAttachments(newAttachments);
+    // Persist each new attachment
+    for (const att of newAttachments) {
+      await storeAttachment(att);
+    }
+  };
+
+  // Remove attachment and update storage
+  const handleRemove = async (id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+    await deleteAttachment(id);
+  };
+
+  // Extract text from all attachments for token counting and prompt
+  const [attachmentsText, setAttachmentsText] = useState('');
+  useEffect(() => {
+    (async () => {
+      const text = await extractTextFromAttachments(attachments);
+      setAttachmentsText(text);
+    })();
+  }, [attachments]);
+
+  useEffect(() => {
+    // Estimate token count for all fields combined, including attachments
+    const allText = clientRequest + stakeholders + systems + companyContext + clientContext + attachmentsText;
+    const total = estimateTokenCount(allText);
+    setTokenCount(total);
+  }, [clientRequest, stakeholders, systems, companyContext, clientContext, attachmentsText]);
+
   // Update local state when initialData changes
   useEffect(() => {
     if (initialData) {
@@ -66,13 +120,6 @@ const RequestInput = ({
     }
   }, [initialData]);
   
-  useEffect(() => {
-    // Estimate token count for all fields combined
-    const allText = clientRequest + stakeholders + systems + companyContext + clientContext;
-    const total = estimateTokenCount(allText);
-    setTokenCount(total);
-  }, [clientRequest, stakeholders, systems, companyContext, clientContext]);
-
   const handleClientSelect = (client: Client | null) => {
     setSelectedClient(client);
     if (client) {
@@ -80,31 +127,67 @@ const RequestInput = ({
     }
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!clientRequest.trim()) {
       return;
     }
-    
-    // Combine all context fields into a structured format
+    // Combine all context fields into a structured format, including attachments
     const contextData = [
       stakeholders && `Stakeholders: ${stakeholders}`,
       systems && `Systems & Applications: ${systems}`,
       clientContext && `Client Context: ${clientContext}`,
-      companyContext && `Business Process Context: ${companyContext}`
+      companyContext && `Business Process Context: ${companyContext}`,
+      attachmentsText && `\n\n--- Attachments ---\n${attachmentsText}`
     ].filter(Boolean).join('\n\n');
-    
     onSubmit(clientRequest, contextData, stakeholders, systems, companyContext, clientContext);
   };
-  
+
+  // Fetch all samples when dropdown is opened
+  const handleOpenChange = async (open: boolean) => {
+    setSampleDropdownOpen(open);
+    if (open && sampleOptions.length === 0) {
+      setIsLoadingSamples(true);
+      const samples = await getAllSampleData();
+      setSampleOptions(samples.map(s => ({ id: s.id, name: s.name })));
+      setIsLoadingSamples(false);
+    }
+  };
+
+  // Load a sample by ID and update form fields
+  const handleSampleSelect = async (id: string) => {
+    setSampleDropdownOpen(false);
+    const sample = await getSampleDataById(id);
+    if (sample) {
+      setClientRequest(sample.client_request || '');
+      setStakeholders(sample.stakeholders || '');
+      setSystems(sample.systems || '');
+      setCompanyContext(sample.processes_context || '');
+      // setClientContext(sample.clientContext || ''); // clientContext removed
+    }
+  };
+
   return (
     <div className="space-y-4 w-full max-w-3xl mx-auto">
       <Card className="w-full glass-card animate-scale-in animate-once">
         <CardHeader className="pb-0">
           <div className="flex justify-end gap-2">
-            <TemplateSelector
-              onLoadSample={onLoadSample}
-              isLoadingSample={isLoadingSample}
-            />
+            <DropdownMenu open={sampleDropdownOpen} onOpenChange={handleOpenChange}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={isLoadingSamples}>
+                  {isLoadingSamples ? 'Loading...' : 'Load Sample'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {sampleOptions.length === 0 && (
+                  <DropdownMenuItem disabled>No samples found</DropdownMenuItem>
+                )}
+                {sampleOptions.map((sample) => (
+                  <DropdownMenuItem key={sample.id} onSelect={() => handleSampleSelect(sample.id)}>
+                    {sample.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <PromptConfig />
           </div>
         </CardHeader>
@@ -112,11 +195,14 @@ const RequestInput = ({
           <div className="space-y-6">
             <ClientSelector onClientSelect={handleClientSelect} />
             
-            <ClientRequestField 
-              clientRequest={clientRequest}
-              onChange={setClientRequest}
-              showButtons={false}
-            />
+            {/* Client request as a standalone section */}
+            <div className="space-y-1">
+              <ClientRequestField 
+                clientRequest={clientRequest}
+                onChange={setClientRequest}
+                showButtons={false}
+              />
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -171,21 +257,25 @@ const RequestInput = ({
               </div>
             </div>
             
-            <div className="space-y-1">
-              <div className="flex items-center">
-                <Building className="h-5 w-5 mr-2 text-primary" />
-                <Label htmlFor="clientContext" className="text-sm font-medium">Client Context</Label>
+            {/* Attachments section moved to the bottom */}
+            <div className="space-y-2 border border-input rounded-md p-4">
+              <div className="flex items-center mb-2">
+                <Paperclip className="h-5 w-5 mr-2 text-primary" />
+                <Label className="text-sm font-medium">Attachments</Label>
               </div>
-              <textarea
-                id="clientContext"
-                placeholder="Information about the client organization..."
-                value={clientContext}
-                onChange={(e) => setClientContext(e.target.value)}
-                className="min-h-[100px] resize-y w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              <FileAttachment 
+                attachments={attachments}
+                onAttach={handleAttach}
+                onRemove={handleRemove}
+                maxSize={10}
+                maxFiles={5}
+                accept=".txt,.pdf,.docx,.pptx,.md,.json,.csv"
               />
-              <div className="text-xs text-muted-foreground text-right">
-                {clientContext.length} characters / ~{estimateTokenCount(clientContext)} tokens
-              </div>
+              {attachments.length > 0 && (
+                <div className="text-xs text-muted-foreground text-right mt-1">
+                  ~{estimateTokenCount(attachmentsText)} tokens from attachments
+                </div>
+              )}
             </div>
             
             <SubmitButton 
