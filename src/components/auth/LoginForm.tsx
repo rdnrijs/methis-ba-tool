@@ -34,7 +34,6 @@ const LoginForm = ({ switchToReset }: LoginFormProps) => {
     try {
       setLoading(true);
       console.log('Attempting to sign in with Supabase...');
-      console.log('Supabase URL:', supabase.supabaseUrl);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
