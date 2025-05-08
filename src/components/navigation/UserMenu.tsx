@@ -11,16 +11,33 @@ import {
 import { LogOut, ClipboardList, Key } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { clearApiKeys } from '@/utils/storageUtils';
+import { clearLLMLogs } from '@/utils/loggingService';
+import { clearAttachments } from '@/utils/fileStorageUtils';
+import { useAnalyze } from '@/contexts/AnalyzeContext';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { clearStoredData } = useAnalyze();
   
   if (!user) return null;
   
   const userInitials = user.email ? user.email.substring(0, 2).toUpperCase() : 'U';
   
   const handleSignOut = async () => {
+    // Clear all user data for security
+    clearStoredData(); // Clear analysis state and inputs
+    clearApiKeys(); // Clear stored API keys
+    clearLLMLogs(); // Clear interaction logs
+    
+    try {
+      await clearAttachments(); // Clear any file attachments
+    } catch (error) {
+      console.error('Error clearing attachments:', error);
+    }
+    
+    // Finally sign out
     await signOut();
     toast.success('Successfully signed out');
   };

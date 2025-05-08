@@ -1,15 +1,20 @@
-import { Home, FileText, BarChart2, History } from 'lucide-react';
+import { Home, FileText, BarChart2, History as HistoryIcon } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAnalyze } from '@/contexts/AnalyzeContext';
+import { useContext } from 'react';
+import { AnalyzeContext } from '@/contexts/AnalyzeContext';
+import type { RecentAnalysisEntry } from '@/contexts/AnalyzeContext';
+import { useState, useCallback } from 'react';
 
 const Ribbon = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { result } = useAnalyze();
-  
+  const { result, recentResults, resetCurrentAnalysis, activateLatestResult } = useAnalyze();
+  const analyzeContext = useContext(AnalyzeContext);
+
   const isActive = (path: string) => {
     return location.pathname === path;
   };
@@ -27,11 +32,9 @@ const Ribbon = () => {
     navigate(path);
   };
 
-  const handleResultsClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (result) {
-      navigate('/analyze');
-    }
+  const formatDate = (timestamp: number) => {
+    const d = new Date(timestamp);
+    return d.toLocaleString();
   };
 
   const getTooltipContent = (stage: string) => {
@@ -48,7 +51,16 @@ const Ribbon = () => {
         return "";
     }
   };
-  
+
+  // Handler for starting a new analysis
+  const handleStartNewAnalysis = useCallback(() => {
+    resetCurrentAnalysis();
+    if (analyzeContext && typeof analyzeContext.setShowInput === 'function') {
+      analyzeContext.setShowInput(true);
+    }
+    navigate('/analyze');
+  }, [resetCurrentAnalysis, navigate, analyzeContext]);
+
   return (
     <div className="fixed left-4 top-1/2 transform -translate-y-1/2 bg-background border border-border/50 rounded-full shadow-lg p-2 z-50">
       <div className="flex flex-col items-center space-y-2">
@@ -74,62 +86,56 @@ const Ribbon = () => {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleNavigation('/analyze')}
-              className={cn(
-                "rounded-full",
-                isActive('/analyze') && !result && "bg-accent text-accent-foreground"
-              )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleStartNewAnalysis}
+              className={cn("rounded-full")}
             >
               <FileText className="h-5 w-5" />
-              <span className="sr-only">Input</span>
+              <span className="sr-only">Start a new analysis</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>{getTooltipContent('input')}</p>
+            <p>Start a new analysis</p>
           </TooltipContent>
         </Tooltip>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleResultsClick}
-              className={cn(
-                "rounded-full",
-                isActive('/analyze') && result && "bg-accent text-accent-foreground",
-                !result && "opacity-50 cursor-not-allowed"
-              )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                activateLatestResult();
+                navigate('/analyze');
+              }}
+              className={cn("rounded-full")}
+              disabled={recentResults.length === 0}
             >
               <BarChart2 className="h-5 w-5" />
-              <span className="sr-only">Results</span>
+              <span className="sr-only">Latest Output</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>{getTooltipContent('results')}</p>
+            <p>Show latest output</p>
           </TooltipContent>
         </Tooltip>
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleNavigation('/logs')}
-              className={cn(
-                "rounded-full",
-                isActive('/logs') && "bg-accent text-accent-foreground"
-              )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/history')}
+              className={cn("rounded-full")}
             >
-              <History className="h-5 w-5" />
-              <span className="sr-only">Logs</span>
+              <HistoryIcon className="h-5 w-5" />
+              <span className="sr-only">History</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>{getTooltipContent('logs')}</p>
+            <p>History</p>
           </TooltipContent>
         </Tooltip>
       </div>

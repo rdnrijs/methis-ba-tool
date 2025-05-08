@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Layout from '@/components/Layout';
 import RequestInput from '@/components/request/RequestInput';
 import RequirementResults from '@/components/RequirementResults';
@@ -10,6 +10,7 @@ import { useAnalyze } from '@/contexts/AnalyzeContext';
 import ErrorDisplay from '@/components/analyze/ErrorDisplay';
 import BackButton from '@/components/analyze/BackButton';
 import PromptConfig from '@/components/PromptConfig';
+import { AnalyzeContext } from '@/contexts/AnalyzeContext';
 
 const Analyze = () => {
   const {
@@ -31,14 +32,25 @@ const Analyze = () => {
     setShowApiConfig,
     error,
     setError,
-    clearStoredData
+    clearStoredData,
+    setShowInput: contextSetShowInput
   } = useAnalyze();
+  const analyzeContext = useContext(AnalyzeContext);
 
   const {
     handleSubmit: submitAnalysis,
     checkApiKey,
     handleConfigureApiClick,
   } = useAnalyzeRequirements();
+
+  const [showInput, setShowInput] = useState(!result);
+
+  // Sync local showInput with context so Ribbon can control it
+  useEffect(() => {
+    if (analyzeContext && typeof analyzeContext.setShowInput === 'function') {
+      analyzeContext.setShowInput(showInput);
+    }
+  }, [showInput, analyzeContext]);
 
   // Check if API key is configured
   useEffect(() => {
@@ -77,6 +89,7 @@ const Analyze = () => {
     try {
       console.log('Submitting request:', request);
       await submitAnalysis(request, context, stakeholdersData, systemsData, companyContextData, clientContextData);
+      setShowInput(false);
     } catch (err) {
       console.error('Error in handleSubmit:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -89,12 +102,13 @@ const Analyze = () => {
 
   // Handle navigation back to the input form without clearing stored data
   const handleBackClick = () => {
-    setResult(null);
+    setShowInput(true);
   };
 
   // Handle clearing all stored data and returning to the input form
   const handleClearAndBackClick = () => {
     clearStoredData();
+    setShowInput(true);
   };
 
   return (
@@ -105,7 +119,7 @@ const Analyze = () => {
             onConfigured={handleApiConfigured} 
             provider={getSelectedProvider() as 'openai' | 'google'}
           />
-        ) : !result ? (
+        ) : showInput ? (
           <>
             <RequestInput 
               onSubmit={handleSubmit} 
@@ -119,6 +133,8 @@ const Analyze = () => {
                 companyContext,
                 clientContext
               }}
+              storedResult={result}
+              onContinueResult={() => setShowInput(false)}
             />
             {error && (
               <ErrorDisplay 
@@ -127,7 +143,7 @@ const Analyze = () => {
               />
             )}
           </>
-        ) : (
+        ) : result && Object.keys(result).length > 0 ? (
           <RequirementResults 
             result={result} 
             tokenUsage={tokenUsage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }} 
@@ -140,7 +156,7 @@ const Analyze = () => {
             onClearClick={handleClearAndBackClick}
             onConfigureClick={() => setShowApiConfig(true)}
           />
-        )}
+        ) : null}
       </div>
     </Layout>
   );

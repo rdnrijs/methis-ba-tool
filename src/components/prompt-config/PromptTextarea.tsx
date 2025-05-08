@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -15,9 +14,11 @@ const PromptTextarea = ({ systemPrompt, isLoading, onChange }: PromptTextareaPro
   
   return (
     <div className="space-y-4 my-4">
-      <Label htmlFor="systemPrompt">System Prompt Instructions</Label>
+      <Label htmlFor="systemPrompt" className="text-lg font-bold">
+        System Prompt Instructions
+      </Label>
       {isLoading ? (
-        <div className="h-[400px] flex items-center justify-center bg-muted/20">
+        <div className="h-[200px] flex items-center justify-center bg-muted/20">
           <RefreshCw className="h-6 w-6 animate-spin opacity-50" />
         </div>
       ) : isEmpty ? (
@@ -31,7 +32,7 @@ const PromptTextarea = ({ systemPrompt, isLoading, onChange }: PromptTextareaPro
           id="systemPrompt"
           value={systemPrompt}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-[400px] font-mono text-sm"
+          className="min-h-[150px] font-mono text-sm"
           placeholder="Enter custom prompt instructions..."
         />
       )}

@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import APIConfig from "./pages/APIConfig";
 import Auth from "./pages/Auth";
 import Logs from "./pages/Logs";
+import History from './pages/History';
 import { AuthProvider } from "./contexts/AuthContext";
 import { AnalyzeProvider } from "./contexts/AnalyzeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -38,6 +39,11 @@ const App = () => (
               <Route path="/logs" element={
                 <ProtectedRoute>
                   <Logs />
+                </ProtectedRoute>
+              } />
+              <Route path="/history" element={
+                <ProtectedRoute>
+                  <History />
                 </ProtectedRoute>
               } />
               <Route path="/auth" element={<Auth />} />

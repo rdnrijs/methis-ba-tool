@@ -9,8 +9,16 @@ const STORAGE_KEYS = {
   STAKEHOLDERS: 'methis_stakeholders',
   SYSTEMS: 'methis_systems',
   COMPANY_CONTEXT: 'methis_company_context',
-  CLIENT_CONTEXT: 'methis_client_context'
+  CLIENT_CONTEXT: 'methis_client_context',
+  RECENT_RESULTS: 'methis_recent_results',
 };
+
+// Add a type for recent result entries
+export interface RecentAnalysisEntry {
+  result: RequirementAnalysisResult;
+  title: string;
+  created: number;
+}
 
 interface AnalyzeContextType {
   isLoading: boolean;
@@ -34,9 +42,15 @@ interface AnalyzeContextType {
   error: string | null;
   setError: (error: string | null) => void;
   clearStoredData: () => void;
+  resetCurrentAnalysis: () => void;
+  setShowInput?: (show: boolean) => void;
+  recentResults: RecentAnalysisEntry[];
+  activateResult: (index: number) => void;
+  activateLatestResult: () => void;
+  removeResult: (index: number) => void;
 }
 
-const AnalyzeContext = createContext<AnalyzeContextType | undefined>(undefined);
+export const AnalyzeContext = createContext<AnalyzeContextType | undefined>(undefined);
 
 // Helper function to safely parse JSON from localStorage
 const getStoredItem = <T,>(key: string, defaultValue: T): T => {
@@ -91,12 +105,32 @@ export const AnalyzeProvider = ({ children }: { children: ReactNode }) => {
   );
   const [showApiConfig, setShowApiConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showInput, setShowInput] = useState(true);
+  const [recentResults, setRecentResults] = useState<RecentAnalysisEntry[]>(
+    getStoredItem(STORAGE_KEYS.RECENT_RESULTS, [])
+  );
 
   // Update localStorage when state changes
   useEffect(() => {
-    if (result) {
+    // Only add to recentResults if result is not null, is a non-empty object, and clientRequest is non-empty
+    if (
+      result &&
+      Object.keys(result).length > 0 &&
+      clientRequest && clientRequest.trim().length > 0
+    ) {
       localStorage.setItem(STORAGE_KEYS.RESULT, JSON.stringify(result));
-    } else {
+      setRecentResults(prev => {
+        const entry: RecentAnalysisEntry = {
+          result,
+          title: clientRequest,
+          created: Date.now(),
+        };
+        // Dedupe by result JSON
+        const updated = [entry, ...prev.filter(r => JSON.stringify(r.result) !== JSON.stringify(result))].slice(0, 3);
+        localStorage.setItem(STORAGE_KEYS.RECENT_RESULTS, JSON.stringify(updated));
+        return updated;
+      });
+    } else if (result === null) {
       localStorage.removeItem(STORAGE_KEYS.RESULT);
     }
   }, [result]);
@@ -151,6 +185,47 @@ export const AnalyzeProvider = ({ children }: { children: ReactNode }) => {
     setClientContext('');
   };
 
+  // Function to clear only the current analysis, not the history
+  const resetCurrentAnalysis = () => {
+    setResult(null);
+    setTokenUsage(null);
+    setClientRequest('');
+    setStakeholders('');
+    setSystems('');
+    setCompanyContext('');
+    setClientContext('');
+    // Do NOT clear recentResults or its localStorage
+    localStorage.removeItem(STORAGE_KEYS.RESULT);
+    localStorage.removeItem(STORAGE_KEYS.TOKEN_USAGE);
+    localStorage.removeItem(STORAGE_KEYS.CLIENT_REQUEST);
+    localStorage.removeItem(STORAGE_KEYS.STAKEHOLDERS);
+    localStorage.removeItem(STORAGE_KEYS.SYSTEMS);
+    localStorage.removeItem(STORAGE_KEYS.COMPANY_CONTEXT);
+    localStorage.removeItem(STORAGE_KEYS.CLIENT_CONTEXT);
+  };
+
+  const activateResult = (index: number) => {
+    const selected = recentResults[index];
+    if (selected) {
+      setResult(selected.result);
+      if (typeof setShowInput === 'function') setShowInput(false);
+    }
+  };
+
+  const activateLatestResult = () => {
+    if (recentResults.length > 0) {
+      activateResult(0);
+    }
+  };
+
+  const removeResult = (index: number) => {
+    setRecentResults(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      localStorage.setItem(STORAGE_KEYS.RECENT_RESULTS, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const value = {
     isLoading,
     setIsLoading,
@@ -173,6 +248,12 @@ export const AnalyzeProvider = ({ children }: { children: ReactNode }) => {
     error,
     setError,
     clearStoredData,
+    resetCurrentAnalysis,
+    setShowInput,
+    recentResults,
+    activateResult,
+    activateLatestResult,
+    removeResult,
   };
 
   return <AnalyzeContext.Provider value={value}>{children}</AnalyzeContext.Provider>;

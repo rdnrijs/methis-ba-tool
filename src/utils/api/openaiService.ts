@@ -2,6 +2,19 @@ import { OpenAIResponse, TokenUsage } from './types';
 import { extractJsonFromResponse } from './promptUtils';
 import { logLLMInput } from '../loggingService';
 
+const LANGUAGE_INSTRUCTION = {
+  english: 'IMPORTANT – Language rule:\nYou must respond exclusively in English, including all descriptions, explanations and follow-up questions, and JSON values.',
+  french: 'IMPORTANT – Language rule:\nVous devez répondre exclusivement en français, y compris toutes les descriptions, justifications, valeurs de JSON et questions de suivi. N’utilisez jamais l’anglais.',
+  dutch: 'IMPORTANT – Language rule:\nU moet uitsluitend in het Nederlands antwoorden, inclusief alle functionele en non-functionele specificaties, toelichtingen, vervolgvragen en waarden in JSON. Gebruik nooit Engels.',
+};
+const LANGUAGE_STORAGE_KEY = 'methis_selected_language';
+
+function getSelectedLanguage() {
+  return (
+    (typeof window !== 'undefined' && localStorage.getItem(LANGUAGE_STORAGE_KEY)) || 'english'
+  );
+}
+
 // Analyze with OpenAI API
 export const analyzeWithOpenAI = async (
   clientRequest: string,
@@ -10,6 +23,22 @@ export const analyzeWithOpenAI = async (
   model: string = 'gpt-4-turbo-preview'
 ): Promise<OpenAIResponse> => {
   try {
+    const lang = getSelectedLanguage();
+    const languageInstruction = LANGUAGE_INSTRUCTION[lang];
+    const mergedPrompt = `${systemPrompt.trim()}\n\n${languageInstruction}`;
+
+    // Enhanced logging
+    console.log('[OpenAI] Selected language:', lang);
+    console.log('[OpenAI] LANGUAGE_INSTRUCTION used:', languageInstruction);
+    console.log('[OpenAI] Merged system prompt sent:', mergedPrompt);
+
+    const messages = [
+      { role: 'system', content: mergedPrompt },
+      { role: 'user', content: clientRequest }
+    ];
+
+    console.log('[OpenAI] Messages sent:', messages);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -18,10 +47,7 @@ export const analyzeWithOpenAI = async (
       },
       body: JSON.stringify({
         model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: clientRequest }
-        ],
+        messages,
         temperature: 0.7
       })
     });

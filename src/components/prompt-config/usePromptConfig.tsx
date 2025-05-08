@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { saveCustomPrompt, getCustomPrompt, getApiKey } from '@/utils/storageUtils';
@@ -80,6 +79,21 @@ export const usePromptConfig = (isOpen: boolean) => {
     // Make sure it instructs to return JSON
     if (!systemPrompt.toLowerCase().includes('json')) {
       setValidationError("Prompt must instruct the model to return a JSON response.");
+      return false;
+    }
+
+    // Prevent user from adding their own language instructions
+    const forbiddenLanguagePhrases = [
+      "respond in english",
+      "répondez en français",
+      "antwoord in het nederlands",
+      "always respond in english",
+      "always respond in french",
+      "always respond in dutch",
+      // Add more as needed
+    ];
+    if (forbiddenLanguagePhrases.some(phrase => systemPrompt.toLowerCase().includes(phrase))) {
+      setValidationError("Please do not include language instructions in the prompt. Use the language selector instead.");
       return false;
     }
 
