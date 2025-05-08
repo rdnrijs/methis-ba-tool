@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,23 +33,32 @@ const LoginForm = ({ switchToReset }: LoginFormProps) => {
     
     try {
       setLoading(true);
+      console.log('Attempting to sign in with Supabase...');
+      console.log('Supabase URL:', supabase.supabaseUrl);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Supabase auth error:', error);
         setValidationError(error.message);
+        toast.error(`Login error: ${error.message}`);
         return;
       }
 
       if (data.user) {
+        console.log('Successfully signed in:', data.user.email);
         toast.success('Successfully signed in!');
         navigate('/analyze');
+      } else {
+        setValidationError('No user returned after successful login');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing in:', error);
-      setValidationError('An unexpected error occurred. Please try again.');
+      setValidationError(`An unexpected error occurred: ${error.message || 'Please try again.'}`);
+      toast.error('Login failed');
     } finally {
       setLoading(false);
     }
