@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      client: {
+        Row: {
+          client_context: string | null
+          client_name: string | null
+          id: string
+        }
+        Insert: {
+          client_context?: string | null
+          client_name?: string | null
+          id?: string
+        }
+        Update: {
+          client_context?: string | null
+          client_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -33,30 +51,30 @@ export type Database = {
       sample_data: {
         Row: {
           client_request: string
-          processes_context: string | null
           created_at: string
           id: string
           name: string
+          processes_context: string | null
           stakeholders: string | null
           systems: string | null
           updated_at: string
         }
         Insert: {
           client_request: string
-          processes_context?: string | null
           created_at?: string
           id?: string
           name: string
+          processes_context?: string | null
           stakeholders?: string | null
           systems?: string | null
           updated_at?: string
         }
         Update: {
           client_request?: string
-          processes_context?: string | null
           created_at?: string
           id?: string
           name?: string
+          processes_context?: string | null
           stakeholders?: string | null
           systems?: string | null
           updated_at?: string

@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -19,4 +20,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Ensure these environment variables are defined even if not present
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://qwcgufoffpkgynpcxvdl.supabase.co'),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3Y2d1Zm9mZnBrZ3lucGN4dmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI5MzAzNDksImV4cCI6MjA1ODUwNjM0OX0.G0PNg27G3K4O7gqpCt9XLSJhmsSn6Cjcomj6QtbZE_E')
+  }
 }));
