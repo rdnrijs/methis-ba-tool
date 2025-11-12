@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      client: {
+        Row: {
+          client_context: string
+          client_name: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          client_context?: string
+          client_name: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          client_context?: string
+          client_name?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sample_data: {
+        Row: {
+          client_request: string
+          created_at: string
+          id: string
+          name: string
+          processes_context: string | null
+          stakeholders: string | null
+          systems: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_request: string
+          created_at?: string
+          id?: string
+          name: string
+          processes_context?: string | null
+          stakeholders?: string | null
+          systems?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_request?: string
+          created_at?: string
+          id?: string
+          name?: string
+          processes_context?: string | null
+          stakeholders?: string | null
+          systems?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      system_prompts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
