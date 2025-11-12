@@ -23,6 +23,6 @@ export default defineConfig(({ mode }) => ({
   define: {
     // Ensure these environment variables are defined even if not present
     'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://rniaqgzpqifthjdkkjvp.supabase.co'),
-    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJuaWFxZ3pwcWlmdGhqZGtranZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzQwMDAsImV4cCI6MjA3ODU1MDAwMH0.Bc0P_TlGE6I6khBMxWcwOeKp0bTvQDSitnA6bO5P8Pk')
+    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJuaWFxZ3pwcWlmdGhqZGtranZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzQwMDAsImV4cCI6MjA3ODU1MDAwMH0.Bc0P_TlGE6I6khBMxWcwOeKp0bTvQDSitnA6bO5P8Pk')
   }
 }));
