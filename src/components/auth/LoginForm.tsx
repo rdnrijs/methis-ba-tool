@@ -16,8 +16,12 @@ interface LoginFormProps {
 
 const LoginForm = ({ switchToReset }: LoginFormProps) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // Test credentials - set to empty strings to disable auto-login
+  const TEST_EMAIL = 'nick.rodenrijs@methisconsulting.com';
+  const TEST_PASSWORD = 'test123';
+  
+  const [email, setEmail] = useState(TEST_EMAIL);
+  const [password, setPassword] = useState(TEST_PASSWORD);
   const [loading, setLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
